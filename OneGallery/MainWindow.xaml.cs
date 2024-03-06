@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -9,6 +11,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -23,16 +26,26 @@ namespace OneGallery
     {
         TreeViewNode personalFolder;
 
+        readonly String appTitleText = "OneGallery";
+        Stack view_history = new();
+
         public MainWindow()
         {
             this.InitializeComponent();
-            
+
 
 
             this.ExtendsContentIntoTitleBar = true;
 
             this.TrySetAcrylicBackdrop();
-            this.InitializeSampleTreeView();
+
+            this.SetTitleBar(AppTitleBar);
+
+            Nv.SelectedItem = Nv.MenuItems[0];
+            NavView_Navigate(typeof(HomePage), new EntranceNavigationTransitionInfo());
+            // this.InitializeSampleTreeView();
+
+
         }
         bool TrySetAcrylicBackdrop()
         {
@@ -47,36 +60,89 @@ namespace OneGallery
             return false; // Acrylic is not supported on this system
         }
 
-        private void InitializeSampleTreeView()
+        private void NavView_Navigate(
+            Type navPageType,
+            NavigationTransitionInfo transitionInfo)
         {
-            TreeViewNode workFolder = new TreeViewNode() { Content = "Work Documents" };
-            workFolder.IsExpanded = true;
+            // Get the page type before navigation so you can prevent duplicate
+            // entries in the backstack.
+            Type preNavPageType = Nv_page.CurrentSourcePageType;
 
-            workFolder.Children.Add(new TreeViewNode() { Content = "XYZ Functional Spec" });
-            workFolder.Children.Add(new TreeViewNode() { Content = "Feature Schedule" });
-            workFolder.Children.Add(new TreeViewNode() { Content = "Overall Project Plan" });
-            workFolder.Children.Add(new TreeViewNode() { Content = "Feature Resources Allocation" });
-
-            TreeViewNode remodelFolder = new TreeViewNode() { Content = "Home Remodel" };
-            remodelFolder.IsExpanded = true;
-
-            remodelFolder.Children.Add(new TreeViewNode() { Content = "Contractor Contact Info" });
-            remodelFolder.Children.Add(new TreeViewNode() { Content = "Paint Color Scheme" });
-            remodelFolder.Children.Add(new TreeViewNode() { Content = "Flooring woodgrain type" });
-            remodelFolder.Children.Add(new TreeViewNode() { Content = "Kitchen cabinet style" });
-
-            personalFolder = new TreeViewNode() { Content = "Personal Documents" };
-            personalFolder.IsExpanded = true;
-            personalFolder.Children.Add(remodelFolder);
-
-            sampleTreeView.RootNodes.Add(workFolder);
-            sampleTreeView.RootNodes.Add(personalFolder);
-            sampleTreeView.IsHoldingEnabled = false;
+            // Only navigate if the selected page isn't currently loaded.
+            if (navPageType is not null && !Type.Equals(preNavPageType, navPageType))
+            {
+                Nv_page.Navigate(navPageType, null, transitionInfo);
+            }
         }
 
-        private void sampleTreeView_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
+        private bool Nv_ChangePage(String page)
         {
-            return;
+            Debug.Print(page + "\n");
+            if (page == "HomePage" || page == "SettingPage" || page == "SamplePage2")
+            {
+                string pageName = "OneGallery." + page;
+                Type pageType = Type.GetType(pageName);
+                Nv_page.Navigate(pageType);
+                view_history.Push(page);
+                return true;
+            }
+            
+            return false;
         }
+
+        private void Nv_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+        {
+            /* NOTE: for this function to work, every NavigationView must follow the same naming convention: nvSample# (i.e. nvSample3),
+            and every corresponding content frame must follow the same naming convention: contentFrame# (i.e. contentFrame3) */
+
+            // Get the sample number
+            string ChoosePage = sender.Name;
+            Debug.Print(ChoosePage + "\n");
+
+            if (args.IsSettingsSelected)
+            {
+                Nv_ChangePage("SettingPage");
+                //Nv_page.Navigate(typeof(SettingPage));
+            }
+            else
+            {
+                var selectedItem = (NavigationViewItem)args.SelectedItem;
+                string page = ((string)selectedItem.Tag);
+                Nv_ChangePage(page);
+
+                //    var selectedItem = (Microsoft.UI.Xaml.Controls.NavigationViewItem)args.SelectedItem;
+                //    string selectedItemTag = ((string)selectedItem.Tag);
+                //    sender.Header = "Sample Page " + selectedItemTag.Substring(selectedItemTag.Length - 1);
+                //    string pageName = "WinUIGallery.SamplePages." + selectedItemTag;
+                //    Type pageType = Type.GetType(pageName);
+                //    contentFrame8.Navigate(pageType);
+            }
+        }
+
+        private void Nv_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+        {
+            //if (view_history.Count <= 1)
+            //{
+            //    return;
+            //}
+
+            //string last_page = (string)view_history.Pop();
+
+            //Nv_ChangePage(last_page);
+            //Frame rootFrame = Current.Content as Frame;
+
+            if (Nv_page.CanGoBack)
+            {
+                Nv_page.GoBack();
+
+            }
+
+
+        }
+
+
+
+
+
     }
 }
