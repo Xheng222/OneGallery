@@ -21,9 +21,9 @@ namespace OneGallery
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class SettingPage : Page
+    public sealed partial class Settings : Page
     {
-        public SettingPage()
+        public Settings()
         {
             this.InitializeComponent();
         }
