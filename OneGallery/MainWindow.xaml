@@ -8,7 +8,13 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid>
+    <Grid x:Name="Grid">
+        <Grid.Resources>
+            <DataTemplate  x:Key="NavigationViewMenuItem" x:DataType="local:Category">
+                <NavigationViewItem Tag="{x:Bind Name}" Content="{x:Bind Name}" Icon="{x:Bind Icon}" MenuItemsSource="{x:Bind Children}"/>
+            </DataTemplate>
+        </Grid.Resources>
+        
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition />
@@ -40,45 +46,39 @@
             </StackPanel>
         </Border>
 
+         <!--SelectionChanged="Nv_SelectionChanged"-->
+
         <NavigationView x:Name="Nv" 
                         PaneDisplayMode="Left"
                         IsTabStop="False"
                         IsBackButtonVisible="Visible"
-                        IsBackEnabled="True"
                         PaneTitle=""
-                        SelectionChanged="Nv_SelectionChanged"
+                        ItemInvoked="NavView_ItemInvoked"
+                        SelectionChanged="NavView_SelectionChanged"
                         BackRequested="Nv_BackRequested"
+                        Loaded="Nv_Loaded"
                         Grid.RowSpan="2"
                         Grid.Column="1"
-                        Canvas.ZIndex="0">
+                        Canvas.ZIndex="0"
+                        MenuItemsSource="{x:Bind Categories, Mode=OneWay}"
+                        MenuItemTemplate="{StaticResource NavigationViewMenuItem}">
             <NavigationView.Resources>
                 <!-- This top margin is the height of the custom titleBar -->
-                <Thickness x:Key="NavigationViewContentMargin">0,36,0,0</Thickness>
-                <Thickness x:Key="NavigationViewMinimalContentMargin">0,36,0,0</Thickness>
+                <Thickness x:Key="NavigationViewContentMargin">0,48,0,0</Thickness>
+                <Thickness x:Key="NavigationViewMinimalContentMargin">0,48,0,0</Thickness>
                 <Thickness x:Key="NavigationViewContentGridBorderThickness">0,0,0,0</Thickness>
                 <!-- This is the rounded corner on the Top left of the L Pattern -->
                 <CornerRadius x:Key="NavigationViewContentGridCornerRadius">8,0,0,0</CornerRadius>
             </NavigationView.Resources>
 
-            <NavigationView.MenuItems>
-                <NavigationViewItem Content="Home" Icon="Home" ToolTipService.ToolTip="Home" Tag="HomePage"/>
-                
-                <NavigationViewItem Content="Account" Icon="Contact" ToolTipService.ToolTip="Account" Tag="SamplePage2">
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Mail" Icon="Mail" ToolTipService.ToolTip="Mail" Tag="SamplePage3"/>
-                        <NavigationViewItem Content="Calendar" Icon="Calendar" ToolTipService.ToolTip="Calendar" Tag="SamplePage4"/>
-                    </NavigationViewItem.MenuItems>
-                </NavigationViewItem>
-                
-                <NavigationViewItem Content="Document options" Icon="Page2" ToolTipService.ToolTip="Document options" SelectsOnInvoked="False">
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Create new" Icon="NewFolder" ToolTipService.ToolTip="Create new" Tag="SamplePage5"/>
-                        <NavigationViewItem Content="Upload file" Icon="OpenLocal" ToolTipService.ToolTip="Upload file" Tag="SamplePage6"/>
-                    </NavigationViewItem.MenuItems>
-                </NavigationViewItem>
-            </NavigationView.MenuItems>
-            
-            <Frame x:Name="Nv_page"/>
+            <Frame x:Name="Nv_page" Navigated="Nv_Page_Navigated">
+                <Frame.ContentTransitions>
+                    <TransitionCollection>
+                        <NavigationThemeTransition  />
+                    </TransitionCollection>
+                </Frame.ContentTransitions>
+
+            </Frame>
         </NavigationView>        
         
     </Grid>
