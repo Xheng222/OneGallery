@@ -48,8 +48,6 @@ namespace OneGallery
 
         private bool IsPaneOpened = true;
 
-        private Stack<string> HistoryPage = new();
-
         Stack<string> PartenPagemName = new();
 
         Dictionary<string, string> ParentDictionary = new Dictionary<string, string>();
@@ -150,6 +148,7 @@ namespace OneGallery
             if (navPageType is not null && !Equals(preNavPageType, navPageType))
             {
                 Nv_page.Navigate(navPageType, null);
+                
             }
         }
 
@@ -164,7 +163,6 @@ namespace OneGallery
                     if (!string.Equals(CurrentPage.Name, "Settings"))
                     {
                         Debug.Print("history " + CurrentPage.Name);
-                        HistoryPage.Push(CurrentPage.Name);
                         NavView_Navigate(typeof(Settings));
                     }
                 }
@@ -175,8 +173,6 @@ namespace OneGallery
                     if (!string.Equals(CurrentPage.Name, ClickedPageName))
                     {
                         Debug.Print("history " + CurrentPage.Name);
-                        HistoryPage.Push(CurrentPage.Name);
-                        
                         string pageName = "OneGallery." + ClickedPageName;
                         Type navPageType = Type.GetType(pageName);
                         NavView_Navigate(navPageType);
@@ -215,7 +211,11 @@ namespace OneGallery
         private void Nv_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
             Nv.IsBackEnabled = false;
-            var History = HistoryPage.Pop();
+
+            if (Nv_page.CanGoBack)
+            {
+                Nv_page.GoBack();
+            }
 
             //if (!PageDictionary.ContainsKey(History))
             //{
@@ -226,19 +226,19 @@ namespace OneGallery
             //var rootGrid = VisualTreeHelper.GetChild(sender as NavigationView, 0);
             //FindNaView(rootGrid);
 
-            if (History.Equals("Settings"))
-            {
-                Debug.Print("Back to Settings");
-                NavView_Navigate(typeof(Settings));  
-            }
-            else 
-            {
-                Debug.Print("Back to " + History);
+            //if (History.Equals("Settings"))
+            //{
+            //    Debug.Print("Back to Settings");
+            //    NavView_Navigate(typeof(Settings));  
+            //}
+            //else 
+            //{
+            //    Debug.Print("Back to " + History);
 
-                string pageName = "OneGallery." + History;
-                Type navPageType = Type.GetType(pageName);
-                NavView_Navigate(navPageType);
-            }
+            //    string pageName = "OneGallery." + History;
+            //    Type navPageType = Type.GetType(pageName);
+            //    NavView_Navigate(navPageType);
+            //}
 
             //if (ParentDictionary[History] is not null)
             //{
@@ -258,10 +258,6 @@ namespace OneGallery
 
         private async void Nv_Page_Navigated(object sender, NavigationEventArgs e)
         {
-            foreach (var item in HistoryPage)
-            {
-                Debug.Print("BackSt " + item);
-            }
 
             string CurrentPageName = Nv_page.CurrentSourcePageType.Name;
 
@@ -294,12 +290,11 @@ namespace OneGallery
                     
             }
 
-            if (HistoryPage.Count > 1)
+            if (Nv_page.CanGoBack)
             {
-                await Task.Delay(500);
+                await Task.Delay(250);
                 Nv.IsBackEnabled = true;
             }
-
 
         }
 
@@ -426,7 +421,6 @@ namespace OneGallery
 
             NavView_Navigate(typeof(HomePage));
             Nv.SelectedItem = NvItemDictionary["HomePage"];
-            HistoryPage.Push("HomePage");
         }
 
         private void UpdateNvItemDir(ObservableCollection<Category> Items)
@@ -454,5 +448,6 @@ namespace OneGallery
             IsPaneOpened = true;
 
         }
+
     }
 }
