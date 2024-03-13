@@ -10,33 +10,14 @@
     SizeChanged="Page_SizeChanged">
 
     <Page.Resources>
-        <DataTemplate  x:Key="LinedFlowLayoutItemTemplate" x:DataType="local:CustomDataObject">
+        <DataTemplate  x:Key="LinedFlowLayoutItemTemplate" x:DataType="local:PictureClass">
 
-            <ItemContainer AutomationProperties.Name="{x:Bind Title}">
+            <ItemContainer AutomationProperties.Name="{x:Bind Name}">
                 <Grid x:Name="temp00">
-                    <Image Name="111" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" SizeChanged="Image_SizeChanged" >
+                    <Image Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" SizeChanged="Image_SizeChanged" >
                         <Image.Source>
                             <BitmapImage DecodePixelHeight="400" UriSource="{x:Bind ImageLocation}" />
                         </Image.Source>
-                        <Image.RenderTransform>
-                            <ScaleTransform x:Name="temp" />
-                        </Image.RenderTransform>
-                        <Image.Resources>
-                            <Storyboard x:Key="myStoryboard1">
-                                <DoubleAnimation
-                                    Storyboard.TargetName="111"
-                                    Storyboard.TargetProperty="Opacity"
-                                    From="0.0" To="1.0" Duration="0:0:0.4" 
-                                    AutoReverse="False" />
-                            </Storyboard>
-                            <Storyboard x:Key="myStoryboard2">
-                                <DoubleAnimation
-                                    Storyboard.TargetName="111"
-                                    Storyboard.TargetProperty="Opacity"
-                                    From="1.0" To="0.0" Duration="0:0:0.01" 
-                                    AutoReverse="False" />
-                            </Storyboard>
-                        </Image.Resources>
                     </Image>
                     <!--<StackPanel Orientation="Vertical" Height="40" VerticalAlignment="Bottom" Padding="5,1,5,1" Background="{ThemeResource SystemControlBackgroundBaseMediumBrush}" Opacity=".75">
                             <TextBlock Text="{x:Bind Title}" Foreground="{ThemeResource SystemControlForegroundAltHighBrush}"/>
@@ -51,19 +32,25 @@
         </DataTemplate>
         <local:ActivityFeedLayout 
             x:Key="MyFeedLayout" 
-            ColumnSpacing="8" RowSpacing="8" MinItemSize="400, 175" 
-            _imageArrangement="{x:Bind MyImageArrangement}"/>
+            ColumnSpacing="12" RowSpacing="12" MinItemSize="400, 175" 
+            LayoutImgArrangement="{x:Bind HomePageImageArrangement}"
+            MyEvent="ActivityFeedLayout_MyEvent"/>
         
-        <!--<Storyboard x:Name="myStoryboard">
+        <Storyboard x:Name="OpacityIn">
             <DoubleAnimation
                 Storyboard.TargetName="repeater2"
                 Storyboard.TargetProperty="Opacity"
-                From="0.0" To="1.0" Duration="0:0:0.01" 
-                AutoReverse="True" 
-                RepeatBehavior="Forever"/>
-        </Storyboard>-->
+                From="0.0" To="1.0" Duration="0:0:0.3" 
+                AutoReverse="False" />
+        </Storyboard>
 
-
+        <Storyboard x:Name="OpacityOut">
+            <DoubleAnimation
+                Storyboard.TargetName="repeater2"
+                Storyboard.TargetProperty="Opacity"
+                From="1.0" To="0.0" Duration="0:0:0.05" 
+                AutoReverse="False" />
+        </Storyboard>
     </Page.Resources>
 
 
@@ -79,13 +66,6 @@
             </ItemsRepeater >
             
         </ScrollViewer>
-
-        <!--<ItemsView  x:Name="SwappableLayoutsItemsView"
-                    HorizontalAlignment="Stretch"
-                    ItemTemplate="{StaticResource LinedFlowLayoutItemTemplate}"
-                    Layout="{StaticResource MyFeedLayout}">
-        </ItemsView>-->
-
 
     </StackPanel>
 

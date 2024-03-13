@@ -12,7 +12,7 @@ namespace OneGallery
 {
     internal class ImageArrangement
     {
-        public ObservableCollection<CustomDataObject> ImgList { get; set; }
+        public SortableObservableCollection<PictureClass> ImgList { get; set; }
 
         public List<Rect> ImageRect { get; set; }
 
@@ -22,15 +22,13 @@ namespace OneGallery
 
         public double NowWidth = 0;
 
-        private List<Rect>[] ImageRect_Default = new List<Rect>[] {new List<Rect>(), new List<Rect>(), new List<Rect>() };
+        private List<Rect>[] ImageRect_Default = new List<Rect>[] {new(), new(), new() };
 
-        private List<int>[] RowFirstIndex_Default = new List<int>[] { new(), new List<int>(), new List<int>() };
+        private List<int>[] RowFirstIndex_Default = new List<int>[] { new(), new(), new() };
 
-        private List<int>[] RowImgCount_Default = new List<int>[] { new List<int>(), new List<int>(), new List<int>() };
+        private List<int>[] RowImgCount_Default = new List<int>[] { new(), new(), new() };
 
         private Size[] _minItemSize = { Size.Empty, Size.Empty, Size.Empty };
-
-        private Size _maxItemSize = Size.Empty;
 
         private double RowSpacing = 0;
 
@@ -38,20 +36,9 @@ namespace OneGallery
 
         private double[] TotalWidth;
 
-        public ImageArrangement(ObservableCollection<CustomDataObject> objects)
+        public ImageArrangement(SortableObservableCollection<PictureClass> objects)
         {
             ImgList = objects;
-        }
-
-        public bool CompareImgSize(Size min, Size max, double width, double rowSpacing, double colSpacing)
-        {
-            //if (_maxItemSize == max && _minItemSize == min && TotalWidth == width && RowSpacing == rowSpacing && ColSpacing == colSpacing)
-            //{
-            //    return true;
-            //}
-
-            //SetImgSize(min, max, width, rowSpacing, colSpacing);
-            return false;
         }
 
         public void SetImageRect(double _width)
@@ -60,106 +47,57 @@ namespace OneGallery
             var d2 = Math.Abs(_width - TotalWidth[1]);
             var d3 = Math.Abs(_width - TotalWidth[2]);
 
-            ImageRect = ImageRect_Default[1];
-            RowFirstIndex = RowFirstIndex_Default[1];
-            RowImgCount = RowImgCount_Default[1];
-            NowWidth = TotalWidth[1];
-
-            //if (d1 > d2)
-            //{
-            //    if (d3 > d2)
-            //    {
-            //        ImageRect = ImageRect_Default[1];
-            //        RowFirstIndex = RowFirstIndex_Default[1];
-            //        RowImgCount = RowImgCount_Default[1];
-            //        NowWidth = TotalWidth[1];
-            //    }
-            //    else
-            //    {
-            //        ImageRect = ImageRect_Default[2];
-            //        RowFirstIndex = RowFirstIndex_Default[2];
-            //        RowImgCount = RowImgCount_Default[2];
-            //        NowWidth = TotalWidth[2];
-            //    }
-            //}
-            //else
-            //{
-            //    if (d3 > d1)
-            //    {
-            //        ImageRect = ImageRect_Default[0];
-            //        RowFirstIndex = RowFirstIndex_Default[0];
-            //        RowImgCount = RowImgCount_Default[0];
-            //        NowWidth = TotalWidth[0];
-            //    }
-            //    else
-            //    {
-            //        ImageRect = ImageRect_Default[2];
-            //        RowFirstIndex = RowFirstIndex_Default[2];
-            //        RowImgCount = RowImgCount_Default[2];
-            //        NowWidth = TotalWidth[2];
-            //    }
-
-            //}
-
-        }
-
-        public int[] FindFirstAndLastImageIndex(double top, double bottom)
-        {
-            var Index = new int[2];
-            int i = 0;
-            double height = 0;
-            int _index = 0;
-            if (top <= 0)
+            if (d1 > d2)
             {
-                Index[0] = 0;
+                if (d3 > d2)
+                {
+                    ImageRect = ImageRect_Default[1];
+                    RowFirstIndex = RowFirstIndex_Default[1];
+                    RowImgCount = RowImgCount_Default[1];
+                    NowWidth = TotalWidth[1];
+                }
+                else
+                {
+                    ImageRect = ImageRect_Default[2];
+                    RowFirstIndex = RowFirstIndex_Default[2];
+                    RowImgCount = RowImgCount_Default[2];
+                    NowWidth = TotalWidth[2];
+                }
             }
             else
             {
-                for (i = 0; i < RowFirstIndex.Count; i++)
+                if (d3 > d1)
                 {
-                    
-                    height += ImageRect[_index].Height + RowSpacing;
-                    if (top <= height)
-                    {
-                        Index[0] = _index;
-                        i++;
-                        break;
-                    }
-                    _index = RowFirstIndex[i];
+                    ImageRect = ImageRect_Default[0];
+                    RowFirstIndex = RowFirstIndex_Default[0];
+                    RowImgCount = RowImgCount_Default[0];
+                    NowWidth = TotalWidth[0];
                 }
-            }
-
-            Index[1] = RowFirstIndex[RowFirstIndex.Count - 1];
-
-            for (; i < RowFirstIndex.Count; i++)
-            {
-                _index = RowFirstIndex[i];
-                height += ImageRect[_index].Height + RowSpacing;
-                if (bottom <= height)
+                else
                 {
-                    Index[1] = _index;
-                    break;
+                    ImageRect = ImageRect_Default[2];
+                    RowFirstIndex = RowFirstIndex_Default[2];
+                    RowImgCount = RowImgCount_Default[2];
+                    NowWidth = TotalWidth[2];
                 }
+
             }
 
-            while (Index[1] < ImageRect.Count-1 && ImageRect[Index[1]].Y == ImageRect[Index[1] + 1].Y)
-            {
-                Index[1]++;
-            }
-
-            return Index;
         }
-
 
         public void SetImgSize(Size[] min, Size max, double[] width, double rowSpacing, double colSpacing)
         {
             _minItemSize = min;
-            _maxItemSize = max;
             TotalWidth = width;
             RowSpacing = rowSpacing;
             ColSpacing = colSpacing;
 
             UpdateImgRect();
+
+            ImageRect = ImageRect_Default[1];
+            RowFirstIndex = RowFirstIndex_Default[1];
+            RowImgCount = RowImgCount_Default[1];
+            NowWidth = TotalWidth[1];
         }
 
         private List<double> TryPutImg(int Index, double RemainingWidth, Size ItemSize)
