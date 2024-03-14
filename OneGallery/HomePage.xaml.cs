@@ -76,12 +76,48 @@ namespace OneGallery
 
         }
 
-        private async void ActivityFeedLayout_MyEvent(object sender, EventArgs e)
+        private void ActivityFeedLayout_MyEvent(object sender, EventArgs e)
         {
             //OpacityOut.Begin();
             //await Task.Delay(300);
             //OpacityIn.Begin();
             //repeater2.Opacity = 1;
+        }
+
+        private void Image_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            var image = sender as Image;
+            
+            Debug.Print("Image_PointerEntered " + image.Name);
+        }
+
+        private void Image_GotFocus(object sender, RoutedEventArgs e)
+        {
+            var image = sender as Image;
+
+            //Debug.Print("Image_GotFocus " + image.Name);
+        }
+
+        private void ItemContainer_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            var temp = sender as ItemContainer;
+            var child1 = temp.Child as Microsoft.UI.Xaml.Controls.Grid;
+
+            var child2 = child1.Children;
+            foreach (var ch in child2)
+            {
+                if (ch.GetType() == typeof(CheckBox))
+                {
+                    var tb = (CheckBox)ch;
+                    var a = tb.Resources;
+                    foreach (var c in a)
+                    {
+                        Debug.Print(c.Key.ToString());
+                    }
+                    
+
+                }
+            }
         }
     }
 }

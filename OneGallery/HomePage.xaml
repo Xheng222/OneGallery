@@ -11,24 +11,62 @@
 
     <Page.Resources>
         <DataTemplate  x:Key="LinedFlowLayoutItemTemplate" x:DataType="local:PictureClass">
+            <ItemContainer PointerEntered="ItemContainer_PointerEntered">
+                <Grid>
+                    <Rectangle Fill="#DCDCDC"  Canvas.ZIndex="1" 
+                               MinWidth="20" MinHeight="20"
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Top"
+                               Margin="0, 6, 10, 0"
+                               RadiusX="5"
+                               RadiusY="5"
+                               Opacity="0.8"
+                               />
 
-            <ItemContainer AutomationProperties.Name="{x:Bind Name}">
-                <Grid x:Name="temp00">
-                    <Image Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" SizeChanged="Image_SizeChanged" >
+
+                    <CheckBox
+                            Canvas.ZIndex="2"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            Margin="0, 0, -90, 0"
+                            CornerRadius="5"    >   
+
+                        <!--<Style TargetType="CheckBox">
+                            <Setter Property="Content" Value="Two-state CheckBox" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="CheckBox">
+                                        <Grid Background="{TemplateBinding Background}">
+
+                                            <VisualStateManager.VisualStateGroups>
+                                                <VisualStateGroup x:Name="CombinedStates">
+                                                    <VisualState x:Name="UncheckedNormal" />
+                                                </VisualStateGroup>
+                                            </VisualStateManager.VisualStateGroups>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>-->
+
+
+
+                    </CheckBox>
+                    
+                    <Image Name="{x:Bind Name}" 
+                            Canvas.ZIndex="0"
+                            Stretch="UniformToFill" 
+                            SizeChanged="Image_SizeChanged" 
+                            PointerEntered="Image_PointerEntered" 
+                            GotFocus="Image_GotFocus">
                         <Image.Source>
                             <BitmapImage DecodePixelHeight="400" UriSource="{x:Bind ImageLocation}" />
                         </Image.Source>
                     </Image>
-                    <!--<StackPanel Orientation="Vertical" Height="40" VerticalAlignment="Bottom" Padding="5,1,5,1" Background="{ThemeResource SystemControlBackgroundBaseMediumBrush}" Opacity=".75">
-                            <TextBlock Text="{x:Bind Title}" Foreground="{ThemeResource SystemControlForegroundAltHighBrush}"/>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{x:Bind Likes}" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemControlForegroundAltHighBrush}"/>
-                                <TextBlock Text=" Likes" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemControlForegroundAltHighBrush}"/>
-                            </StackPanel>
-                        </StackPanel>-->
                 </Grid>
             </ItemContainer>
-        
+            
+
         </DataTemplate>
         <local:ActivityFeedLayout 
             x:Key="MyFeedLayout" 
