@@ -36,6 +36,8 @@ namespace OneGallery
 
         private double[] TotalWidth;
 
+
+
         public ImageArrangement(SortableObservableCollection<PictureClass> objects)
         {
             ImgList = objects;
@@ -157,7 +159,7 @@ namespace OneGallery
                 {
                     //Debug.Print("Update " + TotalWidth);
 
-                    List<double> Wigthlist = TryPutImg(_imgIndex, TotalWidth[j], _minItemSize[j]);
+                    List<double> Wigthlist = TryPutImg(_imgIndex, TotalWidth[j] - ColSpacing, _minItemSize[j]);
 
                     double _actualWidth = 0; 
                 
@@ -166,7 +168,7 @@ namespace OneGallery
                         _actualWidth += i;
                     }
                     
-                    double zoom = (TotalWidth[j] - ColSpacing * (Wigthlist.Count - 1)) / _actualWidth;
+                    double zoom = (TotalWidth[j] - ColSpacing * Wigthlist.Count) / _actualWidth;
 
                     if (_imgIndex + Wigthlist.Count == ImgList.Count)
                     {
@@ -176,7 +178,7 @@ namespace OneGallery
                         }
                     }
 
-                    double _nowX = 0;
+                    double _nowX = ColSpacing;
 
                     for (int i = 0; i < Wigthlist.Count; i++)
                     {
@@ -208,9 +210,6 @@ namespace OneGallery
                 RowImgCount_Default[j].Add(ImgList.Count - RowFirstIndex_Default[j].Last());
 
             }
-
-            
-
 
         }
 

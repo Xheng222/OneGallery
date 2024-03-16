@@ -166,7 +166,7 @@ namespace OneGallery
                             }
 
                             int RowImgCount = LayoutImgArrangement.RowImgCount[i];
-                            double _newX = 0;
+                            double _newX = _colSpacing;
 
                             for (var j = 0; j < RowImgCount; j++)
                             {
@@ -212,7 +212,7 @@ namespace OneGallery
                             }
 
                             int RowImgCount = LayoutImgArrangement.RowImgCount[i];
-                            double _newX = 0;
+                            double _newX = _colSpacing;
 
                             for (var j = 0; j < RowImgCount; j++)
                             {

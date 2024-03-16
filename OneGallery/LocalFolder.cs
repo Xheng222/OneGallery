@@ -75,7 +75,7 @@ namespace OneGallery
 
             StorageFileQueryResult _queryResult = Folder.CreateFileQueryWithOptions(_imgQuery);
             IReadOnlyList<StorageFile> _images = await _queryResult.GetFilesAsync(_index, _step);
-            
+            int i = 0;
             while (_images.Count != 0)
             {
                 foreach (StorageFile _image in _images)
@@ -85,14 +85,16 @@ namespace OneGallery
                     var imageProps = await _image.Properties.GetImagePropertiesAsync();
                     var basicProperties = await _image.GetBasicPropertiesAsync();
 
-                    for (int i = 0; i < 5; i++)
+                    for (int j = 0; j < 5; j++)
                     {
                         ImgList.Add(new PictureClass(
                             _image.Path,
                             _image.Name,
                             imageProps.Width,
-                            imageProps.Height
+                            imageProps.Height,
+                            i
                         ));
+                        i++;
                     }
                     
 

@@ -41,14 +41,29 @@ namespace OneGallery
 
         private ImageArrangement HomePageImageArrangement {  get; set; }
 
+        string Path;
+
         public HomePage()
         {
-            this.InitializeComponent();       
+            this.InitializeComponent();
 
-            string path = "H:\\Sync_images";
-            HomePageLocalFolder = new(path);
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            if (e.Parameter is string && !string.IsNullOrWhiteSpace((string)e.Parameter))
+            {
+                Path = e.Parameter.ToString();
+            }
+
+            base.OnNavigatedTo(e);
+
+            HomePageLocalFolder = new(Path);
             HomePageImageArrangement = HomePageLocalFolder.MyImageArrangement;
             this.Loaded += Init;
+
+
+
         }
 
         private async void Init(object sender, RoutedEventArgs e)
@@ -56,6 +71,10 @@ namespace OneGallery
             await HomePageLocalFolder.Init();
             
             repeater2.ItemsSource = HomePageLocalFolder.ImgList;
+
+            
+
+            var window = (MainWindow)(Application.Current as App).m_window;
         }
 
         private void Page_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -100,23 +119,161 @@ namespace OneGallery
 
         private void ItemContainer_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
-            var temp = sender as ItemContainer;
-            var child1 = temp.Child as Microsoft.UI.Xaml.Controls.Grid;
+            var _temp = sender as ItemContainer;
+            float _scaleX = (float)(_temp.ActualWidth * 1.02 / 2);
+            float _scaleY = (float)(_temp.ActualHeight * 1.02 / 2); ;
 
-            var child2 = child1.Children;
-            foreach (var ch in child2)
+            _temp.CenterPoint = new Vector3(_scaleX, _scaleY, 0);
+            _temp.Scale = new Vector3((float)1.02, (float)1.02, 1);
+
+            var _grid = _temp.Child as Grid;
+            var _girdItems = _grid.Children;
+
+            foreach (var _girdItem in _girdItems)
             {
-                if (ch.GetType() == typeof(CheckBox))
+                if (_girdItem is CheckBox)
                 {
-                    var tb = (CheckBox)ch;
-                    var a = tb.Resources;
-                    foreach (var c in a)
+                    if((_girdItem as CheckBox).IsChecked == false)
                     {
-                        Debug.Print(c.Key.ToString());
+                        var res = _temp.Resources;
+                        var _borderIn = (Storyboard)res["BorderIn"];
+                        var _checkBoxIn = (Storyboard)res["CheckBoxIn"];
+                        var _rectangleIn = (Storyboard)res["RectangleIn"];
+
+                        _borderIn.Begin();
+                        _checkBoxIn.Begin();
+                        _rectangleIn.Begin();
+
+                        break;
                     }
                     
+                }
+
+            }
+
+        }
+
+        private void ItemContainer_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            var _temp = sender as ItemContainer;
+            float _scaleX = (float)(_temp.ActualWidth / 2);
+            float _scaleY = (float)(_temp.ActualHeight / 2);
+
+            //_temp.CenterPoint = new Vector3(_scaleX, _scaleY, 0);
+            //_temp.Scale = new Vector3(1, 1, 1);
+
+            var _grid = _temp.Child as Grid;
+            var _girdItems = _grid.Children;
+            foreach (var _girdItem in _girdItems)
+            {
+                if (_girdItem is CheckBox)
+                {
+                    if ((_girdItem as CheckBox).IsChecked == false)
+                    {
+                        var res = _temp.Resources;
+                        var _borderOut = (Storyboard)res["BorderOut"];
+                        var _checkBoxOut = (Storyboard)res["CheckBoxOut"];
+                        var _rectangleOut = (Storyboard)res["RectangleOut"];
+
+                        _borderOut.Begin();
+                        _checkBoxOut.Begin();
+                        _rectangleOut.Begin();
+
+                        break;
+                    }
 
                 }
+
+            }
+
+
+        }
+
+        private void ItemContainer_Loaded(object sender, RoutedEventArgs e)
+        {
+            var _temp = sender as ItemContainer;
+            var ScaleTransition = new Vector3Transition()
+            {
+                Components = Vector3TransitionComponents.X | Vector3TransitionComponents.Y,
+                Duration = new TimeSpan(1500000)
+            };
+            _temp.ScaleTransition = ScaleTransition;
+        }
+
+        private void ItemContainer_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            var _temp = sender as ItemContainer;
+            var _res = _temp.Resources;
+
+            var _scaleX = (float)(_temp.ActualWidth * 0.98 / 2);
+            var _scaleY = (float)(_temp.ActualHeight * 0.98 / 2);
+
+            _temp.CenterPoint = new Vector3(_scaleX, _scaleY, 0);
+            _temp.Scale = new Vector3((float)0.98, (float)0.98, 1);
+
+        }
+
+        private void ItemContainer_PointerReleased(object sender, PointerRoutedEventArgs e)
+        {
+            var _temp = sender as ItemContainer;
+            var _grid = _temp.Child as Grid;
+            var _girdItems = _grid.Children;
+
+            foreach (var _girdItem in _girdItems )
+            {
+                if ( _girdItem is CheckBox ) 
+                {
+                    SwitchCheckBox(_girdItem as CheckBox);
+                    break;
+                }
+ 
+            }
+
+            Debug.Print("Now_Index" + _temp.Name);
+            int _index = int.Parse(_temp.Name);
+            var _image = HomePageLocalFolder.ImgList[_index];
+            var _zoom = Math.Min(1, Math.Min(this.ActualHeight / _image.Height, this.ActualWidth / _image.Width));
+            var _newHeight = _zoom * _image.Height;
+            var _newWidth = _zoom * _image.Width;
+            var _offset = _temp.ActualOffset;
+            var _tempX = (_offset.X - (this.ActualWidth - _newWidth) / 2);
+            var _tempY = (_offset.Y - (this.ActualHeight - _newHeight) / 2 - ScrollViewer.VerticalOffset);
+            var _centerPointX = (float)(_tempX * _temp.ActualWidth / (_newWidth - _temp.ActualWidth));
+            var _centerPointY = (float)(_tempY * _temp.ActualHeight / (_newHeight - _temp.ActualHeight));
+            float _scaleX = (float)(_newWidth / _temp.ActualWidth);
+            float _scaleY = (float)(_newHeight / _temp.ActualHeight);
+
+            Debug.Print("X " + _centerPointX + "\nY " + _centerPointY);
+            //var _scaleX = (float)(_temp.ActualWidth * 1.5 / 2);
+            //var _scaleY = (float)(_temp.ActualHeight * 3 / 2);
+
+            _temp.CenterPoint = new Vector3(_centerPointX, _centerPointY, 0);
+            _temp.Scale = new Vector3(_scaleX, _scaleY, 1);
+
+            for(int i = 0; i < 244; i++)
+            {
+                var temp = (ItemContainer)repeater2.TryGetElement(i);
+                if ( temp != null && i != _index)
+                {
+                    temp.Opacity = 0;
+                }
+                
+            }
+
+            Debug.Print(_temp.ActualHeight.ToString());
+
+
+        }
+
+        private void SwitchCheckBox(CheckBox _checkBox)
+        {
+            if (_checkBox.IsChecked == true)
+            {
+                _checkBox.IsChecked = false;
+            }
+            else
+            {
+                _checkBox.IsChecked = true;
             }
         }
     }

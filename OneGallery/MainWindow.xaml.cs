@@ -44,7 +44,7 @@ namespace OneGallery
 
     public sealed partial class MainWindow : Window
     {
-        readonly string appTitleText = "OneGallery";
+        public string appTitleText = "OneGallery";
 
         private bool IsPaneOpened = true;
 
@@ -113,6 +113,7 @@ namespace OneGallery
                 IsLeaf = true }
         };
 
+
         public MainWindow()
         {
             this.InitializeComponent();
@@ -123,7 +124,7 @@ namespace OneGallery
 
             this.SetTitleBar(AppTitleBar);
 
-
+            appTitleText = "666";
         }
         bool TrySetAcrylicBackdrop()
         {
@@ -147,7 +148,7 @@ namespace OneGallery
             // Only navigate if the selected page isn't currently loaded.
             if (navPageType is not null && !Equals(preNavPageType, navPageType))
             {
-                Nv_page.Navigate(navPageType, null);
+                Nv_page.Navigate(navPageType, "H:\\1234");
                 
             }
         }
