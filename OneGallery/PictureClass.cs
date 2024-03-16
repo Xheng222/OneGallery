@@ -9,7 +9,7 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace OneGallery
 {
-    internal class PictureClass
+    public class PictureClass
     {
         public string Name { get; set; }
 

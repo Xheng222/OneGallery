@@ -75,7 +75,7 @@
                 <CornerRadius x:Key="NavigationViewContentGridCornerRadius">8,0,0,0</CornerRadius>
             </NavigationView.Resources>
 
-            <Frame x:Name="Nv_page" Navigated="Nv_Page_Navigated">
+            <Frame x:Name="Nv_page" Navigated="Nv_Page_Navigated" Background="Transparent">
                 <Frame.ContentTransitions>
                     <TransitionCollection>
                         <NavigationThemeTransition  />

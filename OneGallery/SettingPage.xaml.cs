@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -26,6 +27,8 @@ namespace OneGallery
         public Settings()
         {
             this.InitializeComponent();
+            var window = (MainWindow)(Application.Current as App).m_window;
+
         }
     }
 }

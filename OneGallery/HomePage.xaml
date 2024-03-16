@@ -17,13 +17,14 @@
                 PointerEntered="ItemContainer_PointerEntered"
                 PointerExited="ItemContainer_PointerExited"
                 PointerPressed="ItemContainer_PointerPressed"
-                PointerReleased="ItemContainer_PointerReleased">
+                PointerReleased="ItemContainer_PointerReleased"
+                >
                 <Grid>
                     <Rectangle  
                         Name="Border"
                         Stroke="#0067C0"
                         Fill="Transparent"
-                        StrokeThickness="2"
+                        StrokeThickness="10"
                         Canvas.ZIndex="2" 
                         RadiusX="5"
                         RadiusY="5"
@@ -44,6 +45,7 @@
                     <CheckBox
                         Name="CheckBox"
                         Canvas.ZIndex="2"
+                        IsChecked="False"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Top"
                         Margin="0, -1, -95, 0"
@@ -115,9 +117,8 @@
 
                 </ItemContainer.Resources>
             </ItemContainer>
-            
-
         </DataTemplate>
+        
         <local:ActivityFeedLayout 
             x:Key="MyFeedLayout" 
             ColumnSpacing="12" RowSpacing="12" MinItemSize="400, 175" 
@@ -150,7 +151,10 @@
                            Background="Transparent"
                            HorizontalAlignment="Stretch"
                            Layout="{StaticResource MyFeedLayout}"
-                           ItemTemplate="{StaticResource LinedFlowLayoutItemTemplate}">
+                           ItemTemplate="{StaticResource LinedFlowLayoutItemTemplate}"
+                           Loaded="repeater2_Loaded"
+                           
+                           >
             </ItemsRepeater >
             
         </ScrollViewer>

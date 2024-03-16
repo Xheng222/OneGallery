@@ -137,223 +137,161 @@ namespace OneGallery
         protected override Size MeasureOverride(VirtualizingLayoutContext context, Size availableSize)
         {
             double _newTop = 0;
+            //Debug.Print(context.VisibleRect.Y + "");
 
             if (context.ItemCount > 0)
-            {     
-                var state = context.LayoutState as ActivityFeedLayoutState;                
+            {
+                var state = context.LayoutState as ActivityFeedLayoutState;
                 state.LayoutRects.Clear();
-                state.FirstRealizedIndex = -1;                
-                var recommond = context.RecommendedAnchorIndex;  
+                state.FirstRealizedIndex = -1;
+                var recommond = context.RecommendedAnchorIndex;
                 int _firstItemIndex;
-                int i = 0; 
-                
+                int i = 0;
+                //Debug.Print("Top " + context.RealizationRect.Top);
+                //Debug.Print("recommond " + recommond);
                 UpdateImgRect(availableSize.Width);
 
-                if (recommond != -1)
+                foreach (var _item in LayoutImgArrangement.RowFirstIndex)
                 {
-                    var index = Math.Max(LayoutImgArrangement.RowFirstIndex.IndexOf(recommond), 0);
+                    double zoomImg = (availableSize.Width - LayoutImgArrangement.RowImgCount[i] * _colSpacing) / (LayoutImgArrangement.NowWidth - (LayoutImgArrangement.RowImgCount[i] - 1) * _colSpacing);
 
-                    foreach (var _item in LayoutImgArrangement.RowFirstIndex)
+                    if (_newTop >= context.VisibleRect.Top - 300 && _newTop <= context.VisibleRect.Bottom + 300)
                     {
-                        double zoomImg = (availableSize.Width - LayoutImgArrangement.RowImgCount[i] * _colSpacing) / (LayoutImgArrangement.NowWidth - (LayoutImgArrangement.RowImgCount[i] - 1) * _colSpacing);
 
-                        if (index > i - 5 && index < i + 2)
+                        if (state.FirstRealizedIndex == -1)
                         {
-                            if (state.FirstRealizedIndex == -1)
-                            {
-                                state.FirstRealizedIndex = _item;
-                                _firstItemIndex = _item;
-                            }
+                            state.FirstRealizedIndex = _item;
 
-                            int RowImgCount = LayoutImgArrangement.RowImgCount[i];
-                            double _newX = _colSpacing;
-
-                            for (var j = 0; j < RowImgCount; j++)
-                            {
-                                var _index = _item + j;
-                                var container = context.GetOrCreateElementAt(_index);
-                                var _rect = LayoutImgArrangement.ImageRect[_index];
-                                Rect _size = new()
-                                {
-                                    Width = _rect.Width * zoomImg,
-                                    Height = _rect.Height * zoomImg,
-                                    X = _newX,
-                                    Y = _newTop
-                                };
-
-                                container.Measure(new Size(_size.Width, _size.Height));
-                                state.LayoutRects.Add(_size);
-                                _newX += _size.Width + _colSpacing;
-
-                            }
-                        }
-
-                        i++;
-                        _newTop += zoomImg * LayoutImgArrangement.ImageRect[_item].Height + _rowSpacing;
-
-                    }
-
-                }
-                else
-                {
-                    foreach (var _item in LayoutImgArrangement.RowFirstIndex)
-                    {
-                        double zoomImg = (availableSize.Width - LayoutImgArrangement.RowImgCount[i] * _colSpacing) / (LayoutImgArrangement.NowWidth - (LayoutImgArrangement.RowImgCount[i] - 1) * _colSpacing);
-
-                        if (_newTop >= context.RealizationRect.Top && _newTop <= context.RealizationRect.Bottom)
-                        {
-
-                            if (state.FirstRealizedIndex == -1)
-                            {
-                                state.FirstRealizedIndex = _item;
-
-                                _firstItemIndex = _item;
-
-                            }
-
-                            int RowImgCount = LayoutImgArrangement.RowImgCount[i];
-                            double _newX = _colSpacing;
-
-                            for (var j = 0; j < RowImgCount; j++)
-                            {
-                                var _index = _item + j;
-                                var container = context.GetOrCreateElementAt(_index);
-                                var _rect = LayoutImgArrangement.ImageRect[_index];
-                                Rect _size = new()
-                                {
-                                    Width = _rect.Width * zoomImg,
-                                    Height = _rect.Height * zoomImg,
-                                    X = _newX,
-                                    Y = _newTop
-                                };
-
-                                container.Measure(new Size(_size.Width, _size.Height));
-                                state.LayoutRects.Add(_size);
-                                _newX += _size.Width + _colSpacing;
-
-                            }
+                            _firstItemIndex = _item;
 
                         }
 
-                        i++;
-                        _newTop += zoomImg * LayoutImgArrangement.ImageRect[_item].Height + _rowSpacing;
+                        int RowImgCount = LayoutImgArrangement.RowImgCount[i];
+                        double _newX = _colSpacing;
+
+                        for (var j = 0; j < RowImgCount; j++)
+                        {
+                            var _index = _item + j;
+                            var container = context.GetOrCreateElementAt(_index);
+                            var _rect = LayoutImgArrangement.ImageRect[_index];
+                            Rect _size = new()
+                            {
+                                Width = _rect.Width * zoomImg,
+                                Height = _rect.Height * zoomImg,
+                                X = _newX,
+                                Y = _newTop
+                            };
+
+                            container.Measure(new Size(_size.Width, _size.Height));
+                            state.LayoutRects.Add(_size);
+                            _newX += _size.Width + _colSpacing;
+
+                        }
                     }
+                    i++;
+                    _newTop += zoomImg * LayoutImgArrangement.ImageRect[_item].Height + _rowSpacing;
                 }
-
-                //Debug.Print(context.RecommendedAnchorIndex.ToString());
-                //if (state.LayoutRects.Count > 0 && state.LayoutRects[0].Top >= context.RealizationRect.Top && state.LayoutRects[0].Bottom <= context.RealizationRect.Bottom)
-                //{
-                //    var _firstRealizedIndex = state.FirstRealizedIndex;
-                //    var _lastRealizedIndex = state.FirstRealizedIndex + state.LayoutRects.Count - 1;
-                //    var _oldTop = state.LayoutRects[0].Top;   
-                //    state.LayoutRects.Clear();
-                //    Debug.Print("aaa");
-                //    foreach (var _item in _imageArrangement.RowFirstIndex)
-                //    {
-                //        double zoomImg = (availableSize.Width - _imageArrangement.RowImgCount[i] * (_colSpacing - 1) - 16) / (_imageArrangement.NowWidth - _imageArrangement.RowImgCount[i] * (_colSpacing - 1));
-                //        if (_item >= _firstRealizedIndex && _item <= _lastRealizedIndex + 5)
-                //        {
-
-                //            if (_item == _firstRealizedIndex)
-                //            {
-                //                _extentHeight = _oldTop - _newTop;
-                //                _newTop = _oldTop;
-                //                context.LayoutOrigin = new Point(0,  _extentHeight);
-                //            }
-
-                //            int RowImgCount = _imageArrangement.RowImgCount[i];
-                //            double _newX = 0;
-
-                //            for (var j = 0; j < RowImgCount; j++)
-                //            {
-                //                var _index = _item + j;
-                //                var container = context.GetOrCreateElementAt(_index);
-                //                var _rect = _imageArrangement.ImageRect[_index];
-                //                Rect _size = new()
-                //                {
-                //                    Width = _rect.Width * zoomImg,
-                //                    Height = _rect.Height * zoomImg,
-                //                    X = _newX,
-                //                    Y = _newTop
-                //                };
-
-                //                container.Measure(new Size(_size.Width, _size.Height));
-                //                state.LayoutRects.Add(_size);
-                //                _newX += _size.Width + _colSpacing;
-                //            }
-
-                //        }
-
-                //        _newTop += zoomImg * _imageArrangement.ImageRect[_item].Height + _rowSpacing;
-                //        i++;
-                //    }
-                //}
-
-                //else
-                //{
-                //    state.LayoutRects.Clear();
-                //    state.FirstRealizedIndex = -1;
-                //    Debug.Print("bbb");
-                //    foreach (var _item in _imageArrangement.RowFirstIndex)
-                //    {        
-                //        double zoomImg = (availableSize.Width - _imageArrangement.RowImgCount[i] * (_colSpacing - 1) - 16) / (_imageArrangement.NowWidth  - _imageArrangement.RowImgCount[i] * (_colSpacing - 1));
-
-                //        if (_newTop >= context.RealizationRect.Top && _newTop <= context.RealizationRect.Bottom)
-                //        {
-
-                //            if (state.FirstRealizedIndex == -1)
-                //            {
-                //                state.FirstRealizedIndex = _item;
-
-                //                _firstItemIndex = _item;
-
-                //                //Debug.Print("RecommendedAnchorIndex " + context.RecommendedAnchorIndex +
-                //                //    "\navailableSize.Width " + availableSize.Width +
-                //                //    "\nRealizationRect.Top " + context.RealizationRect.Width +
-                //                //    "\nFirstRealizedIndex " + _item +
-                //                //    "\n_extentHeight" + _extentHeight);
-
-                //                //Debug.Print(context.LayoutOrigin.ToString());
-                //            }
-
-                //            int RowImgCount = _imageArrangement.RowImgCount[i];
-                //            double _newX = 0;
-
-                //            for ( var j = 0; j < RowImgCount; j++)
-                //            {
-                //                var _index = _item + j;
-                //                var container = context.GetOrCreateElementAt(_index);
-                //                var _rect = _imageArrangement.ImageRect[_index];
-                //                Rect _size = new()
-                //                {
-                //                    Width = _rect.Width * zoomImg,
-                //                    Height = _rect.Height * zoomImg,
-                //                    X = _newX,
-                //                    Y = _newTop
-                //                };
-
-                //                container.Measure(new Size(_size.Width, _size.Height));
-                //                state.LayoutRects.Add(_size);
-                //                _newX += _size.Width + _colSpacing;
-
-                //            }
-
-                //            //Debug.Print(_newX + "");
-                //        }
-
-                //        i++;    
-                //        _newTop += zoomImg * _imageArrangement.ImageRect[_item].Height + _rowSpacing;
-                //    }    
-                //}   
-
-
-
             }
 
-
             return new Size(availableSize.Width, _newTop);
-         
-            
+                    //if (recommond != -1)
+                    //{
+                    //    var index = Math.Max(LayoutImgArrangement.RowFirstIndex.IndexOf(recommond), 0);
+
+                    //    foreach (var _item in LayoutImgArrangement.RowFirstIndex)
+                    //    {
+                    //        double zoomImg = (availableSize.Width - LayoutImgArrangement.RowImgCount[i] * _colSpacing) / (LayoutImgArrangement.NowWidth - (LayoutImgArrangement.RowImgCount[i] - 1) * _colSpacing);
+
+                    //        if (index > i - 7 && index < i + 2)
+                    //        {
+                    //            if (state.FirstRealizedIndex == -1)
+                    //            {
+                    //                state.FirstRealizedIndex = _item;
+                    //                _firstItemIndex = _item;
+                    //            }
+
+                    //            int RowImgCount = LayoutImgArrangement.RowImgCount[i];
+                    //            double _newX = _colSpacing;
+
+                    //            for (var j = 0; j < RowImgCount; j++)
+                    //            {
+                    //                var _index = _item + j;
+                    //                var container = context.GetOrCreateElementAt(_index);
+                    //                var _rect = LayoutImgArrangement.ImageRect[_index];
+                    //                Rect _size = new()
+                    //                {
+                    //                    Width = _rect.Width * zoomImg,
+                    //                    Height = _rect.Height * zoomImg,
+                    //                    X = _newX,
+                    //                    Y = _newTop
+                    //                };
+
+                    //                container.Measure(new Size(_size.Width, _size.Height));
+                    //                state.LayoutRects.Add(_size);
+                    //                _newX += _size.Width + _colSpacing;
+
+                    //            }
+                    //        }
+
+                    //        i++;
+                    //        _newTop += zoomImg * LayoutImgArrangement.ImageRect[_item].Height + _rowSpacing;
+
+                    //    }
+
+                    //}
+                    //else
+                    //{
+                    //    foreach (var _item in LayoutImgArrangement.RowFirstIndex)
+                    //    {
+                    //        double zoomImg = (availableSize.Width - LayoutImgArrangement.RowImgCount[i] * _colSpacing) / (LayoutImgArrangement.NowWidth - (LayoutImgArrangement.RowImgCount[i] - 1) * _colSpacing);
+
+                    //        if (_newTop >= context.RealizationRect.Top && _newTop <= context.RealizationRect.Bottom)
+                    //        {
+
+                    //            if (state.FirstRealizedIndex == -1)
+                    //            {
+                    //                state.FirstRealizedIndex = _item;
+
+                    //                _firstItemIndex = _item;
+
+                    //            }
+
+                    //            int RowImgCount = LayoutImgArrangement.RowImgCount[i];
+                    //            double _newX = _colSpacing;
+
+                    //            for (var j = 0; j < RowImgCount; j++)
+                    //            {
+                    //                var _index = _item + j;
+                    //                var container = context.GetOrCreateElementAt(_index);
+                    //                var _rect = LayoutImgArrangement.ImageRect[_index];
+                    //                Rect _size = new()
+                    //                {
+                    //                    Width = _rect.Width * zoomImg,
+                    //                    Height = _rect.Height * zoomImg,
+                    //                    X = _newX,
+                    //                    Y = _newTop
+                    //                };
+
+                    //                container.Measure(new Size(_size.Width, _size.Height));
+                    //                state.LayoutRects.Add(_size);
+                    //                _newX += _size.Width + _colSpacing;
+
+                    //            }
+
+                    //        }
+
+                    //        i++;
+                    //        _newTop += zoomImg * LayoutImgArrangement.ImageRect[_item].Height + _rowSpacing;
+                    //    }
+                    //}
+
+
+
+
+
+
+
+
         }
 
 
@@ -366,7 +304,7 @@ namespace OneGallery
 
             foreach (var arrangeRect in state.LayoutRects)
             {
-                var container = virtualContext.GetOrCreateElementAt(currentIndex);
+                var container = (ItemContainer)virtualContext.GetOrCreateElementAt(currentIndex);
                 container.Arrange(arrangeRect);
                 currentIndex++;
             }
