@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OneGallery
 {
-    internal class SortableObservableCollection<T> : ObservableCollection<T>
+    class SortableObservableCollection<T> : ObservableCollection<T>
     {
         public SortableObservableCollection() : base()
         {

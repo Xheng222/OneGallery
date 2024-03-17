@@ -8,7 +8,9 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
@@ -40,9 +42,11 @@ namespace OneGallery
     {
         private LocalFolder HomePageLocalFolder {  get; set; }
 
+        private static PageParameters Parameters = new PageParameters(-1);
+
         private ImageArrangement HomePageImageArrangement {  get; set; }
 
-        private int StoreIndex = -1;
+        private Category NowCategory;
 
         readonly MainWindow Window;
 
@@ -51,52 +55,54 @@ namespace OneGallery
         public HomePage()
         {
             this.InitializeComponent();
-            this.NavigationCacheMode = NavigationCacheMode.Disabled;
             Window = (MainWindow)(Application.Current as App).m_window;
-            
+            HomePageLocalFolder = Window.FolderManager;
+            HomePageImageArrangement = HomePageLocalFolder.MyImageArrangement;
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
+          
             base.OnNavigatedTo(e);
-
-            if (e.Parameter is string && !string.IsNullOrWhiteSpace((string)e.Parameter))
+            Debug.Print("OnNavigatedTo");
+            if (e.Parameter is Category)
             {
-                                
-                Path = e.Parameter.ToString();
+                NowCategory = e.Parameter as Category;
 
-                if (HomePageLocalFolder is null)
-                {
-                    HomePageLocalFolder = new(Path);
-                    HomePageImageArrangement = HomePageLocalFolder.MyImageArrangement;
-                    await HomePageLocalFolder.Init();
-                    
-                    Debug.Print("Init String " + Path);
-                    
-                }
-                    
-                
-                Init();
-
+                NavigateHelper.OnNavigatedTo(
+                    Window.page, 
+                    NowCategory.Name, 
+                    o =>
+                    {
+                        if (o is PageParameters p)
+                        {
+                            Parameters = p;
+                        }
+                    });
             }
-            if (StoreIndex != -1)
-            {
-                Debug.Print("Index " + StoreIndex);
-                var anim = ConnectedAnimationService.GetForCurrentView().GetAnimation("BackwardConnectedAnimation");
-                if (anim != null)
-                {
-                    anim.TryStart(repeater2.GetOrCreateElement(StoreIndex));
-                    StoreIndex = -1;
-                }
 
-            }
+
+            await LoadData();
+            //await Window.InitFolder();
+            repeater2.ItemsSource = HomePageLocalFolder.ImgList;
+
+
+
 
         }
 
-        private void Init()
-        {
-            //await HomePageLocalFolder.Init();
 
+        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+        {
+            Parameters.Width = ScrollViewer.ActualWidth;
+            Parameters.Offset = ScrollViewer.VerticalOffset;
+            NavigateHelper.OnNavigatingFrom(NowCategory.Name, Window.page.Content, Parameters);
+            base.OnNavigatingFrom(e);
+        }
+
+        private async Task LoadData()
+        {
+            await Window.InitFolder();
             repeater2.ItemsSource = HomePageLocalFolder.ImgList;
 
         }
@@ -139,7 +145,7 @@ namespace OneGallery
 
         private void ItemContainer_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
-            Debug.Print("PointerEntered");
+
             var _temp = sender as ItemContainer;
             float _scaleX = (float)(_temp.ActualWidth / 2);
             float _scaleY = (float)(_temp.ActualHeight / 2); ;
@@ -176,7 +182,7 @@ namespace OneGallery
 
         private void ItemContainer_PointerExited(object sender, PointerRoutedEventArgs e)
         {
-            Debug.Print("PointerExited");
+
             var _temp = sender as ItemContainer;
             float _scaleX = (float)(_temp.ActualWidth / 2);
             float _scaleY = (float)(_temp.ActualHeight / 2);
@@ -224,7 +230,7 @@ namespace OneGallery
 
         private void ItemContainer_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-            Debug.Print("PointerPressed");
+
             var _temp = sender as ItemContainer;
             var _res = _temp.Resources;
 
@@ -238,7 +244,7 @@ namespace OneGallery
 
         private void ItemContainer_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
-            Debug.Print("PointerReleased");
+
             var _temp = sender as ItemContainer;
             var _ptr = e.GetCurrentPoint(_temp);
             Debug.Print("" + _ptr.Properties.PointerUpdateKind);
@@ -261,7 +267,7 @@ namespace OneGallery
 
                     var _index = int.Parse(_temp.Name);
                     var _image = HomePageLocalFolder.ImgList[_index];
-                    StoreIndex = _index;
+                    Parameters.SortedIndex = _index;
                     var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("ForwardConnectedAnimation", _temp);
                     anim.Configuration = new DirectConnectedAnimationConfiguration();
 
@@ -269,11 +275,6 @@ namespace OneGallery
                     ItemContainer_PointerExited(sender, e);
                 }
             }
-
-
-            
-
-
 
         }
 
@@ -289,10 +290,42 @@ namespace OneGallery
             }
         }
 
-        private void repeater2_Loaded(object sender, RoutedEventArgs e)
+        private async void ScrollViewer_Loaded(object sender, RoutedEventArgs e)
         {
-            //repeater2.UpdateLayout();
+            double _offset = Parameters.Offset * ScrollViewer.ActualWidth / Parameters.Width;
+            ScrollViewer.ChangeView(null, _offset, null);
+            await ConnectAnimate();
         }
+    
+        private async Task ConnectAnimate()
+        {
+            if (Parameters.SortedIndex != -1)
+            {
+                var anim = ConnectedAnimationService.GetForCurrentView().GetAnimation("BackwardConnectedAnimation");
 
+                if (anim != null)
+                {
+                    //while (repeater2.TryGetElement(1) is null)
+                    //{
+                    //    await Task.Delay(50);
+                    //}
+                    var _item = repeater2.TryGetElement(Parameters.SortedIndex);
+                    while (_item == null)
+                    {
+                        await Task.Delay(100);
+                        _item = repeater2.TryGetElement(Parameters.SortedIndex);
+                    }
+
+                        anim.TryStart(_item);
+
+                    //var a = anim.TryStart(repeater2.GetOrCreateElement(Parameters.SortedIndex));
+                    //Debug.Print(a + "");
+                    Parameters.SortedIndex = -1;
+                }
+
+            }
+        }
+        
+    
     }
 }

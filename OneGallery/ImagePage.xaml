@@ -10,7 +10,7 @@
     Background="Transparent">
 
     <StackPanel Background="Transparent">
-        <Image x:Name="detailedImage" MaxHeight="400" Source="{x:Bind ChooseImage.ImageLocation}" VerticalAlignment="Top" Stretch="Uniform" />
+        <Image x:Name="detailedImage" MaxHeight="500" Source="{x:Bind ChooseImage.ImageLocation}" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" />
 
 
     </StackPanel>

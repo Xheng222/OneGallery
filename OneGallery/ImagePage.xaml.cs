@@ -41,7 +41,6 @@ namespace OneGallery
         {
 
             base.OnNavigatedTo(e);
-
             // Store the item to be used in binding to UI
             ChooseImage = e.Parameter as PictureClass;
 
@@ -52,16 +51,16 @@ namespace OneGallery
 
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
+            var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("BackwardConnectedAnimation", detailedImage);
+            anim.Configuration = new DirectConnectedAnimationConfiguration();
             
             base.OnNavigatingFrom(e);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            Debug.Print(window.page.SourcePageType.ToString());
             base.OnNavigatedFrom(e);
-            var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("BackwardConnectedAnimation", detailedImage);
-            anim.Configuration = new DirectConnectedAnimationConfiguration();
+
         }
 
     }

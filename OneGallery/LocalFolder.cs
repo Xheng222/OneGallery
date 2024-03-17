@@ -33,16 +33,22 @@ namespace OneGallery
 
         public async Task Init()
         {
-            Folder = await StorageFolder.GetFolderFromPathAsync(FolderPath);
-            await SearchFolderImg();
+            if (Folder == null)
+            {
+                Debug.Print("Initing");
+                Folder = await StorageFolder.GetFolderFromPathAsync(FolderPath);
+                await SearchFolderImg();
             
 
-            MyImageArrangement.SetImgSize(
-                new Size[] {new(500, 125), new(500, 150), new(500, 250) },
-                new Size(500, 250),
-                new double[] { 400, 900, 1400 },
-                12, 12
-            );
+                MyImageArrangement.SetImgSize(
+                    new Size[] {new(500, 125), new(500, 150), new(500, 250) },
+                    new Size(500, 250),
+                    new double[] { 400, 900, 1400 },
+                    12, 12
+                );
+            }
+
+
         }
         public async Task SearchFolderImg()
         {
@@ -85,7 +91,7 @@ namespace OneGallery
                     var imageProps = await _image.Properties.GetImagePropertiesAsync();
                     var basicProperties = await _image.GetBasicPropertiesAsync();
 
-                    for (int j = 0; j < 5; j++)
+                    for (int j = 0; j < 20; j++)
                     {
                         ImgList.Add(new PictureClass(
                             _image.Path,
@@ -104,7 +110,7 @@ namespace OneGallery
                 _images = await _queryResult.GetFilesAsync(_index, _step);
             }
 
-
+            Debug.Print("Init success");
         }
 
 

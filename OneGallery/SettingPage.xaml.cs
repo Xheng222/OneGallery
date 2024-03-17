@@ -10,6 +10,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -29,6 +30,13 @@ namespace OneGallery
             this.InitializeComponent();
             var window = (MainWindow)(Application.Current as App).m_window;
 
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+
+            base.OnNavigatedTo(e);
+            Debug.Print("NavigationEventArgs " + e.NavigationMode);
         }
     }
 }

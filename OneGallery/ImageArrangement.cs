@@ -201,7 +201,7 @@ namespace OneGallery
 
                 }
 
-                int _count = 0;
+                int _count;
                 for (int i = 1; i < RowFirstIndex_Default[j].Count; i++)
                 {
                     _count = RowFirstIndex_Default[j][i] - RowFirstIndex_Default[j][i-1];

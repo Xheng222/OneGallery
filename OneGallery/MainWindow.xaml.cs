@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
+using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,7 +47,7 @@ namespace OneGallery
         }
     }
 
-    public sealed partial class MainWindow : Window
+    internal sealed partial class MainWindow : Window
     {
         public string appTitleText = "OneGallery";
 
@@ -64,6 +65,9 @@ namespace OneGallery
 
         // select ”√
         Dictionary<string, Category> NvItemDictionary = new Dictionary<string, Category>();
+
+        // Folder
+        public LocalFolder FolderManager { get; set; }
 
         public ObservableCollection<Category> Categories = new()
         {
@@ -112,7 +116,15 @@ namespace OneGallery
             this.SetTitleBar(AppTitleBar);
 
             appTitleText = "666";
+
+            FolderManager = new("H:\\1234");
         }
+
+        public async Task InitFolder()
+        {
+            await FolderManager.Init();
+        }
+
         bool TrySetAcrylicBackdrop()
         {
             if (Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController.IsSupported())
@@ -133,9 +145,9 @@ namespace OneGallery
             Type preNavPageType = Nv_page.CurrentSourcePageType;
 
             // Only navigate if the selected page isn't currently loaded.
-            if (navPageType is not null && !Equals(preNavPageType, navPageType))
+            if (navPageType is not null)
             {
-                Nv_page.Navigate(navPageType, page?.PageSource, new DrillInNavigationTransitionInfo());
+                Nv_page.Navigate(navPageType, page, new DrillInNavigationTransitionInfo());
                 
             }
         }
@@ -151,6 +163,7 @@ namespace OneGallery
                     if (!string.Equals(CurrentPage.Name, "Settings"))
                     {
                         Debug.Print("history " + CurrentPage.Name);
+                        HistoryPages.Push("Settings");
                         NavView_Navigate(typeof(Settings), null);
                     }
                 }
@@ -201,18 +214,31 @@ namespace OneGallery
         private void Nv_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
             Nv.IsBackEnabled = false;
+            //HistoryPages.Pop();
+            //if (HistoryPages.Count > 1)
+            //{
+            //    HistoryPages.Pop();
+            //    var NvItemName = HistoryPages.Peek();
+            //    if (NvItemName == "Settings")
+            //    {
+            //        NavView_Navigate(typeof(Settings), null);
+            //    }
+            //    else
+            //    {
+            //        var PageCategory = NvItemDictionary[NvItemName];
+            //        string pageName = "OneGallery." + PageCategory.PageType;
+            //        Type navPageType = Type.GetType(pageName);
+            //        NavView_Navigate(navPageType, PageCategory);
+            //    }
 
-            if (HistoryPages.Count > 1)
+            //}
+
+            if (Nv_page.CanGoBack)
             {
-                HistoryPages.Pop();
-                var NvItemName = HistoryPages.Peek();
-                var PageCategory = NvItemDictionary[NvItemName];
-                string pageName = "OneGallery." + PageCategory.PageType;
-                Type navPageType = Type.GetType(pageName);
-                NavView_Navigate(navPageType, PageCategory);
+                Nv_page.GoBack();
             }
 
-
+            
         }
 
         private async void Nv_Page_Navigated(object sender, NavigationEventArgs e)
@@ -243,6 +269,7 @@ namespace OneGallery
                     if (IsPaneOpened)
                     {
                         Nv.SelectedItem = NvItemDictionary[CurrentPageName];
+                        Debug.Print(NvItemDictionary[CurrentPageName].Name);
                     }
                     else
                     {
@@ -255,7 +282,13 @@ namespace OneGallery
 
 
 
-            if (HistoryPages.Count > 1)
+            //if (HistoryPages.Count > 1)
+            //{
+            //    await Task.Delay(250);
+            //    Nv.IsBackEnabled = true;
+            //}
+
+            if (Nv_page.CanGoBack)
             {
                 await Task.Delay(250);
                 Nv.IsBackEnabled = true;
@@ -381,7 +414,6 @@ namespace OneGallery
         {
             var rootGrid = VisualTreeHelper.GetChild(sender as NavigationView, 0);
             FindNaView(rootGrid);
-
             UpdateNvItemDir(Categories);
             HistoryPages.Push("HomePage1");
             Nv.SelectedItem = NvItemDictionary["HomePage1"];

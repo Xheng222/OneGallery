@@ -13,6 +13,7 @@
         <DataTemplate  x:Key="LinedFlowLayoutItemTemplate" x:DataType="local:PictureClass">
             <ItemContainer 
                 Name="{x:Bind Index}"
+                CanBeScrollAnchor="False"
                 Loaded="ItemContainer_Loaded"
                 PointerEntered="ItemContainer_PointerEntered"
                 PointerExited="ItemContainer_PointerExited"
@@ -146,26 +147,17 @@
 
     <Grid Background="Transparent" Height="Auto">
 
-        <ScrollViewer x:Name="ScrollViewer" Background="Transparent">
+        <ScrollViewer x:Name="ScrollViewer" Background="Transparent" Loaded="ScrollViewer_Loaded">
             <ItemsRepeater x:Name="repeater2" 
                            Background="Transparent"
                            HorizontalAlignment="Stretch"
                            Layout="{StaticResource MyFeedLayout}"
                            ItemTemplate="{StaticResource LinedFlowLayoutItemTemplate}"
-                           Loaded="repeater2_Loaded"
-                           
                            >
             </ItemsRepeater >
             
         </ScrollViewer>
 
-        <!--<Rectangle
-            Fill="AliceBlue"
-            Height="400"
-            Canvas.ZIndex="0"
-            >
-            
-        </Rectangle>-->
 
     </Grid>
 
