@@ -99,11 +99,19 @@ namespace OneGallery
                 IsLeaf = true }
         };
 
+        private string SelectPageName {  get; set; }
+
         public Frame page
         {
             get { return Nv_page; }
             set { Nv_page = value; }
         } 
+
+        public NavigationView NaView
+        {
+            get { return Nv; }
+            set { Nv = value; }
+        }
 
         public MainWindow()
         {
@@ -142,13 +150,11 @@ namespace OneGallery
         {
             // Get the page type before navigation so you can prevent duplicate
             // entries in the backstack.
-            Type preNavPageType = Nv_page.CurrentSourcePageType;
 
             // Only navigate if the selected page isn't currently loaded.
             if (navPageType is not null)
             {
-                Nv_page.Navigate(navPageType, page, new DrillInNavigationTransitionInfo());
-                
+                Nv_page.Navigate(navPageType, page, new EntranceNavigationTransitionInfo());
             }
         }
 
@@ -156,34 +162,36 @@ namespace OneGallery
                                  NavigationViewItemInvokedEventArgs args)
         {
             Type CurrentPage = Nv_page.CurrentSourcePageType;
+           
             if (CurrentPage != null)
             {
                 if (args.IsSettingsInvoked == true)
                 {
                     if (!string.Equals(CurrentPage.Name, "Settings"))
                     {
-                        Debug.Print("history " + CurrentPage.Name);
-                        HistoryPages.Push("Settings");
+                        HistoryPages.Push(SelectPageName);
+                        SelectPageName = "Settings";
                         NavView_Navigate(typeof(Settings), null);
                     }
                 }
                 else if (args.InvokedItemContainer != null)
                 {
-                    string ClickedPageName = args.InvokedItemContainer.Tag.ToString();
-                    var PageCategory = NvItemDictionary[ClickedPageName];
+                    string ClickedItemTag = args.InvokedItemContainer.Tag.ToString();
+                    var PageCategory = Nv.SelectedItem as Category;
 
-                    if (!string.Equals(CurrentPage.Name, ClickedPageName))
+                    if (!string.Equals(PageCategory.Name, SelectPageName))
                     {
-                        Debug.Print("history " + PageCategory.Name);
-                        HistoryPages.Push(PageCategory.Name);
-                        string pageName = "OneGallery." + PageCategory.PageType;
-                        Type navPageType = Type.GetType(pageName);
+                        HistoryPages.Push(SelectPageName);
+                        SelectPageName = PageCategory.Name;
+                        Type navPageType = Type.GetType("OneGallery." + PageCategory.PageType);
                         NavView_Navigate(navPageType, PageCategory);
                     }   
                 
                 }
 
             }
+
+
 
         }
 
@@ -243,50 +251,42 @@ namespace OneGallery
 
         private async void Nv_Page_Navigated(object sender, NavigationEventArgs e)
         {
-
-            string CurrentPageName = HistoryPages.Peek();
-
-
-            if (!CurrentPageName.Equals("ImagePage"))
+            if (e.NavigationMode == NavigationMode.Back)
             {
-                if (!PageDictionary.ContainsKey(CurrentPageName))
+                SelectPageName = HistoryPages.Pop();
+                if (!PageDictionary.ContainsKey(SelectPageName))
                 {
                     var rootGrid = VisualTreeHelper.GetChild(Nv, 0);
                     FindNaView(rootGrid);
                 }
 
-                if (CurrentPageName.Equals("Settings"))
+                if (SelectPageName.Equals("Settings"))
                 {
                     Nv.SelectedItem = PageDictionary["Settings"];
                 }
                 else
                 {
-                    if (ParentDictionary[CurrentPageName] is not null)
+                    if (ParentDictionary[SelectPageName] is not null)
                     {
-                        ExpandParentPage(ParentDictionary[CurrentPageName]);
+                        ExpandParentPage(ParentDictionary[SelectPageName]);
                     }
 
                     if (IsPaneOpened)
                     {
-                        Nv.SelectedItem = NvItemDictionary[CurrentPageName];
-                        Debug.Print(NvItemDictionary[CurrentPageName].Name);
+                        Nv.SelectedItem = NvItemDictionary[SelectPageName];
                     }
                     else
                     {
-                        SelectPage(CurrentPageName);
-                    
+                        SelectPage(SelectPageName);
+
                     }
-                    
+
                 }
             }
-
-
-
-            //if (HistoryPages.Count > 1)
-            //{
-            //    await Task.Delay(250);
-            //    Nv.IsBackEnabled = true;
-            //}
+            else if (Nv_page.CurrentSourcePageType == typeof(ImagePage))
+            {
+                HistoryPages.Push(SelectPageName);
+            }
 
             if (Nv_page.CanGoBack)
             {
@@ -299,35 +299,15 @@ namespace OneGallery
         private async void SelectPage(string PageName)
         {
 
-            var TypeName = Nv.SelectedItem.GetType().Name;
-            string SelectName;
-
-            if (TypeName.Equals("Category"))
+            string ParentPageName = PageName;
+            while (ParentDictionary[ParentPageName] != null)
             {
-                SelectName = ((Category)Nv.SelectedItem).Name;
-            }
-            else
-            {
-                SelectName = (string)((NavigationViewItem)Nv.SelectedItem).Content;
+                ParentPageName = ParentDictionary[ParentPageName];
             }
 
-            if (SelectName.Equals(PageName))
-            {
-                return;
-            }
-            else
-            {
-                string ParentPageName = PageName;
-                while (ParentDictionary[ParentPageName] != null)
-                {
-                    ParentPageName = ParentDictionary[ParentPageName];
-                }
-
-                Nv.SelectedItem = NvItemDictionary[ParentPageName];
-                await Task.Delay(50);
-                Nv.SelectedItem = NvItemDictionary[PageName];
-
-            }
+            Nv.SelectedItem = NvItemDictionary[ParentPageName];
+            await Task.Delay(50);
+            Nv.SelectedItem = NvItemDictionary[PageName];
 
         }
 
@@ -415,7 +395,7 @@ namespace OneGallery
             var rootGrid = VisualTreeHelper.GetChild(sender as NavigationView, 0);
             FindNaView(rootGrid);
             UpdateNvItemDir(Categories);
-            HistoryPages.Push("HomePage1");
+            SelectPageName = "HomePage1";
             Nv.SelectedItem = NvItemDictionary["HomePage1"];
             NavView_Navigate(typeof(HomePage), Categories[0]);
 

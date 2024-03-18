@@ -9,9 +9,62 @@
     mc:Ignorable="d"
     Background="Transparent">
 
-    <StackPanel Background="Transparent">
-        <Image x:Name="detailedImage" MaxHeight="500" Source="{x:Bind ChooseImage.ImageLocation}" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform" />
+    <Grid Background="Transparent" SizeChanged="Grid_SizeChanged">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <!--  TitleBar  -->
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <ScrollViewer 
+            x:Name="scrollViewer"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            HorizontalScrollMode="Disabled"
+            VerticalScrollMode="Disabled" 
+            HorizontalScrollBarVisibility="Visible"
+            PointerMoved="scrollViewer_PointerMoved"
+            PointerPressed="scrollViewer_PointerPressed"
+            PointerReleased="scrollViewer_PointerReleased"
+            >
+            <Grid x:Name="grid"
+                   VerticalAlignment="Center" 
+                   HorizontalAlignment="Center" 
+                  >
+
+                <Image x:Name="image" 
+                       Source="{x:Bind ChooseImage.ImageLocation}" 
+                       VerticalAlignment="Center" 
+                       HorizontalAlignment="Center" 
+                       Stretch="Uniform"        
+                       Margin="200, 50, 200, 50"
+                       />                
+            </Grid>
+
+        </ScrollViewer>
+
+        <Ellipse 
+            Fill="White"
+            Height="100"
+            Width="100"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom"
+            Opacity="0.8"
+            >
+                 
+        </Ellipse>
+        <FontIcon Glyph="&#xE80C;" 
+            Height="100"
+            Width="100"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom"
+         
+                  />  
 
 
-    </StackPanel>
+        <!--<ProgressRing IsActive="True" Width="32"/>-->
+
+
+    </Grid>
 </Page>

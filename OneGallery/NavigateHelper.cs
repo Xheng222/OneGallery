@@ -19,17 +19,17 @@ namespace OneGallery
         public static void OnNavigatedTo(Frame frame, string pageName, Action<object> backPageCallBack = null)
         {
 
-            object pageParameter;
+            object pageParameter = null;
             if (DictPageContent.ContainsKey(pageName))
             {
                 var temp = DictPageContent[pageName];
                 frame.Content = temp.PageContent;
                 pageParameter = temp.PageParameter;
 
-                backPageCallBack?.Invoke(pageParameter);
+                
             }
 
-            
+            backPageCallBack?.Invoke(pageParameter);
         }
 
         public static void OnNavigatingFrom(string pageName, object pageContent, ICloneable pageParameter)
@@ -73,9 +73,14 @@ namespace OneGallery
 
         public double Offset { get; set; }
 
-        public PageParameters(int sortedIndex)
+        public PageParameters()
         {
-            SortedIndex = sortedIndex;
+            Clear();
+        }
+
+        public void Clear()
+        {
+            SortedIndex = -1;
             Offset = 0;
             Width = 1;
         }

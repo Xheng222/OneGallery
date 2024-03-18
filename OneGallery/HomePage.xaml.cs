@@ -42,7 +42,7 @@ namespace OneGallery
     {
         private LocalFolder HomePageLocalFolder {  get; set; }
 
-        private static PageParameters Parameters = new PageParameters(-1);
+        private static PageParameters Parameters = new();
 
         private ImageArrangement HomePageImageArrangement {  get; set; }
 
@@ -77,6 +77,10 @@ namespace OneGallery
                         if (o is PageParameters p)
                         {
                             Parameters = p;
+                        }
+                        else
+                        {
+                            Parameters.Clear();
                         }
                     });
             }
@@ -320,10 +324,11 @@ namespace OneGallery
 
                     //var a = anim.TryStart(repeater2.GetOrCreateElement(Parameters.SortedIndex));
                     //Debug.Print(a + "");
-                    Parameters.SortedIndex = -1;
+                    
                 }
-
+                Parameters.SortedIndex = -1;
             }
+
         }
         
     
