@@ -2,10 +2,12 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using Microsoft.UI.Composition;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
@@ -23,11 +25,13 @@ namespace OneGallery
     {
         public PictureClass ChooseImage { get; set; }
 
-        float Zoom = 2f;
+        float Zoom = 1f;
 
         double ScrollBackWidth;
 
         double ScrollBackHeight;
+
+        ConnectedAnimation imageAnimation;
 
         readonly MainWindow window;
 
@@ -47,9 +51,9 @@ namespace OneGallery
             // Store the item to be used in binding to UI
             ChooseImage = e.Parameter as PictureClass;
 
-            ConnectedAnimation imageAnimation = ConnectedAnimationService.GetForCurrentView().GetAnimation("ForwardConnectedAnimation");
+            imageAnimation = ConnectedAnimationService.GetForCurrentView().GetAnimation("ForwardConnectedAnimation");
             // Connected animation + coordinated animation
-            imageAnimation?.TryStart(scrollViewer);
+
 
         }
 
@@ -89,14 +93,9 @@ namespace OneGallery
             scrollViewer.Width = ActualWidth;
             grid.Width = ActualWidth + 100;
             grid.Height = ActualHeight + 100;
-            image.Height = ActualHeight - 50;
-
+            image.Height = ActualHeight - 100;
+            image.Width = ActualWidth - 100;
             scrollViewer.CenterPoint = new((float)ActualWidth, (float)ActualHeight, 0);
-            ScrollBackWidth = ((Zoom - 1) * ActualWidth + 100 * Zoom) * 0.5;
-            ScrollBackHeight = ((Zoom - 1) * ActualHeight + 100 * Zoom) * 0.5;
-
-
-            scrollViewer.ChangeView(ScrollBackWidth, ScrollBackHeight, Zoom);
 
 
         }
@@ -113,27 +112,29 @@ namespace OneGallery
 
             if (scrollViewer.PointerCaptures != null && scrollViewer.PointerCaptures.Count > 0)
             {
-                var deltaX = (hOff + (scrollMousePoint.Position.X - e.GetCurrentPoint(scrollViewer).Position.X)) / Zoom;
-                var deltaY = (vOff + (scrollMousePoint.Position.Y - e.GetCurrentPoint(scrollViewer).Position.Y)) / Zoom;
-                
-                if (deltaX < 50)
+                var deltaX = hOff + (scrollMousePoint.Position.X - e.GetCurrentPoint(scrollViewer).Position.X);
+                var deltaY = vOff + (scrollMousePoint.Position.Y - e.GetCurrentPoint(scrollViewer).Position.Y);
+
+                if (deltaX < ScrollBackWidth)
                 {
-                    deltaX = 2500 * Zoom / (100 - deltaX);
+                    deltaX = 2500 / (0.2 * (ScrollBackWidth - deltaX) + 50) + ScrollBackWidth - 50;
+                    //deltaX = 50 * ScrollBackWidth / (ScrollBackWidth + 50 - deltaX);
                 }
-                else if (deltaX > scrollViewer.ScrollableWidth / Zoom - 50)
+                else if (deltaX > scrollViewer.ScrollableWidth - ScrollBackWidth)
                 {
-                    deltaX = scrollViewer.ScrollableWidth - 2500 * Zoom / (deltaX  - scrollViewer.ScrollableWidth / Zoom + 100);
+                    deltaX = scrollViewer.ScrollableWidth - ScrollBackWidth + 50 - 2500 / (0.2 * (deltaX - scrollViewer.ScrollableWidth + ScrollBackWidth) + 50);
                 }
 
-                if (deltaY < 50)
+                if (deltaY < ScrollBackHeight)
                 {
-                    deltaY = 2500 * Zoom / (100 - deltaY);
+                    deltaY = 2500 / (0.2 * (ScrollBackHeight - deltaY) + 50) + ScrollBackHeight - 50;
                 }
-                else if (deltaY > scrollViewer.ScrollableHeight / Zoom - 50)
+                else if (deltaY > scrollViewer.ScrollableHeight - ScrollBackHeight)
                 {
-                    deltaY = scrollViewer.ScrollableHeight - 2500 * Zoom / (deltaY - scrollViewer.ScrollableHeight / Zoom + 100);
+                    deltaY = scrollViewer.ScrollableHeight - ScrollBackHeight + 50 - 2500 / (0.2 * (deltaY - scrollViewer.ScrollableHeight + ScrollBackHeight) + 50);
                 }
-                
+
+
                 scrollViewer.ChangeView(deltaX, deltaY, null);
             }
 
@@ -154,19 +155,40 @@ namespace OneGallery
         private void scrollViewer_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
 
-            if (scrollViewer.VerticalOffset < 50 * Zoom)
-                scrollViewer.ChangeView(null, 50 * Zoom, null);
-            else if (scrollViewer.VerticalOffset > scrollViewer.ScrollableHeight - 50 * Zoom)
-                scrollViewer.ChangeView(null, scrollViewer.ScrollableHeight - 50 * Zoom, null);
+            if (scrollViewer.VerticalOffset < ScrollBackHeight)
+                scrollViewer.ChangeView(null, ScrollBackHeight, null);
+            else if (scrollViewer.VerticalOffset > scrollViewer.ScrollableHeight - ScrollBackHeight)
+                scrollViewer.ChangeView(null, scrollViewer.ScrollableHeight - ScrollBackHeight, null);
 
 
-            if (scrollViewer.HorizontalOffset < 50 * Zoom)
-                scrollViewer.ChangeView(50 * Zoom, null, null);
-            else if (scrollViewer.HorizontalOffset > scrollViewer.ScrollableWidth - 50 * Zoom)
-                scrollViewer.ChangeView(scrollViewer.ScrollableWidth - 50 * Zoom, null, null);
+            if (scrollViewer.HorizontalOffset < ScrollBackWidth)
+                scrollViewer.ChangeView(ScrollBackWidth, null, null);
+            else if (scrollViewer.HorizontalOffset > scrollViewer.ScrollableWidth - ScrollBackWidth)
+                scrollViewer.ChangeView(scrollViewer.ScrollableWidth - ScrollBackWidth, null, null);
             
             scrollViewer.ReleasePointerCaptures();
         }
+
+        private void scrollViewer_Loaded(object sender, RoutedEventArgs e)
+        {
+            //double _centerScrollBackWidth = ((Zoom - 1) * ActualWidth + 100 * Zoom) * 0.5;
+            ScrollBackWidth = ((Zoom - 1) * ActualWidth + 100 * Zoom) * 0.5;
+            ScrollBackHeight = ((Zoom - 1) * ActualHeight + 100 * Zoom) * 0.5;
+            Debug.Print("" + ScrollBackWidth);
+            scrollViewer.ChangeView(ScrollBackWidth, ScrollBackHeight, Zoom, true);
+        }
+
+        private async void image_Loaded(object sender, RoutedEventArgs e)
+        {
+            ScrollBackWidth = Math.Min((ActualWidth + 100 - image.ActualWidth) * Zoom / 2 - 50, ScrollBackWidth);
+            ScrollBackHeight = Math.Min((ActualHeight - image.ActualHeight) * Zoom / 2 - 50, ScrollBackHeight);
+
+            await Task.Delay(1);
+            imageAnimation?.TryStart(image);
+
+
+        }
+
     }
 
 

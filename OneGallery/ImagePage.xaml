@@ -22,15 +22,17 @@
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
             HorizontalScrollMode="Disabled"
-            VerticalScrollMode="Disabled" 
+            VerticalScrollMode="Enabled" 
             HorizontalScrollBarVisibility="Visible"
             PointerMoved="scrollViewer_PointerMoved"
             PointerPressed="scrollViewer_PointerPressed"
             PointerReleased="scrollViewer_PointerReleased"
+            Loaded="scrollViewer_Loaded"
             >
             <Grid x:Name="grid"
                    VerticalAlignment="Center" 
                    HorizontalAlignment="Center" 
+                   Canvas.ZIndex="0"
                   >
 
                 <Image x:Name="image" 
@@ -38,7 +40,8 @@
                        VerticalAlignment="Center" 
                        HorizontalAlignment="Center" 
                        Stretch="Uniform"        
-                       Margin="200, 50, 200, 50"
+                       Margin="50, 50, 50, 50"
+                       Loaded="image_Loaded"
                        />                
             </Grid>
 
@@ -51,6 +54,7 @@
             HorizontalAlignment="Left"
             VerticalAlignment="Bottom"
             Opacity="0.8"
+             Canvas.ZIndex="2"
             >
                  
         </Ellipse>
@@ -59,7 +63,7 @@
             Width="100"
             HorizontalAlignment="Left"
             VerticalAlignment="Bottom"
-         
+            Canvas.ZIndex="2"
                   />  
 
 
