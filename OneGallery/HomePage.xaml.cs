@@ -30,6 +30,7 @@ using Windows.Foundation.Collections;
 using Windows.Foundation.Metadata;
 using Windows.Storage;
 using Windows.Storage.Search;
+using Windows.UI;
 using Windows.UI.StartScreen;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -58,13 +59,15 @@ namespace OneGallery
             Window = (MainWindow)(Application.Current as App).m_window;
             HomePageLocalFolder = Window.FolderManager;
             HomePageImageArrangement = HomePageLocalFolder.MyImageArrangement;
+
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-          
+
+
             base.OnNavigatedTo(e);
-            Debug.Print("OnNavigatedTo");
+
             if (e.Parameter is Category)
             {
                 NowCategory = e.Parameter as Category;
@@ -224,12 +227,11 @@ namespace OneGallery
         private void ItemContainer_Loaded(object sender, RoutedEventArgs e)
         {
             var _temp = sender as ItemContainer;
-            var ScaleTransition = new Vector3Transition()
+            _temp.ScaleTransition = new Vector3Transition()
             {
                 Components = Vector3TransitionComponents.X | Vector3TransitionComponents.Y,
                 Duration = new TimeSpan(1500000)
             };
-            _temp.ScaleTransition = ScaleTransition;
         }
 
         private void ItemContainer_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -272,10 +274,12 @@ namespace OneGallery
                     var _index = int.Parse(_temp.Name);
                     var _image = HomePageLocalFolder.ImgList[_index];
                     Parameters.SortedIndex = _index;
+
+
                     var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("ForwardConnectedAnimation", _temp);
                     anim.Configuration = new DirectConnectedAnimationConfiguration();
-
                     Window.page.Navigate(typeof(ImagePage), _image, new DrillInNavigationTransitionInfo());
+
                     ItemContainer_PointerExited(sender, e);
                 }
             }
@@ -309,10 +313,7 @@ namespace OneGallery
 
                 if (anim != null)
                 {
-                    //while (repeater2.TryGetElement(1) is null)
-                    //{
-                    //    await Task.Delay(50);
-                    //}
+
                     var _item = repeater2.TryGetElement(Parameters.SortedIndex);
                     while (_item == null)
                     {

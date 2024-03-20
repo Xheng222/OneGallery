@@ -10,11 +10,22 @@
     mc:Ignorable="d"
     >
 
-    <Grid x:Name="Grid">
+    <Grid x:Name="Grid" Background="Transparent">
         <Grid.Resources>
-            <DataTemplate  x:Key="NavigationViewMenuItem" x:DataType="local:Category">
-                <NavigationViewItem Tag="{x:Bind Name}" Content="{x:Bind Name}" Icon="{x:Bind Icon}" MenuItemsSource="{x:Bind Children}" IsExpanded="True"/>
-            </DataTemplate>
+
+
+            <ResourceDictionary>
+                <ResourceDictionary.ThemeDictionaries>
+                    <ResourceDictionary x:Key="Default">
+                        <AcrylicBrush x:Key="CustomAcrylicInAppBrush" TintOpacity="1" TintColor="Black" FallbackColor="Red"/>
+                        <AcrylicBrush x:Key="CustomAcrylicInAppLuminosity" TintOpacity="0" TintLuminosityOpacity="0" TintColor="Black" FallbackColor="Transparent"/>
+                    </ResourceDictionary>
+                </ResourceDictionary.ThemeDictionaries>
+                <DataTemplate  x:Key="NavigationViewMenuItem" x:DataType="local:Category">
+                    <NavigationViewItem Tag="{x:Bind Name}" Content="{x:Bind Name}" Icon="{x:Bind Icon}" MenuItemsSource="{x:Bind Children}" IsExpanded="True"/>
+                </DataTemplate>                
+            </ResourceDictionary>
+
         </Grid.Resources>
         
         <Grid.ColumnDefinitions>
@@ -42,13 +53,10 @@
                     x:Name="AppTitle"
                     Margin="12,16,0,0"
                     VerticalAlignment="Stretch"
-
                     Style="{StaticResource CaptionTextBlockStyle}"
                     Text="{x:Bind appTitleText}" />
             </StackPanel>
         </Border>
-
-         <!--SelectionChanged="Nv_SelectionChanged"-->
 
         <NavigationView x:Name="Nv" 
                         PaneDisplayMode="Left"
@@ -73,6 +81,8 @@
                 <Thickness x:Key="NavigationViewContentGridBorderThickness">0,0,0,0</Thickness>
                 <!-- This is the rounded corner on the Top left of the L Pattern -->
                 <CornerRadius x:Key="NavigationViewContentGridCornerRadius">8,0,0,0</CornerRadius>
+
+                <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" Opacity="0.5"/>
             </NavigationView.Resources>
 
             <Frame x:Name="Nv_page" Navigated="Nv_Page_Navigated" Background="Transparent">

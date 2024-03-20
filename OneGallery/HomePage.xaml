@@ -7,7 +7,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    SizeChanged="Page_SizeChanged">
+    SizeChanged="Page_SizeChanged"
+    Background="Transparent"
+    >
 
     <Page.Resources>
         <DataTemplate  x:Key="LinedFlowLayoutItemTemplate" x:DataType="local:PictureClass">
@@ -18,8 +20,7 @@
                 PointerEntered="ItemContainer_PointerEntered"
                 PointerExited="ItemContainer_PointerExited"
                 PointerPressed="ItemContainer_PointerPressed"
-                PointerReleased="ItemContainer_PointerReleased"
-                >
+                PointerReleased="ItemContainer_PointerReleased"      >
                 <Grid>
                     <Rectangle  
                         Name="Border"
@@ -145,7 +146,7 @@
 
 
 
-    <Grid Background="Transparent" Height="Auto">
+    <Grid x:Name="grid" Height="Auto">
 
         <ScrollViewer x:Name="ScrollViewer" Background="Transparent" Loaded="ScrollViewer_Loaded">
             <ItemsRepeater x:Name="repeater2" 

@@ -10,6 +10,7 @@ using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -20,6 +21,7 @@ using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI;
 using Windows.UI.ApplicationSettings;
 using WinRT;
 
@@ -51,11 +53,15 @@ namespace OneGallery
     {
         public string appTitleText = "OneGallery";
 
+       
+
         public Stack<string> HistoryPages = new();
 
         private bool IsPaneOpened = true;
 
         Stack<string> PartenPagemName = new();
+
+
 
         // expand ”√
         Dictionary<string, string> ParentDictionary = new Dictionary<string, string>();
@@ -133,12 +139,25 @@ namespace OneGallery
             await FolderManager.Init();
         }
 
+        SystemBackdropConfiguration m_configurationSource;
+        DesktopAcrylicController m_backdropController;
+
         bool TrySetAcrylicBackdrop()
         {
-            if (Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController.IsSupported())
+            if (DesktopAcrylicController.IsSupported())
             {
-                this.SystemBackdrop = null;
-                this.SystemBackdrop = new Microsoft.UI.Xaml.Media.DesktopAcrylicBackdrop();
+                m_configurationSource = new SystemBackdropConfiguration();
+                m_configurationSource.IsInputActive = true;
+                m_configurationSource.Theme = SystemBackdropTheme.Default;
+
+                m_backdropController = new DesktopAcrylicController();
+                m_backdropController.Kind = DesktopAcrylicKind.Default;
+                m_backdropController.TintColor = Color.FromArgb(255, 243, 246, 247);
+                m_backdropController.TintOpacity = 0.5f;
+                m_backdropController.AddSystemBackdropTarget(this.As<Microsoft.UI.Composition.ICompositionSupportsSystemBackdrop>());
+                m_backdropController.SetSystemBackdropConfiguration(m_configurationSource);
+
+                //this.SystemBackdrop = new Microsoft.UI.Xaml.Media.DesktopAcrylicBackdrop();
 
                 return true;
             }
@@ -219,30 +238,27 @@ namespace OneGallery
             //}
         }
 
-        private void Nv_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+        public async void Nv_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
             Nv.IsBackEnabled = false;
-            //HistoryPages.Pop();
-            //if (HistoryPages.Count > 1)
-            //{
-            //    HistoryPages.Pop();
-            //    var NvItemName = HistoryPages.Peek();
-            //    if (NvItemName == "Settings")
-            //    {
-            //        NavView_Navigate(typeof(Settings), null);
-            //    }
-            //    else
-            //    {
-            //        var PageCategory = NvItemDictionary[NvItemName];
-            //        string pageName = "OneGallery." + PageCategory.PageType;
-            //        Type navPageType = Type.GetType(pageName);
-            //        NavView_Navigate(navPageType, PageCategory);
-            //    }
-
-            //}
 
             if (Nv_page.CanGoBack)
             {
+                if (Nv_page.CurrentSourcePageType == typeof(ImagePage))
+                {
+                    if (ImagePage.NowImagePage.ScrollViewerRotation % 360 != 0)
+                    {
+                        var _temp = (int)(ImagePage.NowImagePage.ScrollViewerRotation / 180);
+                        if (_temp < 0)
+                            _temp -= 180;
+                        else
+                            _temp += 180;
+                        _temp = (_temp / 360) / 360; 
+                        ImagePage.NowImagePage.ScrollViewerRotation = _temp;
+                        await Task.Delay(250);
+                    }
+                }
+                
                 Nv_page.GoBack();
             }
 
@@ -399,6 +415,7 @@ namespace OneGallery
             Nv.SelectedItem = NvItemDictionary["HomePage1"];
             NavView_Navigate(typeof(HomePage), Categories[0]);
 
+            
 
         }
 

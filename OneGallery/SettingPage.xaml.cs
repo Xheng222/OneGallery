@@ -36,7 +36,6 @@ namespace OneGallery
         {
 
             base.OnNavigatedTo(e);
-            Debug.Print("NavigationEventArgs " + e.NavigationMode);
         }
     }
 }

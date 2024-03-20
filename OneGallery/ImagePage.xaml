@@ -7,12 +7,12 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="Transparent">
+    Background="Transparent"
+    >
 
     <Grid Background="Transparent" SizeChanged="Grid_SizeChanged">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
-            <!--  TitleBar  -->
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -22,50 +22,304 @@
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
             HorizontalScrollMode="Disabled"
-            VerticalScrollMode="Enabled" 
-            HorizontalScrollBarVisibility="Visible"
-            PointerMoved="scrollViewer_PointerMoved"
-            PointerPressed="scrollViewer_PointerPressed"
-            PointerReleased="scrollViewer_PointerReleased"
-            Loaded="scrollViewer_Loaded"
-            >
+            VerticalScrollMode="Disabled" 
+            HorizontalScrollBarVisibility="Hidden"
+            VerticalScrollBarVisibility="Hidden"
+            Loaded="scrollViewer_Loaded"      
+            Canvas.ZIndex="0" >
             <Grid x:Name="grid"
                    VerticalAlignment="Center" 
                    HorizontalAlignment="Center" 
-                   Canvas.ZIndex="0"
+                   Canvas.ZIndex="0"  
                   >
 
                 <Image x:Name="image" 
-                       Source="{x:Bind ChooseImage.ImageLocation}" 
                        VerticalAlignment="Center" 
                        HorizontalAlignment="Center" 
                        Stretch="Uniform"        
-                       Margin="50, 50, 50, 50"
-                       Loaded="image_Loaded"
-                       />                
+                       Margin="50, 0, 50, 50"
+                       Loaded="image_Loaded" >
+                    <Image.Source>
+                        <BitmapImage DecodePixelHeight="{x:Bind ChooseImage.Height}" UriSource="{x:Bind ChooseImage.ImageLocation}" />
+                    </Image.Source>
+                </Image>
             </Grid>
-
         </ScrollViewer>
 
-        <Ellipse 
-            Fill="White"
-            Height="100"
-            Width="100"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Bottom"
-            Opacity="0.8"
-             Canvas.ZIndex="2"
-            >
-                 
-        </Ellipse>
-        <FontIcon Glyph="&#xE80C;" 
-            Height="100"
-            Width="100"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Bottom"
-            Canvas.ZIndex="2"
-                  />  
+        <Rectangle
+            x:Name="ToolsBar"
+            Height="50"
+            Fill="#FFFFFF"
+            VerticalAlignment="Bottom" 
+            HorizontalAlignment="Center"
+            Margin="0, 0, 0, 30"
+            RadiusX="25"
+            RadiusY="25"     
+            Opacity="0"
+            />
 
+
+        <Ellipse 
+            x:Name="LeftEllipse"
+            Fill="#FFFFFF"
+            Stroke="#363636"
+            StrokeThickness="0"
+            Height="50"
+            Width="50"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom"
+            Opacity="0"
+            Canvas.ZIndex="2"
+            >
+        </Ellipse>
+
+        <Ellipse 
+            x:Name="RightEllipse"
+            Fill="#FFFFFF"
+            Height="50"
+            Width="50"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Opacity="0"
+            Canvas.ZIndex="2"
+            >
+        </Ellipse>
+
+        <Ellipse 
+            x:Name="CenterEllipse"
+            Fill="#FFFFFF"
+            Height="50"
+            Width="50"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Bottom"
+            Opacity="0"
+            Canvas.ZIndex="2"
+            Margin="0, 0, 0, 30"
+            >
+        </Ellipse>
+
+        <Ellipse 
+            x:Name="DeleteEllipse"
+            Fill="#FFFFFF"
+            Height="50"
+            Width="50"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Opacity="0"
+            Canvas.ZIndex="2"
+            >
+        </Ellipse>
+
+        <FontIcon 
+            x:Name="LeftFontIcon"
+            Glyph="&#xE80C;" 
+            Height="50"
+            Width="50"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom"       
+            Canvas.ZIndex="3" 
+            Opacity="0"
+            PointerEntered="LeftFontIcon_PointerEntered"
+            PointerExited="LeftFontIcon_PointerExited"
+            PointerPressed="LeftFontIcon_PointerPressed"
+            PointerReleased="LeftFontIcon_PointerReleased"
+            />  
+
+        <FontIcon 
+            x:Name="RightFontIcon"
+            Glyph="&#xE80D;" 
+            Height="50"
+            Width="50"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Canvas.ZIndex="3"
+            Opacity="0"
+            PointerEntered="RightFontIcon_PointerEntered"
+            PointerExited="RightFontIcon_PointerExited"
+            PointerPressed="RightFontIcon_PointerPressed"
+            PointerReleased="RightFontIcon_PointerReleased"
+            />
+
+        <FontIcon 
+            x:Name="CenterFontIcon"
+            Glyph="&#xE751;" 
+            Height="50"
+            Width="50"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Bottom"
+            Canvas.ZIndex="3"
+            Margin="0, 0, 0, 30"
+            Opacity="0"
+            PointerEntered="CenterFontIcon_PointerEntered"
+            PointerExited="CenterFontIcon_PointerExited"
+            PointerPressed="CenterFontIcon_PointerPressed"
+            PointerReleased="CenterFontIcon_PointerReleased"
+            />
+
+        <FontIcon 
+            x:Name="DeleteFontIcon"
+            Foreground="#EE4B2B"
+            Glyph="&#xE74D;" 
+            Height="50"
+            Width="50"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Canvas.ZIndex="3"  
+            Opacity="0"
+            PointerEntered="DeleteFontIcon_PointerEntered"
+            PointerExited="DeleteFontIcon_PointerExited"
+            PointerPressed="DeleteFontIcon_PointerPressed"
+            PointerReleased="DeleteFontIcon_PointerReleased"
+            />
+
+
+        <Grid.Resources>
+            <!--ToolsBarO-->
+            <Storyboard x:Name="ToolsBarOut">
+                <DoubleAnimation
+                Storyboard.TargetName="ToolsBar"
+                Storyboard.TargetProperty="Opacity"
+                From="0.5" To="0.0" Duration="0:0:1" 
+                AutoReverse="False" />
+            </Storyboard>
+            <Storyboard x:Name="ToolsBarIn">
+                <DoubleAnimation
+                Storyboard.TargetName="ToolsBar"
+                Storyboard.TargetProperty="Opacity"
+                To="0.5" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+
+            <!--Left-->
+            <Storyboard x:Name="LeftEllipseOut">
+                <DoubleAnimation
+                Storyboard.TargetName="LeftEllipse"
+                Storyboard.TargetProperty="Opacity"
+                From="0.8" To="0.0" Duration="0:0:1" 
+                AutoReverse="False" />
+            </Storyboard>
+            <Storyboard x:Name="LeftEllipseIn">
+                <DoubleAnimation
+                Storyboard.TargetName="LeftEllipse"
+                Storyboard.TargetProperty="Opacity"
+                To="0.8" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+
+            <Storyboard x:Name="LeftFontIconOut">
+                <DoubleAnimation
+                Storyboard.TargetName="LeftFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                From="1.0" To="0.0" Duration="0:0:1" 
+                AutoReverse="False" />
+            </Storyboard>
+            <Storyboard x:Name="LeftFontIconIn">
+                <DoubleAnimation
+                Storyboard.TargetName="LeftFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                To="1.0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+
+
+            <!--Right-->
+            <Storyboard x:Name="RightEllipseOut">
+                <DoubleAnimation
+                Storyboard.TargetName="RightEllipse"
+                Storyboard.TargetProperty="Opacity"
+                From="0.8" To="0.0" Duration="0:0:1" 
+                AutoReverse="False" />
+            </Storyboard>
+            <Storyboard x:Name="RightEllipseIn">
+                <DoubleAnimation
+                Storyboard.TargetName="RightEllipse"
+                Storyboard.TargetProperty="Opacity"
+                To="0.8" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+            
+            <Storyboard x:Name="RightFontIconOut">
+                <DoubleAnimation
+                Storyboard.TargetName="RightFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                From="1" To="0.0" Duration="0:0:1" 
+                AutoReverse="False" />
+            </Storyboard>
+            <Storyboard x:Name="RightFontIconIn">
+                <DoubleAnimation
+                Storyboard.TargetName="RightFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                To="1.0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+
+
+            <!--Center-->
+            <Storyboard x:Name="CenterEllipseOut">
+                <DoubleAnimation
+                Storyboard.TargetName="CenterEllipse"
+                Storyboard.TargetProperty="Opacity"
+                From="0.8" To="0.0" Duration="0:0:1" 
+                AutoReverse="False" />
+            </Storyboard>
+            <Storyboard x:Name="CenterEllipseIn">
+                <DoubleAnimation
+                Storyboard.TargetName="CenterEllipse"
+                Storyboard.TargetProperty="Opacity"
+                To="0.8" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+            
+            <Storyboard x:Name="CenterFontIconOut">
+                <DoubleAnimation
+                Storyboard.TargetName="CenterFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                From="1.0" To="0.0" Duration="0:0:1" 
+                AutoReverse="False" />
+            </Storyboard>
+            <Storyboard x:Name="CenterFontIconIn">
+                <DoubleAnimation
+                Storyboard.TargetName="CenterFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                To="1.0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+
+
+            <!--Delete-->
+            <Storyboard x:Name="DeleteEllipseOut">
+                <DoubleAnimation
+                Storyboard.TargetName="DeleteEllipse"
+                Storyboard.TargetProperty="Opacity"
+                From="0.8" To="0.0" Duration="0:0:0.5" 
+                AutoReverse="False" />
+            </Storyboard>
+            <Storyboard x:Name="DeleteEllipseIn">
+                <DoubleAnimation
+                Storyboard.TargetName="DeleteEllipse"
+                Storyboard.TargetProperty="Opacity"
+                To="0.8" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+            
+            <Storyboard x:Name="DeleteFontIconOut">
+                <DoubleAnimation
+                Storyboard.TargetName="DeleteFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                From="1.0" To="0.0" Duration="0:0:0.5" 
+                AutoReverse="False" />
+            </Storyboard>
+            <Storyboard x:Name="DeleteFontIconIn">
+                <DoubleAnimation
+                Storyboard.TargetName="DeleteFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                To="1.0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+
+        </Grid.Resources>
+        
+        
 
         <!--<ProgressRing IsActive="True" Width="32"/>-->
 
