@@ -26,7 +26,7 @@
                         Name="Border"
                         Stroke="#0067C0"
                         Fill="Transparent"
-                        StrokeThickness="10"
+                        StrokeThickness="2.5"
                         Canvas.ZIndex="2" 
                         RadiusX="5"
                         RadiusY="5"
@@ -72,7 +72,7 @@
                         <DoubleAnimation                
                             Storyboard.TargetName="Border"
                             Storyboard.TargetProperty="Opacity"
-                            From="0.0" To="1.0" Duration="0:0:0.2" 
+                            To="1.0" Duration="0:0:0.2" 
                             AutoReverse="False">
                         </DoubleAnimation>
                     </Storyboard>
@@ -80,7 +80,7 @@
                         <DoubleAnimation                
                             Storyboard.TargetName="Border"
                             Storyboard.TargetProperty="Opacity"
-                            From="1.0" To="0.0" Duration="0:0:0.2" 
+                            To="0.0" Duration="0:0:0.2" 
                             AutoReverse="False">
                         </DoubleAnimation>
                     </Storyboard>
@@ -88,7 +88,7 @@
                         <DoubleAnimation                
                             Storyboard.TargetName="CheckBox"
                             Storyboard.TargetProperty="Opacity"
-                            From="0.0" To="1.0" Duration="0:0:0.15" 
+                            To="1.0" Duration="0:0:0.2" 
                             AutoReverse="False">
                         </DoubleAnimation>
                     </Storyboard>
@@ -96,7 +96,7 @@
                         <DoubleAnimation                
                             Storyboard.TargetName="CheckBox"
                             Storyboard.TargetProperty="Opacity"
-                            From="1.0" To="0.0" Duration="0:0:0.15" 
+                            To="0.0" Duration="0:0:0.2" 
                             AutoReverse="False">
                         </DoubleAnimation>
                     </Storyboard>
@@ -104,7 +104,7 @@
                         <DoubleAnimation                
                             Storyboard.TargetName="Rectangle"
                             Storyboard.TargetProperty="Opacity"
-                            From="0.0" To="0.8" Duration="0:0:0.15" 
+                            To="0.8" Duration="0:0:0.2" 
                             AutoReverse="False">
                         </DoubleAnimation>
                     </Storyboard>
@@ -112,7 +112,7 @@
                         <DoubleAnimation                
                             Storyboard.TargetName="Rectangle"
                             Storyboard.TargetProperty="Opacity"
-                            From="0.8" To="0.0" Duration="0:0:0.15" 
+                            To="0.0" Duration="0:0:0.2" 
                             AutoReverse="False">
                         </DoubleAnimation>
                     </Storyboard>

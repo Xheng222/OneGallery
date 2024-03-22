@@ -7,16 +7,20 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="Transparent"
-    >
+    Background="Transparent" >
 
-    <Grid Background="Transparent" SizeChanged="Grid_SizeChanged">
+    <Grid 
+          x:Name="PageGrid"
+          Background="Transparent" 
+          SizeChanged="Grid_SizeChanged">
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
+        
         <ScrollViewer 
             x:Name="scrollViewer"
             HorizontalAlignment="Center"
@@ -30,8 +34,7 @@
             <Grid x:Name="grid"
                    VerticalAlignment="Center" 
                    HorizontalAlignment="Center" 
-                   Canvas.ZIndex="0"  
-                  >
+                   Canvas.ZIndex="0" >
 
                 <Image x:Name="image" 
                        VerticalAlignment="Center" 
@@ -56,7 +59,8 @@
             RadiusX="25"
             RadiusY="25"     
             Opacity="0"
-            />
+            PointerEntered="ToolsBar_PointerEntered"
+            PointerExited="ToolsBar_PointerExited" />
 
 
         <Ellipse 
@@ -68,9 +72,24 @@
             Width="50"
             HorizontalAlignment="Left"
             VerticalAlignment="Bottom"
+            CenterPoint="25, 25, 0"
             Opacity="0"
             Canvas.ZIndex="2"
             >
+        </Ellipse>
+
+        <Ellipse 
+            x:Name="LeftEllipseBorder"
+            Fill="#D9DDDC"
+            Stroke="#48494B"
+            StrokeThickness="1"
+            Height="50"
+            Width="50"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom"
+            CenterPoint="25, 25, 0"
+            Opacity="0"
+            Canvas.ZIndex="2"  >
         </Ellipse>
 
         <Ellipse 
@@ -80,6 +99,7 @@
             Width="50"
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom"
+            CenterPoint="25, 25, 0"
             Opacity="0"
             Canvas.ZIndex="2"
             >
@@ -92,6 +112,7 @@
             Width="50"
             HorizontalAlignment="Center"
             VerticalAlignment="Bottom"
+            CenterPoint="25, 25, 0"
             Opacity="0"
             Canvas.ZIndex="2"
             Margin="0, 0, 0, 30"
@@ -105,6 +126,7 @@
             Width="50"
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom"
+            CenterPoint="25, 25, 0"
             Opacity="0"
             Canvas.ZIndex="2"
             >
@@ -116,13 +138,15 @@
             Height="50"
             Width="50"
             HorizontalAlignment="Left"
-            VerticalAlignment="Bottom"       
+            VerticalAlignment="Bottom"    
+            CenterPoint="25, 25, 0"
             Canvas.ZIndex="3" 
             Opacity="0"
             PointerEntered="LeftFontIcon_PointerEntered"
             PointerExited="LeftFontIcon_PointerExited"
             PointerPressed="LeftFontIcon_PointerPressed"
             PointerReleased="LeftFontIcon_PointerReleased"
+            PointerMoved="LeftFontIcon_PointerMoved"
             />  
 
         <FontIcon 
@@ -132,6 +156,7 @@
             Width="50"
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom"
+            CenterPoint="25, 25, 0"
             Canvas.ZIndex="3"
             Opacity="0"
             PointerEntered="RightFontIcon_PointerEntered"
@@ -147,6 +172,7 @@
             Width="50"
             HorizontalAlignment="Center"
             VerticalAlignment="Bottom"
+            CenterPoint="25, 25, 0"
             Canvas.ZIndex="3"
             Margin="0, 0, 0, 30"
             Opacity="0"
@@ -164,6 +190,7 @@
             Width="50"
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom"
+            CenterPoint="25, 25, 0"
             Canvas.ZIndex="3"  
             Opacity="0"
             PointerEntered="DeleteFontIcon_PointerEntered"
@@ -179,7 +206,7 @@
                 <DoubleAnimation
                 Storyboard.TargetName="ToolsBar"
                 Storyboard.TargetProperty="Opacity"
-                From="0.5" To="0.0" Duration="0:0:1" 
+                From="0.5" To="0.0" Duration="0:0:0.5" 
                 AutoReverse="False" />
             </Storyboard>
             <Storyboard x:Name="ToolsBarIn">
@@ -195,7 +222,7 @@
                 <DoubleAnimation
                 Storyboard.TargetName="LeftEllipse"
                 Storyboard.TargetProperty="Opacity"
-                From="0.8" To="0.0" Duration="0:0:1" 
+                From="0.8" To="0.0" Duration="0:0:0.5" 
                 AutoReverse="False" />
             </Storyboard>
             <Storyboard x:Name="LeftEllipseIn">
@@ -205,12 +232,27 @@
                 To="0.8" Duration="0:0:0.2" 
                 AutoReverse="False" />
             </Storyboard>
+            
+            <Storyboard x:Name="LeftEllipseBorderIn">
+                <DoubleAnimation
+                Storyboard.TargetName="LeftEllipseBorder"
+                Storyboard.TargetProperty="Opacity"
+                To="0.5" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+            <Storyboard x:Name="LeftEllipseBorderOut">
+                <DoubleAnimation
+                Storyboard.TargetName="LeftEllipseBorder"
+                Storyboard.TargetProperty="Opacity"
+                To="0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
 
             <Storyboard x:Name="LeftFontIconOut">
                 <DoubleAnimation
                 Storyboard.TargetName="LeftFontIcon"
                 Storyboard.TargetProperty="Opacity"
-                From="1.0" To="0.0" Duration="0:0:1" 
+                From="1.0" To="0.0" Duration="0:0:0.5" 
                 AutoReverse="False" />
             </Storyboard>
             <Storyboard x:Name="LeftFontIconIn">
@@ -227,7 +269,7 @@
                 <DoubleAnimation
                 Storyboard.TargetName="RightEllipse"
                 Storyboard.TargetProperty="Opacity"
-                From="0.8" To="0.0" Duration="0:0:1" 
+                From="0.8" To="0.0" Duration="0:0:0.5" 
                 AutoReverse="False" />
             </Storyboard>
             <Storyboard x:Name="RightEllipseIn">
@@ -242,7 +284,7 @@
                 <DoubleAnimation
                 Storyboard.TargetName="RightFontIcon"
                 Storyboard.TargetProperty="Opacity"
-                From="1" To="0.0" Duration="0:0:1" 
+                From="1" To="0.0" Duration="0:0:0.5" 
                 AutoReverse="False" />
             </Storyboard>
             <Storyboard x:Name="RightFontIconIn">
@@ -259,7 +301,7 @@
                 <DoubleAnimation
                 Storyboard.TargetName="CenterEllipse"
                 Storyboard.TargetProperty="Opacity"
-                From="0.8" To="0.0" Duration="0:0:1" 
+                From="0.8" To="0.0" Duration="0:0:0.5" 
                 AutoReverse="False" />
             </Storyboard>
             <Storyboard x:Name="CenterEllipseIn">
@@ -274,7 +316,7 @@
                 <DoubleAnimation
                 Storyboard.TargetName="CenterFontIcon"
                 Storyboard.TargetProperty="Opacity"
-                From="1.0" To="0.0" Duration="0:0:1" 
+                From="1.0" To="0.0" Duration="0:0:0.5" 
                 AutoReverse="False" />
             </Storyboard>
             <Storyboard x:Name="CenterFontIconIn">
