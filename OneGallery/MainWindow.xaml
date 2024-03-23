@@ -82,7 +82,7 @@
                 <!-- This is the rounded corner on the Top left of the L Pattern -->
                 <CornerRadius x:Key="NavigationViewContentGridCornerRadius">8,0,0,0</CornerRadius>
 
-                <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" Opacity="0.5"/>
+                <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Red" Opacity="0.5"/>
             </NavigationView.Resources>
 
             <Frame x:Name="Nv_page" Navigated="Nv_Page_Navigated" Background="Transparent">

@@ -142,29 +142,42 @@ namespace OneGallery
         private async Task CalculateImage()
         {
             await Task.Delay(1);
-            ScrollBackWidth = Math.Min((ActualWidth + 100 - image.ActualWidth) * Zoom / 2 - 50, ScrollBackWidth);
-            ScrollBackHeight = Math.Min((ActualHeight - image.ActualHeight) * Zoom / 2 - 50, ScrollBackHeight);
+            if (image.ActualWidth * Zoom - ActualWidth >= -100)
+                ScrollBackWidth = ScrollBackWidth - (image.ActualWidth * Zoom - ActualWidth) / 2 - 50;
+
+
+            //if (image.ActualHeight * Zoom - ActualHeight >= -100 * Zoom)
+            //    ScrollBackHeight = ScrollBackHeight - (image.ActualHeight * Zoom - ActualHeight) / 2 - 100 * Zoom;
+
+            //ScrollBackHeight = Math.Min((grid.ActualHeight - image.ActualHeight) * Zoom / 2 - 200 * Zoom, ScrollBackHeight);
+            ScrollBackHeight = (grid.Height - image.ActualHeight) * Zoom / 2 + 600;
         }
 
         private void CalculateScrollViewer()
         {
-            ScrollBackWidth = ((Zoom - 1) * ActualWidth + 100 * Zoom) * 0.5;
-            ScrollBackHeight = ((Zoom - 1) * ActualHeight + 100 * Zoom) * 0.5;
+            //ScrollBackWidth = ((Zoom - 1) * ActualWidth + 100 * Zoom) * 0.5;
+            ScrollBackWidth = (Zoom * grid.Width - scrollViewer.Width) / 2;
+            ScrollBackHeight = (Zoom * grid.Height - scrollViewer.Height) / 2;
+            //ScrollBackHeight = 50 * Zoom;
         }
 
         private void CorrectOffset(double _horizontalOffset, double _verticalOffset)
         {
             if (_horizontalOffset < ScrollBackWidth)
                 _horizontalOffset = ScrollBackWidth;
-            else if (_horizontalOffset > (Zoom - 1) * ActualWidth + 100 * Zoom - ScrollBackWidth)
-                _horizontalOffset = (Zoom - 1) * ActualWidth + 100 * Zoom - ScrollBackWidth;
+            else if (_horizontalOffset > scrollViewer.ScrollableWidth - ScrollBackWidth)
+                _horizontalOffset = scrollViewer.ScrollableWidth - ScrollBackWidth;
+
+
+            Debug.Print("_verticalOffset" + _verticalOffset);
+            Debug.Print("ScrollBackHeight" + ScrollBackHeight);
 
             if (_verticalOffset < ScrollBackHeight)
                 _verticalOffset = ScrollBackHeight;
-            else if (_verticalOffset > (Zoom - 1) * ActualHeight + 100 * Zoom - ScrollBackHeight)
-                _verticalOffset = (Zoom - 1) * ActualHeight + 100 * Zoom - ScrollBackHeight;
+            //else if (_verticalOffset > ScrollBackHeight + Math.Max(0, (image.ActualHeight + 200) * Zoom -scrollViewer.ActualHeight))
+            //    _verticalOffset = ScrollBackHeight + Math.Max(0, (image.ActualHeight + 200) * Zoom - scrollViewer.ActualHeight);
 
-            scrollViewer.ChangeView(_horizontalOffset, _verticalOffset, Zoom);
+            scrollViewer.ChangeView(_horizontalOffset, ScrollBackHeight, Zoom);
         }
 
         private void ShowToolsBar()
@@ -229,6 +242,11 @@ namespace OneGallery
             DeleteFontIconOut.Pause();
         }
 
+        private void SwitchToolbar()
+        {
+
+        }
+
 
         /*
          * Page
@@ -240,30 +258,42 @@ namespace OneGallery
          */
         private async void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            scrollViewer.Height = ActualHeight;
-            scrollViewer.Width = ActualWidth;
-            scrollViewer.CenterPoint = new((float)ActualWidth / 2, (float)ActualHeight / 2, 0);
+            var _temp = ActualWidth + ActualHeight;
+            var _temp2 = _temp / 4;
+            Debug.Print("" + _temp);
+            PageGrid.Width = _temp;
+            PageGrid.Height = _temp;
+            //PageGrid.Margin = new(-_temp2 , -_temp2, 0, 0);
+            Debug.Print("" + _temp);
 
-            grid.Width = ActualWidth + 100;
-            grid.Height = ActualHeight + 100;
+
+            scrollViewer.Height = _temp;
+            scrollViewer.Width = _temp;
+            scrollViewer.CenterPoint = new((float)_temp/2, (float)_temp/2, 0);
+
+            grid.Width = _temp * 2;
+            grid.Height = _temp * 2;
 
             image.Height = ActualHeight - 200;
             image.Width = ActualWidth - 200;
 
             double _tempMargin = Math.Min(250, Math.Max(50, ActualWidth * 0.25));
+            
             ToolsBar.Width = _tempMargin * 2;
+            //ToolsBar.Margin = new(0, 0, 0, ActualWidth / 2 + 80);
 
-            _tempMargin = ActualWidth * 0.5 - _tempMargin;
+            _tempMargin = _temp * 0.5 - _tempMargin;
 
-            LeftEllipse.Margin = new(_tempMargin, 0, 0, 30);
-            LeftFontIcon.Margin = new(_tempMargin, 0, 0, 30);
-            LeftEllipseBorder.Margin = new(_tempMargin, 0, 0, 30);
 
-            RightEllipse.Margin = new(0, 0, _tempMargin, 30);
-            RightFontIcon.Margin = new(0, 0, _tempMargin, 30);
+            LeftEllipse.Margin = new(_tempMargin, 0, 0, _temp2 + 100);
+            LeftFontIcon.Margin = new(_tempMargin, 0, 0, _temp2 + 100);
+            LeftEllipseBorder.Margin = new(_tempMargin, 0, 0, _temp2 + 100);
 
-            DeleteEllipse.Margin = new(0, 0, _tempMargin - 100, 30);
-            DeleteFontIcon.Margin = new(0, 0, _tempMargin - 100, 30);
+            RightEllipse.Margin = new(0, 0, _tempMargin, _temp2 + 100);
+            RightFontIcon.Margin = new(0, 0, _tempMargin, _temp2 + 100);
+
+            DeleteEllipse.Margin = new(0, 0, _tempMargin - 100, _temp2 + 100);
+            DeleteFontIcon.Margin = new(0, 0, _tempMargin - 100, _temp2 + 100);
 
             if (isLoaded)
             {
@@ -354,12 +384,13 @@ namespace OneGallery
             var _mouseWheelDelta = _tempPointer.Properties.MouseWheelDelta;
             var _oldZoom = Zoom;
             Zoom = Math.Min(5f, Math.Max(1f, Zoom + _mouseWheelDelta / 1600f));
-            var _horizontalOffset = scrollViewer.HorizontalOffset * Zoom / _oldZoom + (Zoom - _oldZoom) * ActualWidth * 0.5 / _oldZoom;
-            var _verticalOffset = scrollViewer.VerticalOffset * Zoom / _oldZoom + (Zoom - _oldZoom) * ActualHeight * 0.5 / _oldZoom;
+            var _horizontalOffset = scrollViewer.HorizontalOffset * Zoom / _oldZoom + (Zoom - _oldZoom) * ActualWidth / _oldZoom;
+            var _verticalOffset = scrollViewer.VerticalOffset * Zoom / _oldZoom + (Zoom - _oldZoom) * ActualWidth / _oldZoom;
 
             CalculateScrollViewer();
             await CalculateImage();
             CorrectOffset(_horizontalOffset, _verticalOffset);
+            //CorrectOffset(50 * Zoom, 50 * Zoom);
         }
 
         /*
@@ -483,16 +514,26 @@ namespace OneGallery
          * LeftFontIcon
          */
 
+        int LeftState = 0;
+        float StartRotate;
+
         private void LeftFontIcon_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
-            //e.Handled = true;
-            
+            e.Handled = true;
+
             if (LeftFontIcon.PointerCaptures != null && LeftFontIcon.PointerCaptures.Count > 0)
             {
-                var deltaX = (e.GetCurrentPoint(LeftFontIcon).Position.X - RotateMousePoint.Position.X) ;
-                Debug.Print(" " + e.GetCurrentPoint(LeftFontIcon).Position.X);
-                LeftEllipseBorder.Translation = new((float)deltaX, 0, 0);
-
+                var deltaX = e.GetCurrentPoint(LeftFontIcon).Position.X - RotateMousePoint.Position.X;
+                deltaX = Math.Min(ToolsBar.Width - 50, Math.Max(deltaX, 0));
+                //Debug.Print(" " + e.GetCurrentPoint(LeftFontIcon).Position.X);
+                LeftEllipseBorder.Width = deltaX + 50;
+                if (LeftState == 0)
+                {
+                    LeftState = 1;
+                    scrollViewer.RotationTransition = null;
+                    StartRotate = scrollViewer.Rotation;
+                }
+                scrollViewer.Rotation = (float)(StartRotate + deltaX * 360 / (ToolsBar.Width - 50));
 
             }
         }
@@ -511,13 +552,19 @@ namespace OneGallery
         private void LeftFontIcon_PointerExited(object sender, PointerRoutedEventArgs e)
         {
             e.Handled = true;        
-            LeftEllipseBorderOut.Begin();
+            
             LeftEllipse.Scale = new Vector3(1, 1, 1);
             LeftEllipseBorder.Scale = new Vector3(1, 1, 1);
             LeftFontIcon.Scale = new Vector3(1, 1, 1);
             
             if (LeftFontIcon.PointerCaptures == null || LeftFontIcon.PointerCaptures.Count == 0)
+            {
                 isPointInToolBar = false;
+                LeftEllipseBorderOut.Begin();
+            }
+                
+
+                
         }
 
         private void LeftFontIcon_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -533,16 +580,18 @@ namespace OneGallery
 
         private void LeftFontIcon_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
-            e.Handled = true;
-            
+            e.Handled = true;   
             LeftFontIcon.ReleasePointerCaptures();
-
+            LeftEllipseBorderReset.Begin();
+            
             if (LeftFontIcon.Scale.X == 1)
             {
-                isPointInToolBar = false;
+                //isPointInToolBar = false;
+                LeftEllipseBorderOut.Begin();
                 return;
             }
-
+            
+            
             LeftEllipse.Scale = new Vector3((float)1.06, (float)1.06, 1);
             LeftEllipseBorder.Scale = new Vector3((float)1.06, (float)1.06, 1);
             LeftFontIcon.Scale = new Vector3((float)1.06, (float)1.06, 1);
@@ -558,13 +607,13 @@ namespace OneGallery
 
         private void ToolsBar_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
-            e.Handled = true;
+            //e.Handled = true;
             isPointInToolBar = true;
         }
 
         private void ToolsBar_PointerExited(object sender, PointerRoutedEventArgs e)
         {
-            e.Handled = true;
+            //e.Handled = true;
             isPointInToolBar = false;
         }
 

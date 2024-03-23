@@ -7,12 +7,15 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="Transparent" >
+    Background="Transparent" 
+    SizeChanged="Grid_SizeChanged"    
+    >
 
     <Grid 
           x:Name="PageGrid"
-          Background="Transparent" 
-          SizeChanged="Grid_SizeChanged">
+          Background="Transparent"  
+          Margin="-408.5, -408.5, -408.5, -408.5"   
+        >
         
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -28,7 +31,7 @@
             HorizontalScrollMode="Disabled"
             VerticalScrollMode="Disabled" 
             HorizontalScrollBarVisibility="Hidden"
-            VerticalScrollBarVisibility="Hidden"
+            VerticalScrollBarVisibility="Visible"
             Loaded="scrollViewer_Loaded"      
             Canvas.ZIndex="0" >
             <Grid x:Name="grid"
@@ -40,7 +43,6 @@
                        VerticalAlignment="Center" 
                        HorizontalAlignment="Center" 
                        Stretch="Uniform"        
-                       Margin="50, 0, 50, 50"
                        Loaded="image_Loaded" >
                     <Image.Source>
                         <BitmapImage DecodePixelHeight="{x:Bind ChooseImage.Height}" UriSource="{x:Bind ChooseImage.ImageLocation}" />
@@ -53,12 +55,11 @@
             x:Name="ToolsBar"
             Height="50"
             Fill="#FFFFFF"
-            VerticalAlignment="Bottom" 
+            VerticalAlignment="Center" 
             HorizontalAlignment="Center"
-            Margin="0, 0, 0, 30"
             RadiusX="25"
             RadiusY="25"     
-            Opacity="0"
+            Opacity="1"
             PointerEntered="ToolsBar_PointerEntered"
             PointerExited="ToolsBar_PointerExited" />
 
@@ -66,8 +67,6 @@
         <Ellipse 
             x:Name="LeftEllipse"
             Fill="#FFFFFF"
-            Stroke="#363636"
-            StrokeThickness="0"
             Height="50"
             Width="50"
             HorizontalAlignment="Left"
@@ -78,7 +77,7 @@
             >
         </Ellipse>
 
-        <Ellipse 
+        <Rectangle 
             x:Name="LeftEllipseBorder"
             Fill="#D9DDDC"
             Stroke="#48494B"
@@ -87,10 +86,12 @@
             Width="50"
             HorizontalAlignment="Left"
             VerticalAlignment="Bottom"
+            RadiusX="25"
+            RadiusY="25"  
             CenterPoint="25, 25, 0"
             Opacity="0"
             Canvas.ZIndex="2"  >
-        </Ellipse>
+        </Rectangle>
 
         <Ellipse 
             x:Name="RightEllipse"
@@ -245,6 +246,15 @@
                 Storyboard.TargetName="LeftEllipseBorder"
                 Storyboard.TargetProperty="Opacity"
                 To="0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+
+            <Storyboard x:Name="LeftEllipseBorderReset">
+                <DoubleAnimation
+                Storyboard.TargetName="LeftEllipseBorder"
+                Storyboard.TargetProperty="Width"
+                EnableDependentAnimation="True"
+                To="50" Duration="0:0:0.5" 
                 AutoReverse="False" />
             </Storyboard>
 
