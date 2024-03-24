@@ -13,9 +13,7 @@
 
     <Grid 
           x:Name="PageGrid"
-          Background="Transparent"  
-          Margin="-408.5, -408.5, -408.5, -408.5"   
-        >
+          Background="Transparent"  >
         
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -23,42 +21,52 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        
+
         <ScrollViewer 
             x:Name="scrollViewer"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
             HorizontalScrollMode="Disabled"
             VerticalScrollMode="Disabled" 
-            HorizontalScrollBarVisibility="Hidden"
+            HorizontalScrollBarVisibility="Visible"
             VerticalScrollBarVisibility="Visible"
-            Loaded="scrollViewer_Loaded"      
+            ZoomMode="Enabled"
+            Loaded="scrollViewer_Loaded"    
             Canvas.ZIndex="0" >
-            <Grid x:Name="grid"
-                   VerticalAlignment="Center" 
-                   HorizontalAlignment="Center" 
-                   Canvas.ZIndex="0" >
+
+            <Viewbox x:Name="ImageBorder"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Stretch="Uniform"  
+                    StretchDirection="Both">
 
                 <Image x:Name="image" 
-                       VerticalAlignment="Center" 
-                       HorizontalAlignment="Center" 
-                       Stretch="Uniform"        
-                       Loaded="image_Loaded" >
+                    VerticalAlignment="Center" 
+                    HorizontalAlignment="Center" 
+                    CanBeScrollAnchor="True"
+                    Stretch="Uniform"        
+                    Loaded="image_Loaded" >
                     <Image.Source>
-                        <BitmapImage DecodePixelHeight="{x:Bind ChooseImage.Height}" UriSource="{x:Bind ChooseImage.ImageLocation}" />
+                        <BitmapImage DecodePixelHeight="{x:Bind ChooseImage.Height}" DecodePixelWidth="{x:Bind ChooseImage.Width}" UriSource="{x:Bind ChooseImage.ImageLocation}" />
                     </Image.Source>
-                </Image>
-            </Grid>
+                </Image>                      
+
+              
+                
+            </Viewbox>
+
+
         </ScrollViewer>
 
         <Rectangle
             x:Name="ToolsBar"
             Height="50"
             Fill="#FFFFFF"
-            VerticalAlignment="Center" 
+            VerticalAlignment="Bottom" 
             HorizontalAlignment="Center"
             RadiusX="25"
             RadiusY="25"     
+            Margin="0, 0, 0, 50"
             Opacity="1"
             PointerEntered="ToolsBar_PointerEntered"
             PointerExited="ToolsBar_PointerExited" />
@@ -116,7 +124,7 @@
             CenterPoint="25, 25, 0"
             Opacity="0"
             Canvas.ZIndex="2"
-            Margin="0, 0, 0, 30"
+            Margin="0, 0, 0, 50"
             >
         </Ellipse>
 
@@ -175,7 +183,7 @@
             VerticalAlignment="Bottom"
             CenterPoint="25, 25, 0"
             Canvas.ZIndex="3"
-            Margin="0, 0, 0, 30"
+            Margin="0, 0, 0, 50"
             Opacity="0"
             PointerEntered="CenterFontIcon_PointerEntered"
             PointerExited="CenterFontIcon_PointerExited"
@@ -202,7 +210,61 @@
 
 
         <Grid.Resources>
-            <!--ToolsBarO-->
+            <!--ImageBorder-->
+
+            <Storyboard x:Name="ImageBorderWidthUp">
+                <DoubleAnimation
+                    Storyboard.TargetName="ImageBorder"
+                    Storyboard.TargetProperty="Width"
+                    EnableDependentAnimation="True"
+                    By="600" Duration="0:0:2"     
+                    AutoReverse="False" >
+                    <DoubleAnimation.EasingFunction>
+                        <QuinticEase EasingMode="EaseOut" />
+                    </DoubleAnimation.EasingFunction>
+
+                </DoubleAnimation>
+            </Storyboard>
+            <Storyboard x:Name="ImageBorderHeightUp">
+                <DoubleAnimation
+                Storyboard.TargetName="ImageBorder"
+                Storyboard.TargetProperty="Height"
+                EnableDependentAnimation="True"
+                By="600" Duration="0:0:2" 
+                AutoReverse="False" >
+                    <DoubleAnimation.EasingFunction>
+                        <QuinticEase EasingMode="EaseOut" />
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+            </Storyboard>
+
+            <Storyboard x:Name="ImageBorderWidthDown">
+                <DoubleAnimation
+                Storyboard.TargetName="ImageBorder"
+                Storyboard.TargetProperty="Width"
+                EnableDependentAnimation="True"
+                By="-600" Duration="0:0:2" 
+                AutoReverse="False" >
+                    <DoubleAnimation.EasingFunction>
+                        <QuinticEase EasingMode="EaseOut" />
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+            </Storyboard>
+            <Storyboard x:Name="ImageBorderHeightDown">
+                <DoubleAnimation
+                Storyboard.TargetName="ImageBorder"
+                Storyboard.TargetProperty="Height"
+                EnableDependentAnimation="True"
+                By="-600" Duration="0:0:2" 
+                AutoReverse="False" >
+                    <DoubleAnimation.EasingFunction>
+                        <QuinticEase EasingMode="EaseOut" />
+                    </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+            </Storyboard>
+
+
+            <!--ToolsBar-->
             <Storyboard x:Name="ToolsBarOut">
                 <DoubleAnimation
                 Storyboard.TargetName="ToolsBar"
