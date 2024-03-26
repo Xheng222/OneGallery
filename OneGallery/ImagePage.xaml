@@ -8,12 +8,13 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="Transparent" 
-    SizeChanged="Grid_SizeChanged"    
-    >
+    SizeChanged="Grid_SizeChanged" >
 
     <Grid 
-          x:Name="PageGrid"
-          Background="Transparent"  >
+        x:Name="PageGrid"
+        Background="Transparent"
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center">
         
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -30,20 +31,21 @@
             VerticalScrollMode="Disabled" 
             HorizontalScrollBarVisibility="Visible"
             VerticalScrollBarVisibility="Visible"
-            ZoomMode="Enabled"
+            ZoomMode="Disabled"
             Loaded="scrollViewer_Loaded"    
             Canvas.ZIndex="0" >
 
             <Viewbox x:Name="ImageBorder"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Center"
+                     CanBeScrollAnchor="False"
                     Stretch="Uniform"  
                     StretchDirection="Both">
 
                 <Image x:Name="image" 
                     VerticalAlignment="Center" 
                     HorizontalAlignment="Center" 
-                    CanBeScrollAnchor="True"
+                    CanBeScrollAnchor="False"
                     Stretch="Uniform"        
                     Loaded="image_Loaded" >
                     <Image.Source>
@@ -67,7 +69,7 @@
             RadiusX="25"
             RadiusY="25"     
             Margin="0, 0, 0, 50"
-            Opacity="1"
+            Opacity="0"
             PointerEntered="ToolsBar_PointerEntered"
             PointerExited="ToolsBar_PointerExited" />
 
@@ -142,6 +144,18 @@
         </Ellipse>
 
         <FontIcon 
+            x:Name="LeftFontIconForRotate"
+            Glyph="&#xE80C;" 
+            Height="50"
+            Width="50"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom"    
+            CenterPoint="25, 25, 0"
+            Canvas.ZIndex="3" 
+            Opacity="0"
+            />
+
+        <FontIcon 
             x:Name="LeftFontIcon"
             Glyph="&#xE80C;" 
             Height="50"
@@ -156,7 +170,7 @@
             PointerPressed="LeftFontIcon_PointerPressed"
             PointerReleased="LeftFontIcon_PointerReleased"
             PointerMoved="LeftFontIcon_PointerMoved"
-            />  
+            />
 
         <FontIcon 
             x:Name="RightFontIcon"
@@ -217,7 +231,7 @@
                     Storyboard.TargetName="ImageBorder"
                     Storyboard.TargetProperty="Width"
                     EnableDependentAnimation="True"
-                    By="600" Duration="0:0:2"     
+                    By="600" Duration="0:0:1.5"     
                     AutoReverse="False" >
                     <DoubleAnimation.EasingFunction>
                         <QuinticEase EasingMode="EaseOut" />
@@ -230,7 +244,7 @@
                 Storyboard.TargetName="ImageBorder"
                 Storyboard.TargetProperty="Height"
                 EnableDependentAnimation="True"
-                By="600" Duration="0:0:2" 
+                By="600" Duration="0:0:1.5" 
                 AutoReverse="False" >
                     <DoubleAnimation.EasingFunction>
                         <QuinticEase EasingMode="EaseOut" />
@@ -243,7 +257,7 @@
                 Storyboard.TargetName="ImageBorder"
                 Storyboard.TargetProperty="Width"
                 EnableDependentAnimation="True"
-                By="-600" Duration="0:0:2" 
+                By="-600" Duration="0:0:1.5" 
                 AutoReverse="False" >
                     <DoubleAnimation.EasingFunction>
                         <QuinticEase EasingMode="EaseOut" />
@@ -255,7 +269,7 @@
                 Storyboard.TargetName="ImageBorder"
                 Storyboard.TargetProperty="Height"
                 EnableDependentAnimation="True"
-                By="-600" Duration="0:0:2" 
+                By="-600" Duration="0:0:1.5" 
                 AutoReverse="False" >
                     <DoubleAnimation.EasingFunction>
                         <QuinticEase EasingMode="EaseOut" />
