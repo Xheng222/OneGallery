@@ -246,17 +246,21 @@ namespace OneGallery
             {
                 if (Nv_page.CurrentSourcePageType == typeof(ImagePage))
                 {
-                    if (ImagePage.NowImagePage.ScrollViewerRotation % 360 != 0)
-                    {
-                        var _temp = (int)(ImagePage.NowImagePage.ScrollViewerRotation / 180);
-                        if (_temp < 0)
-                            _temp -= 180;
-                        else
-                            _temp += 180;
-                        _temp = (_temp / 360) / 360; 
-                        ImagePage.NowImagePage.ScrollViewerRotation = _temp;
-                        await Task.Delay(250);
-                    }
+                    await ImagePage.NowImagePage.ResetAll();
+
+                    //if (ImagePage.NowImagePage.ScrollViewerRotation % 360 != 0)
+                    //{
+                    //    var _temp = (int)(ImagePage.NowImagePage.ScrollViewerRotation);
+                    //    if (_temp < 0)
+                    //        _temp -= 180;
+                    //    else
+                    //        _temp += 180;
+                    //    _temp = (_temp / 360) * 360; 
+                    //    ImagePage.NowImagePage.ScrollViewerRotation = _temp;
+                    //await Task.Delay(300);
+                    //}
+
+
                 }
                 
                 Nv_page.GoBack();
