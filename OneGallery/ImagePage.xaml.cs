@@ -14,8 +14,6 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
-using Windows.UI;
-using Windows.UI.Composition;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -52,15 +50,15 @@ namespace OneGallery
 
         bool isPointInToolBar = false;
 
-        readonly MainWindow window;
+        readonly MainWindow Window;
 
         readonly string SourcePageName;
 
         public ImagePage()
         {
             this.InitializeComponent();
-            window = (MainWindow)(Application.Current as App).m_window;
-            SourcePageName = (window.NaView.SelectedItem as Category).Name;
+            Window = (MainWindow)(Application.Current as App).m_window;
+            SourcePageName = (Window.NaView.SelectedItem as Category).Name;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -70,7 +68,6 @@ namespace OneGallery
             // Store the item to be used in binding to UI
             ChooseImage = e.Parameter as PictureClass;
             imageAnimation = ConnectedAnimationService.GetForCurrentView().GetAnimation("ForwardConnectedAnimation");
-            // Connected animation + coordinated animation
 
             imageAnimation.Completed += ImageAnimationCompleted;
             ToolsBarIn.Completed += ToolBarInCompelete;
@@ -79,10 +76,10 @@ namespace OneGallery
         }
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
-            if (window.NaView.SelectedItem is Category)
+            if (Window.NaView.SelectedItem is Category)
             {
 
-                if (SourcePageName == (window.NaView.SelectedItem as Category).Name)
+                if (SourcePageName == (Window.NaView.SelectedItem as Category).Name)
                 {
                     var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("BackwardConnectedAnimation", image);
                     anim.Configuration = new DirectConnectedAnimationConfiguration();
@@ -98,8 +95,8 @@ namespace OneGallery
         {
             if (e.NavigationMode == NavigationMode.New)
             {
-                window.page.BackStack.RemoveAt(window.page.BackStack.Count - 1);
-                window.HistoryPages.Pop();
+                Window.page.BackStack.RemoveAt(Window.page.BackStack.Count - 1);
+                Window.HistoryPages.Pop();
 
             }
 
@@ -814,7 +811,7 @@ namespace OneGallery
 
             if (CenterFontIcon.Scale.X == (float)0.94)
             {
-                window.Nv_BackRequested(null, null);
+                Window.Nv_BackRequested(null, null);
                 return;
             }
 

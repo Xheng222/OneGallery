@@ -8,13 +8,13 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     SizeChanged="Page_SizeChanged"
-    Background="Transparent"
-    >
+    Background="Transparent" >
 
     <Page.Resources>
         <DataTemplate  x:Key="LinedFlowLayoutItemTemplate" x:DataType="local:PictureClass">
             <ItemContainer 
                 Name="{x:Bind Index}"
+                Tag="{x:Bind Name}"
                 CanBeScrollAnchor="False"
                 Loaded="ItemContainer_Loaded"
                 PointerEntered="ItemContainer_PointerEntered"
@@ -61,7 +61,7 @@
                         Stretch="UniformToFill" 
                         SizeChanged="Image_SizeChanged" >
                         <Image.Source>
-                            <BitmapImage DecodePixelHeight="400" UriSource="{x:Bind ImageLocation}" />
+                            <BitmapImage DecodePixelHeight="200" UriSource="{x:Bind ImageLocation}" />
                         </Image.Source>
                     </Image>
 
@@ -121,11 +121,10 @@
             </ItemContainer>
         </DataTemplate>
         
-        <local:ActivityFeedLayout 
+        <!--<local:ActivityFeedLayout 
             x:Key="MyFeedLayout" 
             ColumnSpacing="12" RowSpacing="12" MinItemSize="400, 175" 
-            LayoutImgArrangement="{x:Bind HomePageImageArrangement}"
-            MyEvent="ActivityFeedLayout_MyEvent"/>
+            LayoutImgArrangement="{x:Bind HomePageImageArrangement}"/>-->
         
         <Storyboard x:Name="OpacityIn">
             <DoubleAnimation
@@ -148,18 +147,18 @@
 
     <Grid x:Name="grid" Height="Auto">
 
-        <ScrollViewer x:Name="ScrollViewer" Background="Transparent" Loaded="ScrollViewer_Loaded">
+        <ScrollViewer x:Name="ScrollViewer" Background="Transparent">
             <ItemsRepeater x:Name="repeater2" 
                            Background="Transparent"
                            HorizontalAlignment="Stretch"
-                           Layout="{StaticResource MyFeedLayout}"
                            ItemTemplate="{StaticResource LinedFlowLayoutItemTemplate}"
+                           Loaded="repeater2_Loaded"
                            >
             </ItemsRepeater >
             
         </ScrollViewer>
 
-
+<!--Layout="{StaticResource MyFeedLayout}"-->
     </Grid>
 
 

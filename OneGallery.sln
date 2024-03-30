@@ -5,7 +5,7 @@ VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "OneGallery (Package)", "OneGallery (Package)\OneGallery (Package).wapproj", "{87A23C8E-5DBE-4A08-AC36-CF4C9F541DB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneGallery", "OneGallery\OneGallery.csproj", "{3F647C33-88C8-46D0-BB8E-418C84937538}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OneGallery", "OneGallery\OneGallery.csproj", "{3F647C33-88C8-46D0-BB8E-418C84937538}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

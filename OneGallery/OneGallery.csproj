@@ -10,6 +10,20 @@
     <UseWinUI>true</UseWinUI>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="新文件夹1\**" />
+    <Compile Remove="新文件夹2\**" />
+    <Content Remove="新文件夹1\**" />
+    <Content Remove="新文件夹2\**" />
+    <EmbeddedResource Remove="新文件夹1\**" />
+    <EmbeddedResource Remove="新文件夹2\**" />
+    <None Remove="新文件夹1\**" />
+    <None Remove="新文件夹2\**" />
+    <Page Remove="新文件夹1\**" />
+    <Page Remove="新文件夹2\**" />
+    <PRIResource Remove="新文件夹1\**" />
+    <PRIResource Remove="新文件夹2\**" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="HomePage.xaml" />
     <None Remove="ImagePage.xaml" />
     <None Remove="SamplePage2.xaml" />

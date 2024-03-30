@@ -41,11 +41,8 @@ namespace OneGallery
 
     public sealed partial class HomePage : Page
     {
-        private LocalFolder HomePageLocalFolder {  get; set; }
 
         private static PageParameters Parameters = new();
-
-        private ImageArrangement HomePageImageArrangement {  get; set; }
 
         private Category NowCategory;
 
@@ -57,15 +54,10 @@ namespace OneGallery
         {
             this.InitializeComponent();
             Window = (MainWindow)(Application.Current as App).m_window;
-            HomePageLocalFolder = Window.FolderManager;
-            HomePageImageArrangement = HomePageLocalFolder.MyImageArrangement;
-
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-
-
             base.OnNavigatedTo(e);
 
             if (e.Parameter is Category)
@@ -73,8 +65,8 @@ namespace OneGallery
                 NowCategory = e.Parameter as Category;
 
                 NavigateHelper.OnNavigatedTo(
-                    Window.page, 
-                    NowCategory.Name, 
+                    Window.page,
+                    NowCategory.Name,
                     o =>
                     {
                         if (o is PageParameters p)
@@ -88,14 +80,7 @@ namespace OneGallery
                     });
             }
 
-
             await LoadData();
-            //await Window.InitFolder();
-            repeater2.ItemsSource = HomePageLocalFolder.ImgList;
-
-
-
-
         }
 
 
@@ -103,23 +88,29 @@ namespace OneGallery
         {
             Parameters.Width = ScrollViewer.ActualWidth;
             Parameters.Offset = ScrollViewer.VerticalOffset;
+            Parameters.FirstShow = false;
             NavigateHelper.OnNavigatingFrom(NowCategory.Name, Window.page.Content, Parameters);
             base.OnNavigatingFrom(e);
         }
 
         private async Task LoadData()
         {
-            await Window.InitFolder();
-            repeater2.ItemsSource = HomePageLocalFolder.ImgList;
+            await Window.InitFolder(NowCategory.Name);
+
+            if (Parameters.FirstShow == true)
+            {
+                repeater2.Layout = new ActivityFeedLayout(Window.FolderManager.MyImageArrangement);
+            }
+
+            repeater2.ItemsSource = Window.FolderManager.MyImageArrangement.ImgList;
+
 
         }
 
         private void Page_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            //SwappableLayoutsItemsView.Height = this.ActualHeight;
             ScrollViewer.Height = this.ActualHeight;
         }
-
 
 
 
@@ -127,27 +118,6 @@ namespace OneGallery
         {
             Image _image = sender as Image;
 
-        }
-
-        private void ActivityFeedLayout_MyEvent(object sender, EventArgs e)
-        {
-            //OpacityOut.Begin();
-            //await Task.Delay(300);
-            //OpacityIn.Begin();
-            //repeater2.Opacity = 1;
-        }
-
-        private void Image_PointerEntered(object sender, PointerRoutedEventArgs e)
-        {
-            var image = sender as Image;
-            
-        }
-
-        private void Image_GotFocus(object sender, RoutedEventArgs e)
-        {
-            var image = sender as Image;
-
-            //Debug.Print("Image_GotFocus " + image.Name);
         }
 
         private void ItemContainer_PointerEntered(object sender, PointerRoutedEventArgs e)
@@ -162,6 +132,8 @@ namespace OneGallery
 
             var _grid = _temp.Child as Grid;
             var _girdItems = _grid.Children;
+
+            Debug.Print("" + repeater2.GetElementIndex(_temp));
 
             foreach (var _girdItem in _girdItems)
             {
@@ -230,7 +202,7 @@ namespace OneGallery
             _temp.ScaleTransition = new Vector3Transition()
             {
                 Components = Vector3TransitionComponents.X | Vector3TransitionComponents.Y,
-                Duration = new TimeSpan(1500000)
+                Duration = TimeSpan.FromMilliseconds(150)
             };
         }
 
@@ -238,7 +210,6 @@ namespace OneGallery
         {
 
             var _temp = sender as ItemContainer;
-            var _res = _temp.Resources;
 
             var _scaleX = (float)(_temp.ActualWidth / 2);
             var _scaleY = (float)(_temp.ActualHeight / 2);
@@ -256,6 +227,9 @@ namespace OneGallery
             Debug.Print("" + _ptr.Properties.PointerUpdateKind);
             if (_ptr != null)
             {
+                var _index = repeater2.GetElementIndex(_temp);
+                var _image = Window.FolderManager.MyImageArrangement.ImgList.First(x => x.Index == _index);
+
                 if ((int)_ptr.Properties.PointerUpdateKind == (int)(Windows.UI.Input.PointerUpdateKind.LeftButtonReleased))
                 {
                     var _grid = _temp.Child as Grid;
@@ -268,20 +242,29 @@ namespace OneGallery
                             //SwitchCheckBox(_girdItem as CheckBox);
                             break;
                         }
-
                     }
 
-                    var _index = int.Parse(_temp.Name);
-                    var _image = HomePageLocalFolder.ImgList[_index];
+                    //var _index = int.Parse(_temp.Name);
+                    //var _image = Window.FolderManager.MyImageArrangement.ImgList[_index];
+
                     Parameters.SortedIndex = _index;
 
 
                     var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("ForwardConnectedAnimation", _temp);
                     anim.Configuration = new DirectConnectedAnimationConfiguration();
-                    Window.page.Navigate(typeof(ImagePage), _image, new DrillInNavigationTransitionInfo());
+                    
 
                     ItemContainer_PointerExited(sender, e);
+                    //Window.page.Navigate(typeof(ImagePage), _image, new SuppressNavigationTransitionInfo());
+                    Window.page.Navigate(typeof(ImagePage), _image, new DrillInNavigationTransitionInfo());
                 }
+                else
+                {
+                    Debug.Print(repeater2.GetElementIndex(_temp) + "");
+
+                    Window.FolderManager.DeleteImg(_image);
+                }
+
             }
 
         }
@@ -296,13 +279,6 @@ namespace OneGallery
             {
                 _checkBox.IsChecked = false;
             }
-        }
-
-        private async void ScrollViewer_Loaded(object sender, RoutedEventArgs e)
-        {
-            double _offset = Parameters.Offset * ScrollViewer.ActualWidth / Parameters.Width;
-            ScrollViewer.ChangeView(null, _offset, null);
-            await ConnectAnimate();
         }
     
         private async Task ConnectAnimate()
@@ -321,17 +297,19 @@ namespace OneGallery
                         _item = repeater2.TryGetElement(Parameters.SortedIndex);
                     }
 
-                        anim.TryStart(_item);
-
-                    //var a = anim.TryStart(repeater2.GetOrCreateElement(Parameters.SortedIndex));
-                    //Debug.Print(a + "");
-                    
+                    anim.TryStart(_item);
+              
                 }
                 Parameters.SortedIndex = -1;
             }
 
         }
-        
-    
+
+        private async void repeater2_Loaded(object sender, RoutedEventArgs e)
+        {
+            double _offset = Parameters.Offset * ScrollViewer.ActualWidth / Parameters.Width;
+            ScrollViewer.ChangeView(null, _offset, null);
+            await ConnectAnimate();
+        }
     }
 }

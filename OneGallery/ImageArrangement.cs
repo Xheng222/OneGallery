@@ -36,12 +36,7 @@ namespace OneGallery
 
         private double[] TotalWidth;
 
-
-
-        public ImageArrangement(SortableObservableCollection<PictureClass> objects)
-        {
-            ImgList = objects;
-        }
+        public ImageArrangement() { }
 
         public void SetImageRect(double _width)
         {
@@ -102,6 +97,15 @@ namespace OneGallery
             NowWidth = TotalWidth[1];
         }
 
+        public void SortImg(int type)
+        {
+            ImgList.Sort(x => x.Name);
+            for (int i = 0; i < ImgList.Count; i++)
+            {
+                ImgList[i].Index = i;
+            }
+        }
+
         private List<double> TryPutImg(int Index, double RemainingWidth, Size ItemSize)
         {
             List<double> list;
@@ -141,7 +145,7 @@ namespace OneGallery
 
         }
 
-        private void UpdateImgRect()
+        public void UpdateImgRect()
         {
             int _imgIndex;
             double _nowY;

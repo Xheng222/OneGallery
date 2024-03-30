@@ -17,20 +17,19 @@ namespace OneGallery
 
         public int Index { get; set; }
 
+        public string SourceName { get; set; }
+
         public int Height { get; set; }
 
         public int Width { get; set; }
 
-        public int CanvasZ {  get; set; }
-
-        public PictureClass(string _path, string _name, uint _width, uint _height, int _index)
+        public PictureClass(string _path, string _name, uint _width, uint _height, string _sourceName)
         {
             ImageLocation = _path;
             Name = _name;
             Height = (int)_height;
             Width = (int)_width;
-            CanvasZ = 0;
-            Index = _index;
+            SourceName = _sourceName;
         }
 
     }

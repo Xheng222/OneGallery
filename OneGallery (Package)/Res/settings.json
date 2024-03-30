@@ -1,0 +1,12 @@
+{
+    "FolderPathConfig": {
+        "Folder1": "H:\\Sync_images\\Phone_picture",
+        "Folder2": "H:\\Sync_images\\Pad&PhoneTF _picture\\QQ",
+        "Folder3": "H:\\1234\\新建文件夹"
+    },
+
+    "SelectionToFolderListConfig": {
+        "HomePage": [ "Folder1", "Folder2", "Folder3" ],
+        "Menu item 10": [ "Folder2" ]
+    }
+}

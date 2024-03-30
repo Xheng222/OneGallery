@@ -39,9 +39,22 @@ namespace OneGallery
             }
         }
 
+        public void Sort<TKey>(Func<T, TKey> keySelector)
+        {
+            ApplySort(Items.OrderByDescending(keySelector));
+        }
+
         public void Sort<TKey>(Func<T, TKey> keySelector, IComparer<TKey> comparer)
         {
             ApplySort(Items.OrderBy(keySelector, comparer));
+        }
+
+        public void Union(SortableObservableCollection<T> other)
+        {
+            foreach (var item in other)
+            {
+                Items.Add(item);
+            }
         }
 
         private void ApplySort(IEnumerable<T> sortedItems)

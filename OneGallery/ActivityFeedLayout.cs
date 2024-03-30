@@ -24,9 +24,9 @@ namespace OneGallery
             MyEvent.Invoke(null, null);
         }
 
-        private double _rowSpacing;
+        private double _rowSpacing = 12;
 
-        private double _colSpacing;
+        private double _colSpacing = 12;
 
         private Size _minItemSize = Size.Empty;
 
@@ -114,6 +114,13 @@ namespace OneGallery
             layout.InvalidateMeasure();
         }
 
+        public ActivityFeedLayout(ImageArrangement _imageArrangement) 
+        {
+            LayoutImgArrangement = _imageArrangement;
+        }
+
+        public ActivityFeedLayout() { }
+
         #endregion
 
         #region Setup / teardown
@@ -137,17 +144,16 @@ namespace OneGallery
         protected override Size MeasureOverride(VirtualizingLayoutContext context, Size availableSize)
         {
             double _newTop = 0;
-            //Debug.Print(context.VisibleRect.Y + "");
 
             if (context.ItemCount > 0)
             {
                 var state = context.LayoutState as ActivityFeedLayoutState;
                 state.LayoutRects.Clear();
                 state.FirstRealizedIndex = -1;
-                var recommond = context.RecommendedAnchorIndex;
                 int _firstItemIndex;
                 int i = 0;
-                UpdateImgRect(availableSize.Width);
+                if (!UpdateImgRect(availableSize.Width))
+                    return new Size(availableSize.Width, _newTop);
 
                 foreach (var _item in LayoutImgArrangement.RowFirstIndex)
                 {
@@ -213,16 +219,22 @@ namespace OneGallery
             return finalSize;
         }
 
-        private void UpdateImgRect(double _width)
+        private bool UpdateImgRect(double _width)
         {
-            var _oldWidth = LayoutImgArrangement.NowWidth;
-            LayoutImgArrangement.SetImageRect(_width);
-            if (_oldWidth != LayoutImgArrangement.NowWidth)
+
+            //LayoutImgArrangement.SetImageRect(_width);
+            //if (_oldWidth != LayoutImgArrangement.NowWidth)
+            //{
+            //    OnMyEvent();
+            //}
+
+            if (LayoutImgArrangement is not null)
             {
-                OnMyEvent();
+                LayoutImgArrangement.SetImageRect(_width);
+                return true;
             }
 
-            return;
+            return false;
         }
 
 

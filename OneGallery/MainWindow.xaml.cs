@@ -37,11 +37,10 @@ namespace OneGallery
         public FontIcon Icon = new();
 
         public ObservableCollection<Category> Children { get; set; }
-        public bool IsLeaf { get; set; }
 
         public string PageType { get; set; }
 
-        public string PageSource { get; set; }
+        public int[] PageSource { get; set; }
 
         public Category() 
         {
@@ -61,8 +60,6 @@ namespace OneGallery
 
         Stack<string> PartenPagemName = new();
 
-
-
         // expand ”√
         Dictionary<string, string> ParentDictionary = new Dictionary<string, string>();
 
@@ -78,9 +75,9 @@ namespace OneGallery
         public ObservableCollection<Category> Categories = new()
         {
             new Category() {
-            Name = "HomePage1",
+            Name = "HomePage",
             PageType = "HomePage",
-            PageSource = "H:\\1234",
+            PageSource = new int[] {-1},
                 Children = new ObservableCollection<Category>() {
                     new Category(){
                         PageType = "HomePage",
@@ -101,8 +98,8 @@ namespace OneGallery
             new Category(){
                 Name = "Menu item 10",
                 PageType = "HomePage",
-                PageSource = "H:\\Sync_images\\Phone_picture\\QQ",
-                IsLeaf = true }
+                PageSource = new int[] {1},
+            }
         };
 
         private string SelectPageName {  get; set; }
@@ -131,12 +128,18 @@ namespace OneGallery
 
             appTitleText = "666";
 
-            FolderManager = new("H:\\1234");
+            FolderManager = new();
         }
 
-        public async Task InitFolder()
+        //public async Task InitFolder()
+        //{
+        //    int[] _temp = { -1 };
+        //    await FolderManager.Init(_temp);
+        //}
+
+        public async Task InitFolder(string _pageName)
         {
-            await FolderManager.Init();
+            await FolderManager.InitPageFolder(_pageName);
         }
 
         SystemBackdropConfiguration m_configurationSource;
@@ -146,6 +149,7 @@ namespace OneGallery
         {
             if (DesktopAcrylicController.IsSupported())
             {
+               
                 m_configurationSource = new SystemBackdropConfiguration();
                 m_configurationSource.IsInputActive = true;
                 m_configurationSource.Theme = SystemBackdropTheme.Default;
@@ -157,7 +161,9 @@ namespace OneGallery
                 m_backdropController.AddSystemBackdropTarget(this.As<Microsoft.UI.Composition.ICompositionSupportsSystemBackdrop>());
                 m_backdropController.SetSystemBackdropConfiguration(m_configurationSource);
 
-                //this.SystemBackdrop = new Microsoft.UI.Xaml.Media.DesktopAcrylicBackdrop();
+                this.SystemBackdrop = new Microsoft.UI.Xaml.Media.DesktopAcrylicBackdrop();
+
+                this.Closed += Window_Closed;
 
                 return true;
             }
@@ -412,11 +418,12 @@ namespace OneGallery
 
         private void Nv_Loaded(object sender, RoutedEventArgs e)
         {
+            FolderManager.InitFolder();
             var rootGrid = VisualTreeHelper.GetChild(sender as NavigationView, 0);
             FindNaView(rootGrid);
             UpdateNvItemDir(Categories);
-            SelectPageName = "HomePage1";
-            Nv.SelectedItem = NvItemDictionary["HomePage1"];
+            SelectPageName = "HomePage";
+            Nv.SelectedItem = NvItemDictionary["HomePage"];
             NavView_Navigate(typeof(HomePage), Categories[0]);
 
             
@@ -448,6 +455,17 @@ namespace OneGallery
         {
             IsPaneOpened = true;
 
+        }
+
+        private void Window_Closed(object sender, WindowEventArgs args)
+        {
+            // Make sure any Mica/Acrylic controller is disposed
+            if (m_backdropController != null)
+            {
+                m_backdropController.Dispose();
+                m_backdropController = null;
+            }
+            m_configurationSource = null;
         }
 
     }

@@ -24,9 +24,7 @@ namespace OneGallery
             {
                 var temp = DictPageContent[pageName];
                 frame.Content = temp.PageContent;
-                pageParameter = temp.PageParameter;
-
-                
+                pageParameter = temp.PageParameter; 
             }
 
             backPageCallBack?.Invoke(pageParameter);
@@ -73,6 +71,8 @@ namespace OneGallery
 
         public double Offset { get; set; }
 
+        public bool FirstShow { get; set; }
+
         public PageParameters()
         {
             Clear();
@@ -83,6 +83,7 @@ namespace OneGallery
             SortedIndex = -1;
             Offset = 0;
             Width = 1;
+            FirstShow = true;
         }
 
         public object Clone()
