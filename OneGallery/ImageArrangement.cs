@@ -89,7 +89,7 @@ namespace OneGallery
             RowSpacing = rowSpacing;
             ColSpacing = colSpacing;
 
-            UpdateImgRect();
+            //UpdateImgRect();
 
             ImageRect = ImageRect_Default[1];
             RowFirstIndex = RowFirstIndex_Default[1];
@@ -99,11 +99,15 @@ namespace OneGallery
 
         public void SortImg(int type)
         {
-            ImgList.Sort(x => x.Name);
-            for (int i = 0; i < ImgList.Count; i++)
+            if (ImgList.Count > 0)
             {
-                ImgList[i].Index = i;
+                ImgList.Sort(x => x.Name);
+                for (int i = 0; i < ImgList.Count; i++)
+                {
+                    ImgList[i].Index = i;
+                }
             }
+
         }
 
         private List<double> TryPutImg(int Index, double RemainingWidth, Size ItemSize)
@@ -149,6 +153,10 @@ namespace OneGallery
         {
             int _imgIndex;
             double _nowY;
+
+            if (ImgList.Count == 0)
+                return;
+
 
             for (int j = 0; j < 3; j++)
             {

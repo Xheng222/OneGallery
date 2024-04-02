@@ -205,6 +205,12 @@ namespace OneGallery
         protected override Size ArrangeOverride(VirtualizingLayoutContext context, Size finalSize)
         {
             // walk through the cache of containers and arrange
+
+            if (context.ItemCount == 0)
+            {
+                return finalSize;
+            }
+
             var state = context.LayoutState as ActivityFeedLayoutState;
             var virtualContext = context;
             int currentIndex = state.FirstRealizedIndex;
@@ -221,12 +227,6 @@ namespace OneGallery
 
         private bool UpdateImgRect(double _width)
         {
-
-            //LayoutImgArrangement.SetImageRect(_width);
-            //if (_oldWidth != LayoutImgArrangement.NowWidth)
-            //{
-            //    OnMyEvent();
-            //}
 
             if (LayoutImgArrangement is not null)
             {

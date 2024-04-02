@@ -95,7 +95,7 @@ namespace OneGallery
         {
             if (e.NavigationMode == NavigationMode.New)
             {
-                Window.page.BackStack.RemoveAt(Window.page.BackStack.Count - 1);
+                Window.NaPage.BackStack.RemoveAt(Window.NaPage.BackStack.Count - 1);
                 Window.HistoryPages.Pop();
 
             }

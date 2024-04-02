@@ -52,8 +52,6 @@ namespace OneGallery
     {
         public string appTitleText = "OneGallery";
 
-       
-
         public Stack<string> HistoryPages = new();
 
         private bool IsPaneOpened = true;
@@ -70,41 +68,41 @@ namespace OneGallery
         Dictionary<string, Category> NvItemDictionary = new Dictionary<string, Category>();
 
         // Folder
-        public LocalFolder FolderManager { get; set; }
+        public LocalFolderManager FolderManager { get; set; }
 
         public ObservableCollection<Category> Categories = new()
         {
             new Category() {
             Name = "HomePage",
-            PageType = "HomePage",
+            PageType = "ImageListPage",
             PageSource = new int[] {-1},
                 Children = new ObservableCollection<Category>() {
                     new Category(){
-                        PageType = "HomePage",
+                        PageType = "ImageListPage",
                         Name = "Menu item 2",               
                     }
                 }
             },
             new Category(){
                 Name = "Menu item 6",
-                PageType = "HomePage",
+                PageType = "ImageListPage",
                 Children = new ObservableCollection<Category>() {
                     new Category(){
                         Name = "Menu item 7",
-                        PageType = "HomePage"
+                        PageType = "ImageListPage"
                     }
                 }
             },
             new Category(){
                 Name = "Menu item 10",
-                PageType = "HomePage",
+                PageType = "ImageListPage",
                 PageSource = new int[] {1},
             }
         };
 
         private string SelectPageName {  get; set; }
 
-        public Frame page
+        public Frame NaPage
         {
             get { return Nv_page; }
             set { Nv_page = value; }
@@ -129,13 +127,9 @@ namespace OneGallery
             appTitleText = "666";
 
             FolderManager = new();
-        }
 
-        //public async Task InitFolder()
-        //{
-        //    int[] _temp = { -1 };
-        //    await FolderManager.Init(_temp);
-        //}
+            
+        }
 
         public async Task InitFolder(string _pageName)
         {
@@ -162,20 +156,17 @@ namespace OneGallery
                 m_backdropController.SetSystemBackdropConfiguration(m_configurationSource);
 
                 this.SystemBackdrop = new Microsoft.UI.Xaml.Media.DesktopAcrylicBackdrop();
-
                 this.Closed += Window_Closed;
-
                 return true;
             }
+
+
 
             return false; // Acrylic is not supported on this system
         }
 
         private void NavView_Navigate(Type navPageType, Category page)
         {
-            // Get the page type before navigation so you can prevent duplicate
-            // entries in the backstack.
-
             // Only navigate if the selected page isn't currently loaded.
             if (navPageType is not null)
             {
@@ -201,7 +192,6 @@ namespace OneGallery
                 }
                 else if (args.InvokedItemContainer != null)
                 {
-                    string ClickedItemTag = args.InvokedItemContainer.Tag.ToString();
                     var PageCategory = Nv.SelectedItem as Category;
 
                     if (!string.Equals(PageCategory.Name, SelectPageName))
@@ -220,30 +210,6 @@ namespace OneGallery
 
         }
 
-        private void NavView_SelectionChanged(NavigationView sender,
-                                      NavigationViewSelectionChangedEventArgs args)
-        {
-            //string Page = args.SelectedItemContainer.Tag.ToString();
-            ////Debug.Print("Select " + Page);
-
-            //if (args.IsSettingsSelected == true)
-            //{
-            //    NavView_Navigate(typeof(Settings));
-            //}
-            //else if (args.SelectedItemContainer != null)
-            //{
-            //    Category s = (Category)Nv.SelectedItem; 
-            //    if (s != null)
-            //    {
-            //        Debug.Print("Select " + s.Name);
-            //    }
-            //    string pageName = "OneGallery." + Page;
-            //        Type navPageType = Type.GetType(pageName);
-            //        NavView_Navigate(navPageType);
-                
-            //}
-        }
-
         public async void Nv_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
             Nv.IsBackEnabled = false;
@@ -253,26 +219,10 @@ namespace OneGallery
                 if (Nv_page.CurrentSourcePageType == typeof(ImagePage))
                 {
                     await ImagePage.NowImagePage.ResetAll();
-
-                    //if (ImagePage.NowImagePage.ScrollViewerRotation % 360 != 0)
-                    //{
-                    //    var _temp = (int)(ImagePage.NowImagePage.ScrollViewerRotation);
-                    //    if (_temp < 0)
-                    //        _temp -= 180;
-                    //    else
-                    //        _temp += 180;
-                    //    _temp = (_temp / 360) * 360; 
-                    //    ImagePage.NowImagePage.ScrollViewerRotation = _temp;
-                    //await Task.Delay(300);
-                    //}
-
-
                 }
                 
                 Nv_page.GoBack();
             }
-
-            
         }
 
         private async void Nv_Page_Navigated(object sender, NavigationEventArgs e)
@@ -304,7 +254,6 @@ namespace OneGallery
                     else
                     {
                         SelectPage(SelectPageName);
-
                     }
 
                 }
@@ -424,10 +373,9 @@ namespace OneGallery
             UpdateNvItemDir(Categories);
             SelectPageName = "HomePage";
             Nv.SelectedItem = NvItemDictionary["HomePage"];
-            NavView_Navigate(typeof(HomePage), Categories[0]);
+            NavView_Navigate(typeof(ImageListPage), Categories[0]);
 
-            
-
+        
         }
 
         private void UpdateNvItemDir(ObservableCollection<Category> Items)
@@ -465,7 +413,9 @@ namespace OneGallery
                 m_backdropController.Dispose();
                 m_backdropController = null;
             }
+
             m_configurationSource = null;
+            FolderManager.SaveConfig();
         }
 
     }

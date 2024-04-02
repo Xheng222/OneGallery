@@ -39,7 +39,7 @@ using Windows.UI.StartScreen;
 namespace OneGallery
 {
 
-    public sealed partial class HomePage : Page
+    public sealed partial class ImageListPage : Page
     {
 
         private static PageParameters Parameters = new();
@@ -50,7 +50,7 @@ namespace OneGallery
 
         string Path;
 
-        public HomePage()
+        public ImageListPage()
         {
             this.InitializeComponent();
             Window = (MainWindow)(Application.Current as App).m_window;
@@ -65,7 +65,7 @@ namespace OneGallery
                 NowCategory = e.Parameter as Category;
 
                 NavigateHelper.OnNavigatedTo(
-                    Window.page,
+                    Window.NaPage,
                     NowCategory.Name,
                     o =>
                     {
@@ -89,7 +89,7 @@ namespace OneGallery
             Parameters.Width = ScrollViewer.ActualWidth;
             Parameters.Offset = ScrollViewer.VerticalOffset;
             Parameters.FirstShow = false;
-            NavigateHelper.OnNavigatingFrom(NowCategory.Name, Window.page.Content, Parameters);
+            NavigateHelper.OnNavigatingFrom(NowCategory.Name, Window.NaPage.Content, Parameters);
             base.OnNavigatingFrom(e);
         }
 
@@ -101,7 +101,7 @@ namespace OneGallery
             {
                 repeater2.Layout = new ActivityFeedLayout(Window.FolderManager.MyImageArrangement);
             }
-
+            //repeater2.Layout = new ActivityFeedLayout(Window.FolderManager.MyImageArrangement);
             repeater2.ItemsSource = Window.FolderManager.MyImageArrangement.ImgList;
 
 
@@ -133,7 +133,9 @@ namespace OneGallery
             var _grid = _temp.Child as Grid;
             var _girdItems = _grid.Children;
 
-            Debug.Print("" + repeater2.GetElementIndex(_temp));
+            var index = repeater2.GetElementIndex(_temp);
+            Debug.Print("" + index);
+            Debug.Print("" + Window.FolderManager.MyImageArrangement.ImgList[index].ImageLocation);
 
             foreach (var _girdItem in _girdItems)
             {
@@ -256,7 +258,7 @@ namespace OneGallery
 
                     ItemContainer_PointerExited(sender, e);
                     //Window.page.Navigate(typeof(ImagePage), _image, new SuppressNavigationTransitionInfo());
-                    Window.page.Navigate(typeof(ImagePage), _image, new DrillInNavigationTransitionInfo());
+                    Window.NaPage.Navigate(typeof(ImagePage), _image, new DrillInNavigationTransitionInfo());
                 }
                 else
                 {

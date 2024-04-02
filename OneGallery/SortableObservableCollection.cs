@@ -57,6 +57,14 @@ namespace OneGallery
             }
         }
 
+        public void Except(SortableObservableCollection<T> other)
+        {
+            foreach(var item in other)
+            {
+                Items.Remove(item);
+            }
+        }
+
         private void ApplySort(IEnumerable<T> sortedItems)
         {
             var sortedItemsList = sortedItems.ToList();

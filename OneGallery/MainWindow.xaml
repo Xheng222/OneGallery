@@ -64,7 +64,6 @@
                         IsBackButtonVisible="Visible"
                         PaneTitle=""
                         ItemInvoked="NavView_ItemInvoked"
-                        SelectionChanged="NavView_SelectionChanged"
                         BackRequested="Nv_BackRequested"
                         Loaded="Nv_Loaded"
                         PaneClosing="Nv_PaneClosed"
