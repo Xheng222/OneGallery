@@ -4,7 +4,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml.Controls;
 using Windows.Devices.Pwm;
@@ -16,6 +19,8 @@ namespace OneGallery
 {
     internal class LocalFolder
     {
+        public bool IsFolderFound = false;
+
         public string FolderPath { get; set; }
 
         public string FolderName { get; set; }
@@ -24,18 +29,26 @@ namespace OneGallery
 
         public FileSystemWatcher Watcher { get; set; }
 
-        public bool IsFolderFound = false;
+        public StorageLibraryChangeTracker FolderTracker { get; set; }
 
-        public bool IsImageFound = false;
+        public StorageLibraryChangeReader FolderChangeReader { get; set; }
 
         public SortableObservableCollection<PictureClass> ImageList { get; set; }
+
+        /*
+         * FileDeletedEvent
+         */
+
+        public event EventHandler FileDeleted;
         
-        public event EventHandler FolderEvent;
-        
-        private void DeleteFolderEvent()
+        private void FileDeletedEvent(FileChangeEvent e)
         {
-            FolderEvent.Invoke(null, null);
+            FileDeleted.Invoke(FolderName, e);
         }
+
+        /*
+         * FolderExistEvent
+         */
 
         public event EventHandler FolderExist;
 
@@ -44,6 +57,10 @@ namespace OneGallery
             FolderExist.Invoke(FolderName, null);
         }
 
+        /*
+         * FolderNotFoundEvent
+         */
+
         public event EventHandler FolderNotFound;
 
         private void FolderNotFoundEvent()
@@ -51,13 +68,17 @@ namespace OneGallery
             FolderNotFound.Invoke(FolderName, null);
         }
 
+        /*
+         * Watcher
+         */
+
         private void DeleteWatcher()
         {
             Watcher?.Dispose();
             Watcher = null;
         }
 
-        private void SetWatcher()
+        public async void SetWatcher()
         {
             Watcher = new FileSystemWatcher(FolderPath);
 
@@ -74,12 +95,43 @@ namespace OneGallery
             Watcher.IncludeSubdirectories = true;
 
             Watcher.Deleted += OnDeleted;
-            Watcher.Changed += OnChanged;
+            //Watcher.Changed += OnChanged;
             Watcher.Renamed += OnRenamed;
             Watcher.Created += OnCreated;
             Watcher.Error += OnError;
+
+            //FolderTracker = Folder.TryGetChangeTracker();
+            //FolderTracker.Enable();
+            //FolderChangeReader = FolderTracker.GetChangeReader();
+            //try
+            //{
+            //    var changeSet = await FolderChangeReader.ReadBatchAsync();
+            //}
+            //catch(COMException ex)
+            //{
+            //    Debug.Print(ex.Message);
+            //}
+            
         }
 
+        /*
+         * FileChanged
+         */
+
+        private async void ReadFileChanges()
+        {
+
+            while (IsFolderFound)
+            {
+                var changeSet = await FolderChangeReader.ReadBatchAsync();
+
+
+                await FolderChangeReader.AcceptChangesAsync();
+
+                Debug.Print("11");
+            }
+        }
+        
         private void OnCreated(object sender, FileSystemEventArgs e)
         {
             Debug.Print("Created " + e.FullPath);
@@ -92,8 +144,21 @@ namespace OneGallery
 
         private void OnDeleted(object sender, FileSystemEventArgs e)
         {
-            Debug.Print("delete " + e.FullPath);
-            DeleteFolderEvent();
+            Debug.Print("delete " + e.Name);
+
+            var a = ImageList.Find<PictureClass>(x => x.ImageLocation, e.FullPath);
+            if (a == -1)
+                return;
+            else
+            {
+                FileChangeEvent _imageChangeEvent = new(ImageList[a]);
+
+                FileDeletedEvent(_imageChangeEvent);
+                //FolderNotFoundEvent();
+                ImageList.RemoveAt(a);
+            }
+                
+            //FileDeletedEvent();
         }
 
         private void OnChanged(object sender, FileSystemEventArgs e)
@@ -117,10 +182,11 @@ namespace OneGallery
 
                     if (IsFolderFound == false)
                     {
-                        SetWatcher();
+                        //SetWatcher();
                         await SearchImages();
                         IsFolderFound = true;
                         FolderExistEvent();
+                        SetWatcher();
                     }
                 }
                 catch (FileNotFoundException)
@@ -237,4 +303,16 @@ namespace OneGallery
     
     
     }
+
+    internal class FileChangeEvent: EventArgs
+    {
+        public PictureClass File { get; set; }
+
+        public FileChangeEvent(PictureClass file)
+        {
+            File = file;
+        }
+    }
+
+
 }

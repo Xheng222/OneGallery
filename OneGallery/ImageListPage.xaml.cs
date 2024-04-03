@@ -39,77 +39,122 @@ using Windows.UI.StartScreen;
 namespace OneGallery
 {
 
-    public sealed partial class ImageListPage : Page
+    internal sealed partial class ImageListPage : Page
     {
 
         private static PageParameters Parameters = new();
 
-        private Category NowCategory;
+        private Category NowCategory {  get; set; }
 
-        readonly MainWindow Window;
+        private MainWindow Window {  get; set; } 
 
-        string Path;
+        public SortableObservableCollection<PictureClass> ImgList {  get; set; }
+
+        public ActivityFeedLayout MyActivityFeedLayout = new();
 
         public ImageListPage()
         {
             this.InitializeComponent();
             Window = (MainWindow)(Application.Current as App).m_window;
+            NavigationCacheMode = NavigationCacheMode.Disabled;
+            ImgList = new();
+        }
+
+        ~ImageListPage()
+        {
+            Debug.Print("~" + NowCategory.Name + " " + ImgList.Count);
+
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-
+ 
             if (e.Parameter is Category)
             {
                 NowCategory = e.Parameter as Category;
 
-                NavigateHelper.OnNavigatedTo(
-                    Window.NaPage,
-                    NowCategory.Name,
-                    o =>
-                    {
-                        if (o is PageParameters p)
-                        {
-                            Parameters = p;
-                        }
-                        else
-                        {
-                            Parameters.Clear();
-                        }
-                    });
+                await LoadData();
             }
 
-            await LoadData();
+
         }
 
 
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
-            Parameters.Width = ScrollViewer.ActualWidth;
-            Parameters.Offset = ScrollViewer.VerticalOffset;
+            //Parameters.Width = ScrollViewer.ActualWidth;
+            //Parameters.Offset = ScrollViewer.VerticalOffset;
             Parameters.FirstShow = false;
-            NavigateHelper.OnNavigatingFrom(NowCategory.Name, Window.NaPage.Content, Parameters);
+            //Parameters.ActivityFeedLayout = (ActivityFeedLayout)repeater2.Layout;
+            NavigateHelper.OnNavigatingFrom(Window.NaPage, NowCategory.Name, Parameters);
+
+            //Window.FolderManager.MyImageArrangement.ImgListForRepeater.Clear();
+            //Window.FolderManager.MyImageArrangement.ImgListForRepeater = null;
             base.OnNavigatingFrom(e);
         }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+
+            GC.Collect();
+        }
+
 
         private async Task LoadData()
         {
             await Window.InitFolder(NowCategory.Name);
 
+            NavigateHelper.OnNavigatedTo(
+                Window,
+                Window.NaPage,
+                NowCategory.Name,
+                o =>
+                {
+                    if (o is PageParameters p)
+                    {
+                        Parameters = p;
+                    }
+                    else
+                    {
+                        Parameters.Clear();
+                    }
+                }
+            );
+
+            //Window.FolderManager.MyImageArrangement.ImgListSwitch();
+            //repeater2.ItemsSource = Window.FolderManager.MyImageArrangement.ImgList;
+
+
+
+
+            //repeater2.ItemsSource = ImgListForRepeater;
+            Debug.Print(ImgList.Count + " first");
+
             if (Parameters.FirstShow == true)
             {
-                repeater2.Layout = new ActivityFeedLayout(Window.FolderManager.MyImageArrangement);
+                MyActivityFeedLayout.LayoutImgArrangement = Window.FolderManager.MyImageArrangement;
+
+                Window.FolderManager.MyImageArrangement.ImgListForRepeater = ImgList;
+
+                Debug.Print(ImgList.Count + " first");
+
+                Needload = true;
             }
-            //repeater2.Layout = new ActivityFeedLayout(Window.FolderManager.MyImageArrangement);
-            repeater2.ItemsSource = Window.FolderManager.MyImageArrangement.ImgList;
-
-
+            else
+            {
+                //Debug.Print(((SortableObservableCollection<PictureClass>)repeater2.ItemsSource).Count + "");
+            }  
+            
+            Window.FolderManager.MyImageArrangement.ImgListChangedEvent();
         }
+
+        bool Needload = false;
 
         private void Page_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            ScrollViewer.Height = this.ActualHeight;
+            //ScrollViewer.Height = this.ActualHeight;
         }
 
 
@@ -141,7 +186,7 @@ namespace OneGallery
             {
                 if (_girdItem is CheckBox)
                 {
-                    if((_girdItem as CheckBox).IsChecked == false)
+                    if ((_girdItem as CheckBox).IsChecked == false)
                     {
                         var res = _temp.Resources;
                         var _borderIn = (Storyboard)res["BorderIn"];
@@ -154,7 +199,7 @@ namespace OneGallery
 
                         break;
                     }
-                    
+
                 }
 
             }
@@ -206,6 +251,9 @@ namespace OneGallery
                 Components = Vector3TransitionComponents.X | Vector3TransitionComponents.Y,
                 Duration = TimeSpan.FromMilliseconds(150)
             };
+
+            var _index = repeater2.GetElementIndex(_temp);
+            //Debug.Print("Loaded " + _index);
         }
 
         private void ItemContainer_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -230,7 +278,7 @@ namespace OneGallery
             if (_ptr != null)
             {
                 var _index = repeater2.GetElementIndex(_temp);
-                var _image = Window.FolderManager.MyImageArrangement.ImgList.First(x => x.Index == _index);
+                var _image = Window.FolderManager.MyImageArrangement.ImgListForRepeater.First(x => x.Index == _index);
 
                 if ((int)_ptr.Properties.PointerUpdateKind == (int)(Windows.UI.Input.PointerUpdateKind.LeftButtonReleased))
                 {
@@ -254,7 +302,7 @@ namespace OneGallery
 
                     var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("ForwardConnectedAnimation", _temp);
                     anim.Configuration = new DirectConnectedAnimationConfiguration();
-                    
+
 
                     ItemContainer_PointerExited(sender, e);
                     //Window.page.Navigate(typeof(ImagePage), _image, new SuppressNavigationTransitionInfo());
@@ -282,7 +330,7 @@ namespace OneGallery
                 _checkBox.IsChecked = false;
             }
         }
-    
+
         private async Task ConnectAnimate()
         {
             if (Parameters.SortedIndex != -1)
@@ -300,7 +348,7 @@ namespace OneGallery
                     }
 
                     anim.TryStart(_item);
-              
+
                 }
                 Parameters.SortedIndex = -1;
             }
@@ -309,9 +357,32 @@ namespace OneGallery
 
         private async void repeater2_Loaded(object sender, RoutedEventArgs e)
         {
+            if (Needload)
+            {
+                //ActivityFeedLayout.LayoutImgArrangement = Window.FolderManager.MyImageArrangement;
+
+                //Window.FolderManager.MyImageArrangement.ImgListForRepeater = ImgList;
+
+                //Window.FolderManager.MyImageArrangement.ImgListSwitch();
+
+
+                Debug.Print(((SortableObservableCollection<PictureClass>)repeater2.ItemsSource).Count + " count");
+            }
+
+
             double _offset = Parameters.Offset * ScrollViewer.ActualWidth / Parameters.Width;
-            ScrollViewer.ChangeView(null, _offset, null);
+            Debug.Print(ScrollViewer.ChangeView(null, _offset, null) + "");
+
             await ConnectAnimate();
         }
+
+
+        private void ItemContainer_Unloaded(object sender, RoutedEventArgs e)
+        {
+            //var _temp = (ItemContainer)sender;
+            //var _index = repeater2.GetElementIndex(_temp);
+            //Debug.Print("Unloaded " + _index);
+        }
+
     }
 }

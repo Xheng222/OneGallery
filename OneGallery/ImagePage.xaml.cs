@@ -42,7 +42,7 @@ namespace OneGallery
 
         double ScrollBackHeight;
 
-        ConnectedAnimation imageAnimation;
+        ConnectedAnimation imageAnimation { get; set; }
 
         bool isLoaded = false;
 
@@ -50,7 +50,7 @@ namespace OneGallery
 
         bool isPointInToolBar = false;
 
-        readonly MainWindow Window;
+        private MainWindow Window { get; set; }
 
         readonly string SourcePageName;
 
@@ -59,6 +59,15 @@ namespace OneGallery
             this.InitializeComponent();
             Window = (MainWindow)(Application.Current as App).m_window;
             SourcePageName = (Window.NaView.SelectedItem as Category).Name;
+            NavigationCacheMode = NavigationCacheMode.Disabled;
+        }
+
+
+
+        ~ImagePage()
+        {
+            Debug.Print("~" + GetType().Name);
+          
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -83,7 +92,6 @@ namespace OneGallery
                 {
                     var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("BackwardConnectedAnimation", image);
                     anim.Configuration = new DirectConnectedAnimationConfiguration();
-
                 }
 
             }
@@ -97,12 +105,25 @@ namespace OneGallery
             {
                 Window.NaPage.BackStack.RemoveAt(Window.NaPage.BackStack.Count - 1);
                 Window.HistoryPages.Pop();
-
             }
 
             base.OnNavigatedFrom(e);
 
             NowImagePage = null;
+
+            PageGrid.PointerMoved -= Grid_PointerMoved;
+            PageGrid.PointerPressed -= Grid_PointerPressed;
+            PageGrid.PointerReleased -= Grid_PointerReleased;
+            PageGrid.PointerWheelChanged -= Grid_PointerWheelChanged;
+
+            imageAnimation.Completed -= ImageAnimationCompleted;
+            ToolsBarIn.Completed -= ToolBarInCompelete;
+
+
+
+
+
+            GC.Collect();
         }
 
         /*
@@ -157,7 +178,6 @@ namespace OneGallery
 
             ScrollBackHeight -= (Zoom - 1) * 80 + 50;
             ScrollBackWidth -= (Zoom - 1) * 80 + 50;
-
         }
 
         private void CalculateScrollViewer()
@@ -568,8 +588,9 @@ namespace OneGallery
 
         }
 
-        Pointer pointer;
-        PointerPoint scrollMousePoint;
+        Pointer Pointer { get; set; }
+        PointerPoint ScrollMousePoint { get; set; }
+
         double hOff = 1;
         double vOff = 1;
 
@@ -579,8 +600,8 @@ namespace OneGallery
             {
                 //e.Handled = true;
 
-                var deltaX = hOff + (scrollMousePoint.Position.X - e.GetCurrentPoint(scrollViewer).Position.X);
-                var deltaY = vOff + (scrollMousePoint.Position.Y - e.GetCurrentPoint(scrollViewer).Position.Y);
+                var deltaX = hOff + (ScrollMousePoint.Position.X - e.GetCurrentPoint(scrollViewer).Position.X);
+                var deltaY = vOff + (ScrollMousePoint.Position.Y - e.GetCurrentPoint(scrollViewer).Position.Y);
 
                 if (deltaX < ScrollBackWidth)
                 {
@@ -624,11 +645,11 @@ namespace OneGallery
         {
             if (e.GetCurrentPoint(scrollViewer).Properties.IsLeftButtonPressed)
             {
-                pointer = e.Pointer;
-                scrollMousePoint = e.GetCurrentPoint(scrollViewer);
+                Pointer = e.Pointer;
+                ScrollMousePoint = e.GetCurrentPoint(scrollViewer);
                 hOff = scrollViewer.HorizontalOffset;
                 vOff = scrollViewer.VerticalOffset;
-                scrollViewer.CapturePointer(pointer);
+                scrollViewer.CapturePointer(Pointer);
             }
 
         }
@@ -740,7 +761,6 @@ namespace OneGallery
         {
             e.Handled = true;
             isPointInToolBar = true;
-
         }
 
         private void DeleteFontIcon_PointerExited(object sender, PointerRoutedEventArgs e)

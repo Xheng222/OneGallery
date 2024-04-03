@@ -8,41 +8,79 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using Microsoft.UI.Xaml;
 
 namespace OneGallery
 {
     internal class NavigateHelper
     {
+        //private static readonly Dictionary<string, PageParameters> DictPageContent
+        //            = new();        
+        
         private static readonly Dictionary<string, PageStackContent> DictPageContent
                     = new();
 
-        public static void OnNavigatedTo(Frame frame, string pageName, Action<object> backPageCallBack = null)
+        //public static void OnNavigatedTo(string pageName, Action<object> backPageCallBack = null)
+        //{
+
+        //    object pageParameter = null;
+        //    if (DictPageContent.ContainsKey(pageName))
+        //    {
+        //        pageParameter = DictPageContent[pageName];
+        //        //frame.Content = temp.PageContent;
+        //        //pageParameter = temp; 
+        //    }
+
+        //    backPageCallBack?.Invoke(pageParameter);
+        //}
+
+        //public static void OnNavigatingFrom(string pageName, PageParameters pageContent)
+        //{
+
+        //    if (DictPageContent.ContainsKey(pageName))
+        //    {
+        //        //DictPageContent.Remove(pageName);
+        //        DictPageContent[pageName] = pageContent.Clone();
+        //        return;
+        //    }
+        //    DictPageContent.Add(pageName, pageContent.Clone());
+
+        //}
+
+        public static void OnNavigatedTo(MainWindow window, Frame frame, string pageName, Action<object> backPageCallBack = null)
         {
 
-            object pageParameter = null;
+            PageParameters pageParameter = null;
             if (DictPageContent.ContainsKey(pageName))
             {
-                var temp = DictPageContent[pageName];
-                frame.Content = temp.PageContent;
-                pageParameter = temp.PageParameter; 
+                var _temp = DictPageContent[pageName];
+                var _tempPage = (ImageListPage)_temp.PageContent;
+                _tempPage.MyActivityFeedLayout.LayoutImgArrangement = window.FolderManager.MyImageArrangement;
+                window.FolderManager.MyImageArrangement.ImgListForRepeater = _tempPage.ImgList;
+                window.FolderManager.MyImageArrangement.ImgListChangedEvent();
+                frame.Content = _temp.PageContent;
+                pageParameter = _temp.PageParameter;
             }
 
-            backPageCallBack?.Invoke(pageParameter);
+            if (backPageCallBack != null) 
+                backPageCallBack?.Invoke(pageParameter);
         }
 
-        public static void OnNavigatingFrom(string pageName, object pageContent, ICloneable pageParameter)
+        public static void OnNavigatingFrom(Frame frame, string pageName, PageParameters pageContent)
         {
 
             if (DictPageContent.ContainsKey(pageName))
             {
-                DictPageContent.Remove(pageName);
+                //DictPageContent.Remove(pageName);
 
+                DictPageContent[pageName].PageContent = frame.Content;
+                DictPageContent[pageName].PageParameter = pageContent.Clone();
+                return;
             }
-            DictPageContent.Add(pageName, new(pageContent, pageParameter?.Clone()));
+            var _temp = new PageStackContent(frame.Content, pageContent?.Clone());
+            DictPageContent.Add(pageName, _temp);
 
         }
-
-
     }
 
 
@@ -52,18 +90,18 @@ namespace OneGallery
         {
         }
 
-        public PageStackContent(object pageContent, object pageParameter)
+        public PageStackContent(object pageContent, PageParameters pageParameter)
         {
             this.PageContent = pageContent;
             this.PageParameter = pageParameter;
         }
 
         public object PageContent { get; set; }
-        public object PageParameter { get; set; }
+        public PageParameters PageParameter { get; set; }
 
     }
 
-    class PageParameters :ICloneable
+    class PageParameters 
     {
         public int SortedIndex { get; set; }
 
@@ -72,6 +110,8 @@ namespace OneGallery
         public double Offset { get; set; }
 
         public bool FirstShow { get; set; }
+
+        public ActivityFeedLayout ActivityFeedLayout { get; set; }
 
         public PageParameters()
         {
@@ -84,11 +124,12 @@ namespace OneGallery
             Offset = 0;
             Width = 1;
             FirstShow = true;
+            ActivityFeedLayout = null;
         }
 
-        public object Clone()
+        public PageParameters Clone()
         {
-            return MemberwiseClone();
+            return (PageParameters)MemberwiseClone();
         }
 
 

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OneGallery
 {
-    class SortableObservableCollection<T> : ObservableCollection<T>
+    public class SortableObservableCollection<T> : ObservableCollection<T>
     {
         public SortableObservableCollection() : base()
         {
@@ -63,6 +63,21 @@ namespace OneGallery
             {
                 Items.Remove(item);
             }
+        }
+
+        public int Find<Tkey>(Func<T, string> _keySelector, string _path)
+        {
+            int _index = 0;
+            foreach (var _item in Items)
+            {
+                if (_path == _keySelector.Invoke(_item))
+                    return _index;
+                
+                _index++;
+                //Debug.Print(_keySelector(_item) + "");
+                
+            }
+            return -1;
         }
 
         private void ApplySort(IEnumerable<T> sortedItems)

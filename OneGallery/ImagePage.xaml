@@ -47,14 +47,12 @@
                     HorizontalAlignment="Center" 
                     CanBeScrollAnchor="False"
                     Stretch="Uniform"        
-                    Loaded="image_Loaded" >
-                    <Image.Source>
-                        <BitmapImage DecodePixelHeight="{x:Bind ChooseImage.Height}" DecodePixelWidth="{x:Bind ChooseImage.Width}" UriSource="{x:Bind ChooseImage.ImageLocation}" />
-                    </Image.Source>
-                </Image>                      
-
-              
-                
+                    Loaded="image_Loaded" 
+                    Source="{x:Bind ChooseImage.ImageLocation, Mode=OneTime}">
+                    <!--<Image.Source>
+                        <BitmapImage DecodePixelHeight="{x:Bind ChooseImage.Height, Mode=OneTime}" UriSource="{x:Bind ChooseImage.ImageLocation, Mode=OneTime}" />
+                    </Image.Source>-->
+                </Image>                                
             </Viewbox>
 
 

@@ -128,7 +128,11 @@ namespace OneGallery
 
             FolderManager = new();
 
-            
+            var gcTimer = new DispatcherTimer();
+            gcTimer.Tick += (sender, e) => { Myfind(); };
+            gcTimer.Interval = TimeSpan.FromSeconds(5);
+            //gcTimer.Start();
+
         }
 
         public async Task InitFolder(string _pageName)
@@ -155,7 +159,7 @@ namespace OneGallery
                 m_backdropController.AddSystemBackdropTarget(this.As<Microsoft.UI.Composition.ICompositionSupportsSystemBackdrop>());
                 m_backdropController.SetSystemBackdropConfiguration(m_configurationSource);
 
-                this.SystemBackdrop = new Microsoft.UI.Xaml.Media.DesktopAcrylicBackdrop();
+                this.SystemBackdrop = new DesktopAcrylicBackdrop();
                 this.Closed += Window_Closed;
                 return true;
             }
@@ -183,30 +187,28 @@ namespace OneGallery
             {
                 if (args.IsSettingsInvoked == true)
                 {
-                    if (!string.Equals(CurrentPage.Name, "Settings"))
-                    {
+                    //if (!string.Equals(CurrentPage.Name, "Settings"))
+                    //{
                         HistoryPages.Push(SelectPageName);
                         SelectPageName = "Settings";
-                        NavView_Navigate(typeof(Settings), null);
-                    }
+                        NavView_Navigate(typeof(SettingPage), null);
+                    //}
                 }
                 else if (args.InvokedItemContainer != null)
                 {
                     var PageCategory = Nv.SelectedItem as Category;
 
-                    if (!string.Equals(PageCategory.Name, SelectPageName))
-                    {
+                    //if (!string.Equals(PageCategory.Name, SelectPageName))
+                    //{
                         HistoryPages.Push(SelectPageName);
                         SelectPageName = PageCategory.Name;
                         Type navPageType = Type.GetType("OneGallery." + PageCategory.PageType);
                         NavView_Navigate(navPageType, PageCategory);
-                    }   
+                    //}   
                 
                 }
 
             }
-
-
 
         }
 
@@ -343,6 +345,8 @@ namespace OneGallery
             return;
         }
 
+
+
         private void ExpandParentPage(string PageName)
         {
             if (ParentDictionary[PageName] != null)
@@ -365,8 +369,9 @@ namespace OneGallery
             return;
         }
 
-        private void Nv_Loaded(object sender, RoutedEventArgs e)
+        private async void Nv_Loaded(object sender, RoutedEventArgs e)
         {
+            Nv_page.CacheSize = 0;
             FolderManager.InitFolder();
             var rootGrid = VisualTreeHelper.GetChild(sender as NavigationView, 0);
             FindNaView(rootGrid);
@@ -375,7 +380,12 @@ namespace OneGallery
             Nv.SelectedItem = NvItemDictionary["HomePage"];
             NavView_Navigate(typeof(ImageListPage), Categories[0]);
 
-        
+            //Nv_page.Content = new ImageListPage(Categories[0]);
+
+            await Task.Delay(10000);
+
+            //Nv_page.Content = new ImageListPage(NvItemDictionary["Menu item 6"]);
+
         }
 
         private void UpdateNvItemDir(ObservableCollection<Category> Items)
@@ -416,6 +426,44 @@ namespace OneGallery
 
             m_configurationSource = null;
             FolderManager.SaveConfig();
+        }
+
+        int kk = 0;
+
+        private void FindItem(DependencyObject Item)
+        {
+            var TypeName = Item.GetType().Name;
+            var ChildNum = VisualTreeHelper.GetChildrenCount(Item);
+            if (ChildNum > 0)
+            {
+                Debug.Print(TypeName);
+                if (TypeName.Equals("ItemsRepeater"))
+                {
+                    kk++;
+                }
+
+
+                else
+                {
+                    for (var i = 0; i < ChildNum; i++)
+                    {
+                        FindItem(VisualTreeHelper.GetChild(Item, i));
+                    }
+                }
+
+            }
+
+            return;
+        }
+
+        private void Myfind()
+        {
+            //kk = 0;
+            ////var rootGrid = VisualTreeHelper.GetChild(Nv_page as Frame, 0);
+            //FindItem(Grid);
+            //Debug.Print("Find " + kk);
+            ImageListPage temp = Nv_page.Content as ImageListPage;
+            Debug.Print("Find " + temp.ImgList.Count);
         }
 
     }

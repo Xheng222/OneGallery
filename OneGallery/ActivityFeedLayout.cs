@@ -13,7 +13,7 @@ using System.Reflection;
 
 namespace OneGallery
 {
-    class ActivityFeedLayout : VirtualizingLayout
+    internal class ActivityFeedLayout : VirtualizingLayout
     {
         #region Layout parameters
 
@@ -31,6 +31,8 @@ namespace OneGallery
         private Size _minItemSize = Size.Empty;
 
         private Size _maxItemSize = Size.Empty;
+
+        
 
         public ImageArrangement LayoutImgArrangement { get; set; }
 
@@ -90,6 +92,8 @@ namespace OneGallery
         {
             var layout = obj as ActivityFeedLayout;
 
+            
+
             if (args.Property == RowSpacingProperty)
             {
                 layout._rowSpacing = (double)args.NewValue;
@@ -114,12 +118,23 @@ namespace OneGallery
             layout.InvalidateMeasure();
         }
 
+        public void TryInvalidateMeasure()
+        {
+            this.InvalidateMeasure();
+        }
+
         public ActivityFeedLayout(ImageArrangement _imageArrangement) 
         {
             LayoutImgArrangement = _imageArrangement;
+            Debug.Print("Create " + GetType().Name);
         }
 
-        public ActivityFeedLayout() { }
+        public ActivityFeedLayout() { Debug.Print("Create null" + GetType().Name); }
+
+        ~ActivityFeedLayout()
+        {
+            Debug.Print("~" + GetType().Name);
+        }
 
         #endregion
 
@@ -144,8 +159,11 @@ namespace OneGallery
         protected override Size MeasureOverride(VirtualizingLayoutContext context, Size availableSize)
         {
             double _newTop = 0;
+            //Debug.Print("333");
+            if (LayoutImgArrangement == null)
+                return new Size(0, 0);
 
-            if (context.ItemCount > 0)
+            if (context.ItemCount > 0 && context.ItemCount <= LayoutImgArrangement.ImgList.Count)
             {
                 var state = context.LayoutState as ActivityFeedLayoutState;
                 state.LayoutRects.Clear();
@@ -176,6 +194,8 @@ namespace OneGallery
                         for (var j = 0; j < RowImgCount; j++)
                         {
                             var _index = _item + j;
+                            if (_index >= context.ItemCount)
+                                break;
                             var container = context.GetOrCreateElementAt(_index);
                             var _rect = LayoutImgArrangement.ImageRect[_index];
                             Rect _size = new()
@@ -192,6 +212,7 @@ namespace OneGallery
 
                         }
                     }
+
                     i++;
                     _newTop += zoomImg * LayoutImgArrangement.ImageRect[_item].Height + _rowSpacing;
                 }
@@ -236,8 +257,6 @@ namespace OneGallery
 
             return false;
         }
-
-
 
 
         #endregion

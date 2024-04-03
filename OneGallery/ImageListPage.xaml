@@ -5,22 +5,22 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:OneGallery"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     mc:Ignorable="d"
-    SizeChanged="Page_SizeChanged"
-    Background="Transparent" >
+    Background="Transparent" 
+    >
 
     <Page.Resources>
         <DataTemplate  x:Key="LinedFlowLayoutItemTemplate" x:DataType="local:PictureClass">
             <ItemContainer 
-                Name="{x:Bind Index}"
-                Tag="{x:Bind Name}"
                 CanBeScrollAnchor="False"
                 Loaded="ItemContainer_Loaded"
                 PointerEntered="ItemContainer_PointerEntered"
                 PointerExited="ItemContainer_PointerExited"
                 PointerPressed="ItemContainer_PointerPressed"
-                PointerReleased="ItemContainer_PointerReleased"      >
+                PointerReleased="ItemContainer_PointerReleased"
+                Unloaded="ItemContainer_Unloaded"
+                >
                 <Grid>
                     <Rectangle  
                         Name="Border"
@@ -61,7 +61,7 @@
                         Stretch="UniformToFill" 
                         SizeChanged="Image_SizeChanged" >
                         <Image.Source>
-                            <BitmapImage DecodePixelHeight="200" UriSource="{x:Bind ImageLocation}" />
+                            <BitmapImage DecodePixelHeight="350" UriSource="{x:Bind ImageLocation, Mode=OneTime}" />
                         </Image.Source>
                     </Image>
 
@@ -120,13 +120,31 @@
                 </ItemContainer.Resources>
             </ItemContainer>
         </DataTemplate>
-        
+
+
+        <DataTemplate x:Key="test" x:DataType="local:PictureClass">
+            <ItemContainer>
+                <Image 
+                    Canvas.ZIndex="0"
+                    Stretch="UniformToFill" 
+                    SizeChanged="Image_SizeChanged" 
+                    Source="H:\2222\5555.jpg">
+
+                    <!--<Image.Source>
+                        --><!--<BitmapImage DecodePixelHeight="350" UriSource="{x:Bind ImageLocation, Mode=OneTime}" />--><!--
+                        <BitmapImage DecodePixelHeight="350" UriSource="H:\2222\5555.jpg" />
+                    </Image.Source>-->
+                </Image>
+            </ItemContainer>
+        </DataTemplate>
+
         <!--<local:ActivityFeedLayout 
-            x:Key="MyFeedLayout" 
-            ColumnSpacing="12" RowSpacing="12" MinItemSize="400, 175" 
-            LayoutImgArrangement="{x:Bind HomePageImageArrangement}"/>-->
-        
-        <Storyboard x:Name="OpacityIn">
+                    x:Key="MyFeedLayout" 
+                    ColumnSpacing="12" 
+                    RowSpacing="12" 
+                    MinItemSize="400, 175" />-->
+
+        <!--<Storyboard x:Name="OpacityIn">
             <DoubleAnimation
                 Storyboard.TargetName="repeater2"
                 Storyboard.TargetProperty="Opacity"
@@ -140,27 +158,32 @@
                 Storyboard.TargetProperty="Opacity"
                 From="1.0" To="0.0" Duration="0:0:0.05" 
                 AutoReverse="False" />
-        </Storyboard>
+        </Storyboard>-->
     </Page.Resources>
 
 
 
-    <Grid x:Name="grid" Height="Auto">
+    <Grid x:Name="grid" Height="Auto" SizeChanged="Page_SizeChanged" >
 
         <ScrollViewer x:Name="ScrollViewer" Background="Transparent">
+
             <ItemsRepeater x:Name="repeater2" 
                            Background="Transparent"
                            HorizontalAlignment="Stretch"
                            ItemTemplate="{StaticResource LinedFlowLayoutItemTemplate}"
-                           Loaded="repeater2_Loaded"
-                           >
-            </ItemsRepeater >
-            
+                           ItemsSource="{x:Bind ImgList, Mode=TwoWay}"
+                           Layout="{x:Bind MyActivityFeedLayout, Mode=TwoWay}"
+                     >
+                <!--<ItemsRepeater.Layout>
+                    <UniformGridLayout MinItemWidth="200" MinItemHeight="200"/>
+                </ItemsRepeater.Layout>-->
+
+            </ItemsRepeater>
+                           <!--Loaded="repeater2_Loaded"
+                           Loading="repeater2_Loading"-->
+                           <!--Layout="{x:Bind ActivityFeedLayout, Mode=OneTime}"-->            
         </ScrollViewer>
 
-<!--Layout="{StaticResource MyFeedLayout}"-->
+        <!--Layout="{StaticResource MyFeedLayout}"-->
     </Grid>
-
-
-
 </Page>

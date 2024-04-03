@@ -14,6 +14,9 @@ namespace OneGallery
     {
         public SortableObservableCollection<PictureClass> ImgList { get; set; }
 
+        //public SortableObservableCollection<PictureClass> ImgListForRepeater { get; set; }
+        public SortableObservableCollection<PictureClass> ImgListForRepeater = new();
+
         public List<Rect> ImageRect { get; set; }
 
         public List<int> RowFirstIndex { get; set; }
@@ -35,6 +38,26 @@ namespace OneGallery
         private double ColSpacing = 0;
 
         private double[] TotalWidth;
+
+        public EventHandler ImgListChanged;
+
+        public void ImgListChangedEvent()
+        {
+            ImgListForRepeater.Clear();
+            foreach (var _image in ImgList)
+                ImgListForRepeater.Add(_image);
+        }
+
+        public void ImgListSwitch()
+        {
+            if (ImgListForRepeater != null)
+                ImgListForRepeater = null;
+
+            //ImgListForRepeater = new();
+
+            foreach (var _image in ImgList)
+                ImgListForRepeater.Add(_image);
+        }
 
         public ImageArrangement() { }
 
@@ -106,8 +129,10 @@ namespace OneGallery
                 {
                     ImgList[i].Index = i;
                 }
+
             }
 
+            
         }
 
         private List<double> TryPutImg(int Index, double RemainingWidth, Size ItemSize)
