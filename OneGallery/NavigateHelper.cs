@@ -13,66 +13,41 @@ using Microsoft.UI.Xaml;
 namespace OneGallery
 {
     internal class NavigateHelper
-    {
-        //private static readonly Dictionary<string, PageParameters> DictPageContent
-        //            = new();        
-        
+    {    
         private static readonly Dictionary<string, PageStackContent> DictPageContent
                     = new();
+        public static void GetContent(MainWindow window, Frame frame, string pageName)
+        {
 
-        //public static void OnNavigatedTo(string pageName, Action<object> backPageCallBack = null)
-        //{
+            if (DictPageContent.ContainsKey(pageName))
+            {
+                var _tempPage = (ImageListPage)DictPageContent[pageName].PageContent;
+                _tempPage.MyActivityFeedLayout.LayoutImgArrangement = window.FolderManager.MyImageArrangement;
+                window.FolderManager.MyImageArrangement.ImgListForRepeater = _tempPage.ImgList;
+                window.FolderManager.MyImageArrangement.ImgListChanged();
+                frame.Content = DictPageContent[pageName].PageContent;
+            }
 
-        //    object pageParameter = null;
-        //    if (DictPageContent.ContainsKey(pageName))
-        //    {
-        //        pageParameter = DictPageContent[pageName];
-        //        //frame.Content = temp.PageContent;
-        //        //pageParameter = temp; 
-        //    }
+        }
 
-        //    backPageCallBack?.Invoke(pageParameter);
-        //}
-
-        //public static void OnNavigatingFrom(string pageName, PageParameters pageContent)
-        //{
-
-        //    if (DictPageContent.ContainsKey(pageName))
-        //    {
-        //        //DictPageContent.Remove(pageName);
-        //        DictPageContent[pageName] = pageContent.Clone();
-        //        return;
-        //    }
-        //    DictPageContent.Add(pageName, pageContent.Clone());
-
-        //}
-
-        public static void OnNavigatedTo(MainWindow window, Frame frame, string pageName, Action<object> backPageCallBack = null)
+        public static void GetParameter(string pageName, Action<object> backPageCallBack = null)
         {
 
             PageParameters pageParameter = null;
             if (DictPageContent.ContainsKey(pageName))
             {
-                var _temp = DictPageContent[pageName];
-                var _tempPage = (ImageListPage)_temp.PageContent;
-                _tempPage.MyActivityFeedLayout.LayoutImgArrangement = window.FolderManager.MyImageArrangement;
-                window.FolderManager.MyImageArrangement.ImgListForRepeater = _tempPage.ImgList;
-                window.FolderManager.MyImageArrangement.ImgListChangedEvent();
-                frame.Content = _temp.PageContent;
-                pageParameter = _temp.PageParameter;
+                pageParameter = DictPageContent[pageName].PageParameter;
             }
 
-            if (backPageCallBack != null) 
+            if (backPageCallBack != null)
                 backPageCallBack?.Invoke(pageParameter);
         }
 
-        public static void OnNavigatingFrom(Frame frame, string pageName, PageParameters pageContent)
+        public static void StoreContent(Frame frame, string pageName, PageParameters pageContent)
         {
 
             if (DictPageContent.ContainsKey(pageName))
             {
-                //DictPageContent.Remove(pageName);
-
                 DictPageContent[pageName].PageContent = frame.Content;
                 DictPageContent[pageName].PageParameter = pageContent.Clone();
                 return;
@@ -103,15 +78,15 @@ namespace OneGallery
 
     class PageParameters 
     {
-        public int SortedIndex { get; set; }
+        //public int SortedIndex { get; set; }
+
+        public PictureClass Image { get; set; }
 
         public double Width { get; set; }
 
         public double Offset { get; set; }
 
         public bool FirstShow { get; set; }
-
-        public ActivityFeedLayout ActivityFeedLayout { get; set; }
 
         public PageParameters()
         {
@@ -120,11 +95,11 @@ namespace OneGallery
 
         public void Clear()
         {
-            SortedIndex = -1;
+            //SortedIndex = -1;
             Offset = 0;
             Width = 1;
             FirstShow = true;
-            ActivityFeedLayout = null;
+            Image = null;
         }
 
         public PageParameters Clone()

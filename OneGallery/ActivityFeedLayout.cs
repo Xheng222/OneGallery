@@ -10,6 +10,8 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Collections.Specialized;
+
 
 namespace OneGallery
 {
@@ -35,6 +37,8 @@ namespace OneGallery
         
 
         public ImageArrangement LayoutImgArrangement { get; set; }
+
+
 
         public double RowSpacing
         {
@@ -68,12 +72,6 @@ namespace OneGallery
             set { SetValue(MinItemSizeProperty, value); }
         }
 
-        public Size MaxItemSize
-        {
-            get { return _maxItemSize; }
-            set { SetValue(MaxItemSizeProperty, value); }
-        }
-
         public static readonly DependencyProperty MinItemSizeProperty =
             DependencyProperty.Register(
                 "MinItemSize",
@@ -81,12 +79,14 @@ namespace OneGallery
                 typeof(ActivityFeedLayout),
                 new PropertyMetadata(Size.Empty, OnPropertyChanged));
 
-        public static readonly DependencyProperty MaxItemSizeProperty =
-            DependencyProperty.Register(
-                "MaxItemSize",
-                typeof(Size),
-                typeof(ActivityFeedLayout),
-                new PropertyMetadata(Size.Empty, OnPropertyChanged));
+
+
+        //public static readonly DependencyProperty ImageList =
+        //    DependencyProperty.Register(
+        //        "ImageList",
+        //        typeof(SortableObservableCollection<PictureClass>),
+        //        typeof(ActivityFeedLayout),
+        //        new PropertyMetadata(Size.Empty, OnPropertyChanged));
 
         private static void OnPropertyChanged(DependencyObject obj, DependencyPropertyChangedEventArgs args)
         {
@@ -106,10 +106,10 @@ namespace OneGallery
             {
                 layout._minItemSize = (Size)args.NewValue;
             }
-            else if (args.Property == MaxItemSizeProperty)
-            {
-                layout._maxItemSize = (Size)args.NewValue;
-            }
+            //else if (args.Property == ImageList)
+            //{
+            //    layout._maxItemSize = (Size)args.NewValue;
+            //}
             else
             {
                 throw new InvalidOperationException("Don't know what you are talking about!");
@@ -118,18 +118,7 @@ namespace OneGallery
             layout.InvalidateMeasure();
         }
 
-        public void TryInvalidateMeasure()
-        {
-            this.InvalidateMeasure();
-        }
-
-        public ActivityFeedLayout(ImageArrangement _imageArrangement) 
-        {
-            LayoutImgArrangement = _imageArrangement;
-            Debug.Print("Create " + GetType().Name);
-        }
-
-        public ActivityFeedLayout() { Debug.Print("Create null" + GetType().Name); }
+        public ActivityFeedLayout() { Debug.Print("Create null " + GetType().Name); }
 
         ~ActivityFeedLayout()
         {
@@ -233,17 +222,38 @@ namespace OneGallery
             }
 
             var state = context.LayoutState as ActivityFeedLayoutState;
-            var virtualContext = context;
             int currentIndex = state.FirstRealizedIndex;
 
             foreach (var arrangeRect in state.LayoutRects)
             {
-                var container = (ItemContainer)virtualContext.GetOrCreateElementAt(currentIndex);
+                var container = (ItemContainer)context.GetOrCreateElementAt(currentIndex);
                 container.Arrange(arrangeRect);
                 currentIndex++;
             }
 
             return finalSize;
+        }
+
+        protected override void OnItemsChangedCore(VirtualizingLayoutContext context, object source, NotifyCollectionChangedEventArgs args)
+        {
+            Debug.Print("1111 " + args.Action);
+            if (args.Action == NotifyCollectionChangedAction.Move)
+            {
+                var _temp = args.OldItems;
+
+                Debug.Print("" + args.OldStartingIndex);
+                Debug.Print("" + args.NewStartingIndex);
+
+                var container = (ItemContainer)context.GetOrCreateElementAt(args.OldStartingIndex);
+                context.RecycleElement(container);
+
+                container = (ItemContainer)context.GetOrCreateElementAt(args.NewStartingIndex);
+                context.RecycleElement(container);
+
+                this.InvalidateMeasure();
+            }
+            else
+                base.OnItemsChangedCore(context, source, args);
         }
 
         private bool UpdateImgRect(double _width)

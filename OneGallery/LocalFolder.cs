@@ -35,16 +35,7 @@ namespace OneGallery
 
         public SortableObservableCollection<PictureClass> ImageList { get; set; }
 
-        /*
-         * FileDeletedEvent
-         */
 
-        public event EventHandler FileDeleted;
-        
-        private void FileDeletedEvent(FileChangeEvent e)
-        {
-            FileDeleted.Invoke(FolderName, e);
-        }
 
         /*
          * FolderExistEvent
@@ -78,7 +69,7 @@ namespace OneGallery
             Watcher = null;
         }
 
-        public async void SetWatcher()
+        public void SetWatcher()
         {
             Watcher = new FileSystemWatcher(FolderPath);
 
@@ -95,75 +86,114 @@ namespace OneGallery
             Watcher.IncludeSubdirectories = true;
 
             Watcher.Deleted += OnDeleted;
-            //Watcher.Changed += OnChanged;
-            Watcher.Renamed += OnRenamed;
             Watcher.Created += OnCreated;
+            Watcher.Renamed += OnRenamed;
             Watcher.Error += OnError;
 
-            //FolderTracker = Folder.TryGetChangeTracker();
-            //FolderTracker.Enable();
-            //FolderChangeReader = FolderTracker.GetChangeReader();
-            //try
-            //{
-            //    var changeSet = await FolderChangeReader.ReadBatchAsync();
-            //}
-            //catch(COMException ex)
-            //{
-            //    Debug.Print(ex.Message);
-            //}
-            
         }
 
         /*
-         * FileChanged
+         * FileCreated
          */
 
-        private async void ReadFileChanges()
+        public event EventHandler FileCreated;
+
+        private void FileCreatedEvent()
         {
-
-            while (IsFolderFound)
-            {
-                var changeSet = await FolderChangeReader.ReadBatchAsync();
-
-
-                await FolderChangeReader.AcceptChangesAsync();
-
-                Debug.Print("11");
-            }
+            FileCreated.Invoke(FolderName, null);
         }
-        
+
         private void OnCreated(object sender, FileSystemEventArgs e)
         {
-            Debug.Print("Created " + e.FullPath);
+
+
+            //_tempImage.Name = e.Name;
+            //_tempImage.ImageLocation = e.FullPath;
+
+
+            Debug.Print("Created " + e.Name);
         }
 
-        private void OnRenamed(object sender, FileSystemEventArgs e)
+        /*
+         * FileReNamedEvent
+         */
+
+        public event EventHandler FileRenamed;
+
+        private void FileRenamedEvent(RenamedEventArgs e)
         {
-            Debug.Print("Renamed " + e.FullPath);
+            FileRenamed.Invoke(FolderName, e);
+        }
+
+        private void OnRenamed(object sender, RenamedEventArgs e)
+        {
+            FileRenamedEvent(e);
+            //if (IsImageChanged(e.Name))
+            //{
+            //    var _tempImage = ImageList.Find<PictureClass>(x => x.ImageLocation, e.OldFullPath);
+            //    if (_tempImage != null)
+            //    {
+            //        var _newName = e.Name.Split('\\').Last();
+
+            //        //_tempImage._Name = _newName;
+            //        //_tempImage._ImageLocation = e.FullPath;
+
+            //        Debug.Print("Renamed " + _newName);
+
+            //        FileRenamedEvent(e);
+            //    }
+            //}
+            //else
+            //{
+            //    try
+            //    {
+            //        Folder = await StorageFolder.GetFolderFromPathAsync(e.FullPath);
+            //        foreach (var item in ImageList)
+            //        {
+            //            if (item._ImageLocation.Contains(e.OldFullPath))
+            //                item._ImageLocation = item._ImageLocation.Replace(e.OldFullPath, e.FullPath);
+            //        }
+            //        FileRenamedEvent();
+            //    }
+            //    catch (Exception)
+            //    {
+            //        return;
+            //    }
+            //}
+
+
+        }
+
+        /*
+         * FileDeletedEvent
+         */
+
+        public event EventHandler FileDeleted;
+
+        private void FileDeletedEvent(FileChangeEvent e)
+        {
+            FileDeleted.Invoke(FolderName, e);
         }
 
         private void OnDeleted(object sender, FileSystemEventArgs e)
         {
-            Debug.Print("delete " + e.Name);
+            Debug.Print("Delete " + e.Name);
 
-            var a = ImageList.Find<PictureClass>(x => x.ImageLocation, e.FullPath);
-            if (a == -1)
-                return;
-            else
+            if(IsImageChanged(e.Name))
             {
-                FileChangeEvent _imageChangeEvent = new(ImageList[a]);
+                var _tempImage = ImageList.Find<PictureClass>(x => x.ImageLocation, e.FullPath);
 
-                FileDeletedEvent(_imageChangeEvent);
-                //FolderNotFoundEvent();
-                ImageList.RemoveAt(a);
+                if (_tempImage == null)
+                {
+                    Debug.Print("NULL FIND");
+                }
+                else
+                {
+                    FileChangeEvent _imageChangeEvent = new(_tempImage);
+                    FileDeletedEvent(_imageChangeEvent);
+                    ImageList.Remove(_tempImage);
+                }
             }
-                
-            //FileDeletedEvent();
-        }
-
-        private void OnChanged(object sender, FileSystemEventArgs e)
-        {
-            Debug.Print("changed " + e.FullPath);
         }
 
         private void OnError(object sender, ErrorEventArgs e)
@@ -171,6 +201,8 @@ namespace OneGallery
             Watcher.Dispose();
             Watcher = null;
         }
+
+
 
         private async void BackGroundFindFolder()
         {
@@ -182,12 +214,13 @@ namespace OneGallery
 
                     if (IsFolderFound == false)
                     {
-                        //SetWatcher();
                         await SearchImages();
                         IsFolderFound = true;
                         FolderExistEvent();
-                        SetWatcher();
                     }
+
+                    if (Watcher is null)
+                        SetWatcher();
                 }
                 catch (FileNotFoundException)
                 {
@@ -198,14 +231,10 @@ namespace OneGallery
                         IsFolderFound = false;
                         FolderNotFoundEvent();
                     }
-
-                    
-                    //continue;
                 }
 
                 await Task.Delay(2000);
             }
-            
         }
         public LocalFolder(string _path, string _name) 
         {
@@ -213,31 +242,6 @@ namespace OneGallery
             FolderName = _name;
             ImageList = new();
             BackGroundFindFolder();
-        }
-
-        public async Task FindFolder()
-        {
-            //try
-            //{
-            //    Folder = await StorageFolder.GetFolderFromPathAsync(FolderPath);
-            //}
-            //catch (FileNotFoundException)
-            //{
-            //    IsFolderFound = false;
-            //    Watcher?.Dispose();
-            //    Watcher = null;
-            //    ImageList.Clear();
-            //    BackGroundFindFolder();
-            //    return;
-            //}
-
-            //if (Watcher == null)
-            //    SetWatcher();
-
-            //if (IsImageFound == false)
-            //    await SearchImages();
-            
-            //IsFolderFound = true;
         }
 
         public async Task SearchImages()
@@ -289,6 +293,7 @@ namespace OneGallery
                             i++;
                         }
 
+                        //Debug.Print(_image.Name);
                     }
                     _index += _step;
                     _images = await _queryResult.GetFilesAsync(_index, _step);
@@ -300,8 +305,15 @@ namespace OneGallery
                     _count = ImageList.Count;
             }
         }
-    
-    
+
+        public bool IsImageChanged(string _fileName)
+        {
+            var _suffix = _fileName.Split('.').Last();
+            if (_suffix == "png" || _suffix == "jpg" || _suffix == "gif" || _suffix == "bmp")
+                return true;
+
+            return false;
+        }
     }
 
     internal class FileChangeEvent: EventArgs

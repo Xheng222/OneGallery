@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml.Controls;
+using Windows.Storage.FileProperties;
 
 namespace OneGallery
 {
-    public class PictureClass
+    public class PictureClass : INotifyPropertyChanged
     {
         public string Name { get; set; }
 
@@ -30,6 +33,32 @@ namespace OneGallery
             Height = (int)_height;
             Width = (int)_width;
             SourceName = _sourceName;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        public string _ImageLocation
+        {
+            get => ImageLocation;
+            set
+            {
+                ImageLocation = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string _Name
+        {
+            get => Name;
+            set
+            {
+                Name = value;
+                OnPropertyChanged();
+            }
         }
 
     }

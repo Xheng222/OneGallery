@@ -18,9 +18,7 @@
                 PointerEntered="ItemContainer_PointerEntered"
                 PointerExited="ItemContainer_PointerExited"
                 PointerPressed="ItemContainer_PointerPressed"
-                PointerReleased="ItemContainer_PointerReleased"
-                Unloaded="ItemContainer_Unloaded"
-                >
+                PointerReleased="ItemContainer_PointerReleased">
                 <Grid>
                     <Rectangle  
                         Name="Border"
@@ -61,7 +59,7 @@
                         Stretch="UniformToFill" 
                         SizeChanged="Image_SizeChanged" >
                         <Image.Source>
-                            <BitmapImage DecodePixelHeight="350" UriSource="{x:Bind ImageLocation, Mode=OneTime}" />
+                            <BitmapImage DecodePixelHeight="350" UriSource="{x:Bind _ImageLocation, Mode=TwoWay}" />
                         </Image.Source>
                     </Image>
 
@@ -122,7 +120,7 @@
         </DataTemplate>
 
 
-        <DataTemplate x:Key="test" x:DataType="local:PictureClass">
+        <!--<DataTemplate x:Key="test" x:DataType="local:PictureClass">
             <ItemContainer>
                 <Image 
                     Canvas.ZIndex="0"
@@ -130,13 +128,13 @@
                     SizeChanged="Image_SizeChanged" 
                     Source="H:\2222\5555.jpg">
 
-                    <!--<Image.Source>
+                    --><!--<Image.Source>
                         --><!--<BitmapImage DecodePixelHeight="350" UriSource="{x:Bind ImageLocation, Mode=OneTime}" />--><!--
                         <BitmapImage DecodePixelHeight="350" UriSource="H:\2222\5555.jpg" />
-                    </Image.Source>-->
+                    </Image.Source>--><!--
                 </Image>
             </ItemContainer>
-        </DataTemplate>
+        </DataTemplate>-->
 
         <!--<local:ActivityFeedLayout 
                     x:Key="MyFeedLayout" 
@@ -173,17 +171,15 @@
                            ItemTemplate="{StaticResource LinedFlowLayoutItemTemplate}"
                            ItemsSource="{x:Bind ImgList, Mode=TwoWay}"
                            Layout="{x:Bind MyActivityFeedLayout, Mode=TwoWay}"
-                     >
+                           Loaded="repeater2_Loaded">
                 <!--<ItemsRepeater.Layout>
-                    <UniformGridLayout MinItemWidth="200" MinItemHeight="200"/>
+                    <UniformGridLayout />
                 </ItemsRepeater.Layout>-->
 
             </ItemsRepeater>
-                           <!--Loaded="repeater2_Loaded"
-                           Loading="repeater2_Loading"-->
-                           <!--Layout="{x:Bind ActivityFeedLayout, Mode=OneTime}"-->            
+            
         </ScrollViewer>
-
+                           <!--Layout="{x:Bind MyActivityFeedLayout, Mode=TwoWay}"-->
         <!--Layout="{StaticResource MyFeedLayout}"-->
     </Grid>
 </Page>

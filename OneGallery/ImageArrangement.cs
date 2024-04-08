@@ -14,8 +14,8 @@ namespace OneGallery
     {
         public SortableObservableCollection<PictureClass> ImgList { get; set; }
 
-        //public SortableObservableCollection<PictureClass> ImgListForRepeater { get; set; }
-        public SortableObservableCollection<PictureClass> ImgListForRepeater = new();
+        public SortableObservableCollection<PictureClass> ImgListForRepeater { get; set; }
+        //public SortableObservableCollection<PictureClass> ImgListForRepeater = new();
 
         public List<Rect> ImageRect { get; set; }
 
@@ -39,9 +39,7 @@ namespace OneGallery
 
         private double[] TotalWidth;
 
-        public EventHandler ImgListChanged;
-
-        public void ImgListChangedEvent()
+        public void ImgListChanged()
         {
             ImgListForRepeater.Clear();
             foreach (var _image in ImgList)

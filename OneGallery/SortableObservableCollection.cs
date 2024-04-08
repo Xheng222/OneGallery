@@ -65,29 +65,34 @@ namespace OneGallery
             }
         }
 
-        public int Find<Tkey>(Func<T, string> _keySelector, string _path)
+        public T Find<Tkey>(Func<T, string> _keySelector, string _path)
         {
             int _index = 0;
             foreach (var _item in Items)
             {
                 if (_path == _keySelector.Invoke(_item))
-                    return _index;
+                    return _item;
                 
                 _index++;
                 //Debug.Print(_keySelector(_item) + "");
                 
             }
-            return -1;
+            return default;
         }
 
         private void ApplySort(IEnumerable<T> sortedItems)
         {
             var sortedItemsList = sortedItems.ToList();
 
-            for (int i = 0; i < sortedItemsList.Count; i++)
+            //for (int i = 0; i < sortedItemsList.Count; i++)
+            //{
+            //    Items[i] = sortedItemsList[i];
+            //}
+            foreach (var item in sortedItemsList)
             {
-                Items[i] = sortedItemsList[i];
+                Move(IndexOf(item), sortedItemsList.IndexOf(item));
             }
+            
         }
     }
 }
