@@ -33,7 +33,7 @@ namespace OneGallery
 
         public StorageLibraryChangeReader FolderChangeReader { get; set; }
 
-        public SortableObservableCollection<PictureClass> ImageList { get; set; }
+        public List<PictureClass> ImageList { get; set; }
 
 
 
@@ -98,20 +98,29 @@ namespace OneGallery
 
         public event EventHandler FileCreated;
 
-        private void FileCreatedEvent()
+        private void FileCreatedEvent(FileChangeEvent e)
         {
-            FileCreated.Invoke(FolderName, null);
+            FileCreated.Invoke(FolderName, e);
         }
 
-        private void OnCreated(object sender, FileSystemEventArgs e)
+        private async void OnCreated(object sender, FileSystemEventArgs e)
         {
-
-
-            //_tempImage.Name = e.Name;
-            //_tempImage.ImageLocation = e.FullPath;
-
-
             Debug.Print("Created " + e.Name);
+            if (IsImageChanged(e.Name))
+            {
+                StorageFile _image = await StorageFile.GetFileFromPathAsync(e.FullPath);
+                var imageProps = await _image.Properties.GetImagePropertiesAsync();
+                var _newImage = new PictureClass(
+                    _image.Path,
+                    _image.Name,
+                    imageProps.Width,
+                    imageProps.Height,
+                    FolderName
+                );
+
+                ImageList.Add(_newImage);
+                FileCreatedEvent(new(_newImage));
+            }
         }
 
         /*
@@ -123,45 +132,12 @@ namespace OneGallery
         private void FileRenamedEvent(RenamedEventArgs e)
         {
             FileRenamed.Invoke(FolderName, e);
+
         }
 
         private void OnRenamed(object sender, RenamedEventArgs e)
         {
             FileRenamedEvent(e);
-            //if (IsImageChanged(e.Name))
-            //{
-            //    var _tempImage = ImageList.Find<PictureClass>(x => x.ImageLocation, e.OldFullPath);
-            //    if (_tempImage != null)
-            //    {
-            //        var _newName = e.Name.Split('\\').Last();
-
-            //        //_tempImage._Name = _newName;
-            //        //_tempImage._ImageLocation = e.FullPath;
-
-            //        Debug.Print("Renamed " + _newName);
-
-            //        FileRenamedEvent(e);
-            //    }
-            //}
-            //else
-            //{
-            //    try
-            //    {
-            //        Folder = await StorageFolder.GetFolderFromPathAsync(e.FullPath);
-            //        foreach (var item in ImageList)
-            //        {
-            //            if (item._ImageLocation.Contains(e.OldFullPath))
-            //                item._ImageLocation = item._ImageLocation.Replace(e.OldFullPath, e.FullPath);
-            //        }
-            //        FileRenamedEvent();
-            //    }
-            //    catch (Exception)
-            //    {
-            //        return;
-            //    }
-            //}
-
-
         }
 
         /*
@@ -181,7 +157,7 @@ namespace OneGallery
 
             if(IsImageChanged(e.Name))
             {
-                var _tempImage = ImageList.Find<PictureClass>(x => x.ImageLocation, e.FullPath);
+                var _tempImage = ImageList.Find(x => x.ImageLocation == e.FullPath);
 
                 if (_tempImage == null)
                 {
@@ -189,8 +165,7 @@ namespace OneGallery
                 }
                 else
                 {
-                    FileChangeEvent _imageChangeEvent = new(_tempImage);
-                    FileDeletedEvent(_imageChangeEvent);
+                    FileDeletedEvent(new(_tempImage));
                     ImageList.Remove(_tempImage);
                 }
             }

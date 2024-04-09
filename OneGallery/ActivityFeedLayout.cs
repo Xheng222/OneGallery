@@ -19,13 +19,6 @@ namespace OneGallery
     {
         #region Layout parameters
 
-        public event EventHandler MyEvent;
-
-        private void OnMyEvent()
-        {
-            MyEvent.Invoke(null, null);
-        }
-
         private double _rowSpacing = 12;
 
         private double _colSpacing = 12;
@@ -147,21 +140,24 @@ namespace OneGallery
 
         protected override Size MeasureOverride(VirtualizingLayoutContext context, Size availableSize)
         {
-            double _newTop = 0;
-            //Debug.Print("333");
+            double _newTop = RowSpacing;
+
             if (LayoutImgArrangement == null)
-                return new Size(0, 0);
+                return new Size(availableSize.Width, RowSpacing);
 
             if (context.ItemCount > 0 && context.ItemCount <= LayoutImgArrangement.ImgList.Count)
             {
                 var state = context.LayoutState as ActivityFeedLayoutState;
-                state.LayoutRects.Clear();
-                state.FirstRealizedIndex = -1;
-                int _firstItemIndex;
-                int i = 0;
+                int _firstItemIndex = state.FirstRealizedIndex;
+
                 if (!UpdateImgRect(availableSize.Width))
                     return new Size(availableSize.Width, _newTop);
 
+                state.IndexToElementMap.Clear();
+                state.LayoutRects.Clear();
+                state.FirstRealizedIndex = -1;
+
+                int i = 0;
                 foreach (var _item in LayoutImgArrangement.RowFirstIndex)
                 {
                     double zoomImg = (availableSize.Width - LayoutImgArrangement.RowImgCount[i] * _colSpacing) / (LayoutImgArrangement.NowWidth - (LayoutImgArrangement.RowImgCount[i] - 1) * _colSpacing);
@@ -172,12 +168,10 @@ namespace OneGallery
                         if (state.FirstRealizedIndex == -1)
                         {
                             state.FirstRealizedIndex = _item;
-
-                            _firstItemIndex = _item;
-
                         }
 
                         int RowImgCount = LayoutImgArrangement.RowImgCount[i];
+
                         double _newX = _colSpacing;
 
                         for (var j = 0; j < RowImgCount; j++)
@@ -194,9 +188,9 @@ namespace OneGallery
                                 X = _newX,
                                 Y = _newTop
                             };
-
                             container.Measure(new Size(_size.Width, _size.Height));
                             state.LayoutRects.Add(_size);
+                            state.IndexToElementMap.Add(_index, (ItemContainer)container);
                             _newX += _size.Width + _colSpacing;
 
                         }
@@ -236,20 +230,73 @@ namespace OneGallery
 
         protected override void OnItemsChangedCore(VirtualizingLayoutContext context, object source, NotifyCollectionChangedEventArgs args)
         {
-            Debug.Print("1111 " + args.Action);
+            //Debug.Print("1111 " + args.Action);
             if (args.Action == NotifyCollectionChangedAction.Move)
             {
-                var _temp = args.OldItems;
+                var _indexToElementMap = (context.LayoutState as ActivityFeedLayoutState).IndexToElementMap;
+                var _tempIndex = args.OldStartingIndex;
 
-                Debug.Print("" + args.OldStartingIndex);
-                Debug.Print("" + args.NewStartingIndex);
+                if (_indexToElementMap.ContainsKey(_tempIndex))
+                {
+                    context.RecycleElement(_indexToElementMap[_tempIndex]);
+                    _indexToElementMap.Remove(_tempIndex);
+                }
 
-                var container = (ItemContainer)context.GetOrCreateElementAt(args.OldStartingIndex);
-                context.RecycleElement(container);
+                _tempIndex = args.NewStartingIndex;
+                if (_indexToElementMap.ContainsKey(_tempIndex))
+                {
+                    context.RecycleElement(_indexToElementMap[_tempIndex]);
+                    _indexToElementMap.Remove(_tempIndex);
+                }
 
-                container = (ItemContainer)context.GetOrCreateElementAt(args.NewStartingIndex);
-                context.RecycleElement(container);
+                this.InvalidateMeasure();
+            }
+            else if (args.Action == NotifyCollectionChangedAction.Remove)
+            {
+                //Debug.Print("" + args.NewStartingIndex);
+                //Debug.Print("" + args.NewItems);
+                //Debug.Print("" + args.OldStartingIndex);
+                //Debug.Print("" + args.OldItems);
 
+                var _state = context.LayoutState as ActivityFeedLayoutState;
+                var _tempIndex = args.OldStartingIndex;
+                if (_state.IndexToElementMap.ContainsKey(_tempIndex))
+                {
+                    context.RecycleElement(_state.IndexToElementMap[_tempIndex]);
+                    _state.IndexToElementMap.Remove(_tempIndex);
+                }
+
+                this.InvalidateMeasure();
+            }
+            else if (args.Action == NotifyCollectionChangedAction.Reset)
+            {
+                var _indexToElementMap = (context.LayoutState as ActivityFeedLayoutState).IndexToElementMap;
+                Debug.Print("" + context.ItemCount);
+                
+                foreach (var _item in _indexToElementMap.Values)
+                {
+                    context.RecycleElement(_item);
+                }
+                _indexToElementMap.Clear();
+                this.InvalidateMeasure();
+            }
+            else if (args.Action == NotifyCollectionChangedAction.Add)
+            {
+                //Debug.Print("" + args.NewStartingIndex);
+                //Debug.Print("" + args.NewItems);
+                //Debug.Print("" + args.OldStartingIndex);
+                //Debug.Print("" + args.OldItems);
+                var _indexToElementMap = (context.LayoutState as ActivityFeedLayoutState).IndexToElementMap;
+                int _start = args.NewStartingIndex;
+
+                foreach (var _item in _indexToElementMap)
+                {
+                    if (_item.Key >= _start)
+                    {
+                        context.RecycleElement(_item.Value);
+                        _indexToElementMap.Remove(_item.Key);
+                    }                
+                }
                 this.InvalidateMeasure();
             }
             else
@@ -279,10 +326,6 @@ namespace OneGallery
     {
         public int FirstRealizedIndex { get; set; }
 
-        /// <summary>
-        /// List of layout bounds for items starting with the
-        /// FirstRealizedIndex.
-        /// </summary>
         public List<Rect> LayoutRects
         {
             get
@@ -294,6 +337,18 @@ namespace OneGallery
         }
 
         private List<Rect> _layoutRects;
+
+        public Dictionary<int, ItemContainer> IndexToElementMap
+        {
+            get
+            {
+                _indexToElementMap ??= new();
+
+                return _indexToElementMap;
+            }
+        }
+
+        Dictionary<int, ItemContainer> _indexToElementMap;
     }
 
 }

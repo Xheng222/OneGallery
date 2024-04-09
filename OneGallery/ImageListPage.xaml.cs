@@ -123,6 +123,8 @@ namespace OneGallery
             {
                 ImgList = new();
 
+                //ImgList = Window.FolderManager.MyImageArrangement.ImgListForRepeater;
+
                 MyActivityFeedLayout = new();
 
                 await Window.InitFolder(NowCategory.Name);
@@ -304,10 +306,6 @@ namespace OneGallery
                         }
                     }
 
-                    //var _index = int.Parse(_temp.Name);
-                    //var _image = Window.FolderManager.MyImageArrangement.ImgList[_index];
-
-                    //Parameters.SortedIndex = _index;
                     Parameters.Image = _image;
 
                     var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("ForwardConnectedAnimation", _temp);

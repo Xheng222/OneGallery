@@ -12,10 +12,9 @@ namespace OneGallery
 {
     internal class ImageArrangement
     {
-        public SortableObservableCollection<PictureClass> ImgList { get; set; }
+        public List<PictureClass> ImgList { get; set; }
 
         public SortableObservableCollection<PictureClass> ImgListForRepeater { get; set; }
-        //public SortableObservableCollection<PictureClass> ImgListForRepeater = new();
 
         public List<Rect> ImageRect { get; set; }
 
@@ -42,17 +41,6 @@ namespace OneGallery
         public void ImgListChanged()
         {
             ImgListForRepeater.Clear();
-            foreach (var _image in ImgList)
-                ImgListForRepeater.Add(_image);
-        }
-
-        public void ImgListSwitch()
-        {
-            if (ImgListForRepeater != null)
-                ImgListForRepeater = null;
-
-            //ImgListForRepeater = new();
-
             foreach (var _image in ImgList)
                 ImgListForRepeater.Add(_image);
         }
@@ -103,14 +91,12 @@ namespace OneGallery
 
         }
 
-        public void SetImgSize(Size[] min, Size max, double[] width, double rowSpacing, double colSpacing)
+        public void SetImgSize(Size[] min, double[] width, double rowSpacing, double colSpacing)
         {
             _minItemSize = min;
             TotalWidth = width;
             RowSpacing = rowSpacing;
             ColSpacing = colSpacing;
-
-            //UpdateImgRect();
 
             ImageRect = ImageRect_Default[1];
             RowFirstIndex = RowFirstIndex_Default[1];
@@ -120,14 +106,18 @@ namespace OneGallery
 
         public void SortImg(int type)
         {
+            //List<PictureClass> _tempList;
+
             if (ImgList.Count > 0)
             {
-                ImgList.Sort(x => x.Name);
+                ImgList.Sort((x, y) => { return x.Name.CompareTo(y.Name); });
+
                 for (int i = 0; i < ImgList.Count; i++)
                 {
                     ImgList[i].Index = i;
                 }
 
+              
             }
 
             
@@ -135,7 +125,8 @@ namespace OneGallery
 
         private List<double> TryPutImg(int Index, double RemainingWidth, Size ItemSize)
         {
-            List<double> list;
+            if (Index > ImgList.Count - 1)
+                return new();
 
             double _acutualWidth = ImgList[Index].Width * (double)(ItemSize.Height / ImgList[Index].Height);
 
@@ -148,28 +139,27 @@ namespace OneGallery
                 _acutualWidth = ItemSize.Height * 3;
             }
 
-            if (_acutualWidth <= RemainingWidth)
+            List<double> list;
+
+            double _remainingWidth = RemainingWidth - _acutualWidth;
+            if (_remainingWidth > ColSpacing)
             {
-                double _remainingWidth = RemainingWidth - _acutualWidth - ColSpacing;
-                if (_remainingWidth > 0 && Index < ImgList.Count - 1)
+                list = TryPutImg(Index + 1, _remainingWidth - ColSpacing, ItemSize);
+            }
+            else
+            {
+                if (Math.Abs(_remainingWidth) > RemainingWidth)
                 {
-                    list = TryPutImg(Index+1, _remainingWidth, ItemSize);
+                    return new();
                 }
                 else
                 {
                     list = new();
-                    
                 }
-                list.Insert(0, _acutualWidth);
-                return list;
-            }
-            else
-            {
-                list = new();
-                return list;
             }
 
-
+            list.Insert(0, _acutualWidth);
+            return list;
         }
 
         public void UpdateImgRect()

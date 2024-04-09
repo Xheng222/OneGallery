@@ -128,9 +128,9 @@ namespace OneGallery
 
             FolderManager = new();
 
-            var gcTimer = new DispatcherTimer();
-            gcTimer.Tick += (sender, e) => { Myfind(); };
-            gcTimer.Interval = TimeSpan.FromSeconds(5);
+            //var gcTimer = new DispatcherTimer();
+            //gcTimer.Tick += (sender, e) => { Myfind(); };
+            //gcTimer.Interval = TimeSpan.FromSeconds(5);
             //gcTimer.Start();
 
         }
@@ -154,7 +154,8 @@ namespace OneGallery
 
                 m_backdropController = new DesktopAcrylicController();
                 m_backdropController.Kind = DesktopAcrylicKind.Default;
-                m_backdropController.TintColor = Color.FromArgb(255, 243, 246, 247);
+                //m_backdropController.TintColor = Color.FromArgb(255, 243, 246, 247);
+                m_backdropController.TintColor = Color.FromArgb(240, 255, 255, 255);
                 m_backdropController.TintOpacity = 0.5f;
                 m_backdropController.AddSystemBackdropTarget(this.As<Microsoft.UI.Composition.ICompositionSupportsSystemBackdrop>());
                 m_backdropController.SetSystemBackdropConfiguration(m_configurationSource);

@@ -49,45 +49,25 @@ namespace OneGallery
             ApplySort(Items.OrderBy(keySelector, comparer));
         }
 
-        public void Union(SortableObservableCollection<T> other)
-        {
-            foreach (var item in other)
-            {
-                Items.Add(item);
-            }
-        }
-
-        public void Except(SortableObservableCollection<T> other)
-        {
-            foreach(var item in other)
-            {
-                Items.Remove(item);
-            }
-        }
-
-        public T Find<Tkey>(Func<T, string> _keySelector, string _path)
-        {
-            int _index = 0;
-            foreach (var _item in Items)
-            {
-                if (_path == _keySelector.Invoke(_item))
-                    return _item;
+        //public T Find<Tkey>(Func<T, string> _keySelector, string _path)
+        //{
+        //    int _index = 0;
+        //    foreach (var _item in Items)
+        //    {
+        //        if (_path == _keySelector.Invoke(_item))
+        //            return _item;
                 
-                _index++;
-                //Debug.Print(_keySelector(_item) + "");
+        //        _index++;
+        //        //Debug.Print(_keySelector(_item) + "");
                 
-            }
-            return default;
-        }
+        //    }
+        //    return default;
+        //}
 
         private void ApplySort(IEnumerable<T> sortedItems)
         {
             var sortedItemsList = sortedItems.ToList();
 
-            //for (int i = 0; i < sortedItemsList.Count; i++)
-            //{
-            //    Items[i] = sortedItemsList[i];
-            //}
             foreach (var item in sortedItemsList)
             {
                 Move(IndexOf(item), sortedItemsList.IndexOf(item));
