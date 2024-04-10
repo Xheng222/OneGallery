@@ -28,7 +28,7 @@ namespace OneGallery
         public SettingPage()
         {
             this.InitializeComponent();
-            var window = (MainWindow)(Application.Current as App).m_window;
+            var window = (MainWindow)(Application.Current as App).Main;
 
         }
 

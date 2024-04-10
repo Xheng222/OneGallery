@@ -1,23 +1,4 @@
 {
-    "FolderPathConfig": {
-        "Folder1": "H:\\Sync_images\\Phone_picture",
-        "Folder2": "H:\\Sync_images\\Pad&PhoneTF _picture\\QQ",
-        "Folder3": "H:\\1234\\新建文件夹",
-        "Folder4": "H:\\5678"
-    },
-
-    "GalleryToFolderListConfig": {
-        "HomePage": [
-            "Folder1",
-            "Folder2",
-            "Folder3",
-            "Folder4"
-        ],
-        "Menu item 10": [
-            "Folder2"
-        ],
-        "Menu item 6": [
-            "Folder2"
-        ]
-    }
+    "LastWidth": 1440,
+    "LastHeight": 900
 }

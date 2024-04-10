@@ -17,7 +17,7 @@ using Windows.Storage.Search;
 
 namespace OneGallery
 {
-    internal class LocalFolderManager
+    public class LocalFolderManager
     {
         private Dictionary<string, LocalFolder> LocalFolders = new();
 
@@ -29,11 +29,13 @@ namespace OneGallery
 
         private string NowPageName = string.Empty;
 
-        private Config MyConfig {  get; set; }
-        
+        public PathConfig MyPathConfig {  get; set; }
+
+        public SettingsConfig MySettingsConfig { get; set; }
+
         public ImageArrangement MyImageArrangement { get; set; }
        
-        public LocalFolderManager()
+        public LocalFolderManager() 
         {
             MyImageArrangement = new();
 
@@ -41,19 +43,31 @@ namespace OneGallery
                 new Size[] { new(500, 125), new(500, 200), new(500, 400) },
                 new double[] { 400, 900, 1400 },
                 12, 12
-            );      
+            );
+
+            Window = (Application.Current as App).Main;
         }
 
-        public void SaveConfig()
+        public void SaveConfig(int _lastWidth, int _lastHeight)
         {
-            MyConfig.ToConfigFile();
+            MyPathConfig.StorePathConfig();
+            MySettingsConfig.StoreSettingsConfig(_lastWidth, _lastHeight);
+        }
+
+        public async Task InitSettings()
+        {
+            var _configFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Res/Settings.json"));     
+            string _configString = await FileIO.ReadTextAsync(_configFile);
+
+            MySettingsConfig = JsonSerializer.Deserialize<SettingsConfig>(_configString);
+            MySettingsConfig.ConfigFile = _configFile;      
         }
 
         public async void InitFolder()
         {
             await InitConfig();
 
-            foreach (var _foldPath in MyConfig.FolderPathConfig)
+            foreach (var _foldPath in MyPathConfig.FolderPathConfig)
             {
                 LocalFolder _localFolder = new(_foldPath.Value, _foldPath.Key);
                 LocalFolders.Add(_foldPath.Key, _localFolder);
@@ -65,20 +79,19 @@ namespace OneGallery
                 _localFolder.FolderExist += OnFolderExistEvent;
                 await Task.Delay(500);
             }
-            Window = (MainWindow)(Application.Current as App).m_window;
 
             FolderInitSuccess = true;
         }
 
         public async Task InitConfig()
         {
-            var _configFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Res/settings.json"));
+            var _configFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Res/Path.json"));
             string _configString = await FileIO.ReadTextAsync(_configFile);
 
-            MyConfig = JsonSerializer.Deserialize<Config>(_configString);
-            MyConfig.ConfigFile = _configFile;
+            MyPathConfig = JsonSerializer.Deserialize<PathConfig>(_configString);
+            MyPathConfig.ConfigFile = _configFile;
 
-            foreach (var _selectItemName in MyConfig.GalleryToFolderListConfig.Keys)
+            foreach (var _selectItemName in MyPathConfig.GalleryToFolderListConfig.Keys)
                 SelectionToImgList.Add(_selectItemName, new());
         }
 
@@ -103,7 +116,7 @@ namespace OneGallery
             Debug.Print("OnFileCreatedEvent");
             string _folderName = sender as string;
             PictureClass _tempImg = (e as FileChangeEvent).File;
-            foreach (var _selectedItem in MyConfig.GalleryToFolderListConfig)
+            foreach (var _selectedItem in MyPathConfig.GalleryToFolderListConfig)
             {
                 if (_selectedItem.Value.Contains(_folderName))
                 {
@@ -158,9 +171,9 @@ namespace OneGallery
                     Debug.Print("Renamed " + _newName);
                 }
 
-                if (MyConfig.GalleryToFolderListConfig.ContainsKey(NowPageName))
+                if (MyPathConfig.GalleryToFolderListConfig.ContainsKey(NowPageName))
                 {
-                    if (MyConfig.GalleryToFolderListConfig[NowPageName].Contains(_folderName))
+                    if (MyPathConfig.GalleryToFolderListConfig[NowPageName].Contains(_folderName))
                     {
                         MyImageArrangement.SortImg(0);
                         MyImageArrangement.UpdateImgRect();
@@ -214,7 +227,7 @@ namespace OneGallery
             Debug.Print("OnFileDeletedEvent");
             string _folderName = sender as string;
             PictureClass _tempImg = (e as FileChangeEvent).File;
-            foreach (var _selectedItem in MyConfig.GalleryToFolderListConfig)
+            foreach (var _selectedItem in MyPathConfig.GalleryToFolderListConfig)
             {
                 if (_selectedItem.Value.Contains(_folderName))
                 {
@@ -249,7 +262,7 @@ namespace OneGallery
 
             string _folderName = sender as string;
             
-            foreach (var _selectedItem in MyConfig.GalleryToFolderListConfig)
+            foreach (var _selectedItem in MyPathConfig.GalleryToFolderListConfig)
             {
                 lock (SelectionToImgList[_selectedItem.Key])
                 {
@@ -298,7 +311,7 @@ namespace OneGallery
 
             string _folderName = sender as string;
 
-            foreach (var _selectedItem in MyConfig.GalleryToFolderListConfig)
+            foreach (var _selectedItem in MyPathConfig.GalleryToFolderListConfig)
             {
                 if (_selectedItem.Value.Contains(_folderName))
                 {

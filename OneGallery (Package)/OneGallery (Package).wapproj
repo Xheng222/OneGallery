@@ -51,7 +51,8 @@
     <Content Include="Images\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Images\StoreLogo.png" />
     <Content Include="Images\Wide310x150Logo.scale-200.png" />
-    <Content Include="Res\settings.json" />
+    <Content Include="Res\Path.json" />
+    <Content Include="Res\Settings.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OneGallery\OneGallery.csproj">
@@ -63,6 +64,7 @@
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26031-preview" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240311000" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.2" />
+    <PackageReference Include="WinUIEx" Version="2.3.4" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

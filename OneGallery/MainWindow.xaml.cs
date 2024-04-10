@@ -23,7 +23,11 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI;
 using Windows.UI.ApplicationSettings;
+using Windows.UI.ViewManagement;
 using WinRT;
+using WinUIEx;
+using WinUIEx.Messaging;
+
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -36,7 +40,7 @@ namespace OneGallery
 
         public FontIcon Icon = new();
 
-        public ObservableCollection<Category> Children { get; set; }
+        public ObservableCollection<object> Children { get; set; }
 
         public string PageType { get; set; }
 
@@ -48,15 +52,15 @@ namespace OneGallery
         }
     }
 
-    internal sealed partial class MainWindow : Window
+    public partial class MainWindow : WindowEx
     {
         public string appTitleText = "OneGallery";
 
         public Stack<string> HistoryPages = new();
 
-        private bool IsPaneOpened = true;
-
         Stack<string> PartenPagemName = new();
+
+        public SettingsConfig MySettingsConfig { get; set; }
 
         // expand ”√
         Dictionary<string, string> ParentDictionary = new Dictionary<string, string>();
@@ -70,29 +74,32 @@ namespace OneGallery
         // Folder
         public LocalFolderManager FolderManager { get; set; }
 
-        public ObservableCollection<Category> Categories = new()
+        public ObservableCollection<object> Categories = new()
         {
+            new NavigationViewItemSeparator(),
             new Category() {
             Name = "HomePage",
             PageType = "ImageListPage",
             PageSource = new int[] {-1},
-                Children = new ObservableCollection<Category>() {
+                Children = new ObservableCollection<object>() {
                     new Category(){
                         PageType = "ImageListPage",
                         Name = "Menu item 2",               
                     }
                 }
             },
+            new NavigationViewItemSeparator(),
             new Category(){
                 Name = "Menu item 6",
                 PageType = "ImageListPage",
-                Children = new ObservableCollection<Category>() {
+                Children = new ObservableCollection<object>() {
                     new Category(){
                         Name = "Menu item 7",
                         PageType = "ImageListPage"
                     }
                 }
             },
+            new NavigationViewItemSeparator(),
             new Category(){
                 Name = "Menu item 10",
                 PageType = "ImageListPage",
@@ -117,22 +124,15 @@ namespace OneGallery
         public MainWindow()
         {
             this.InitializeComponent();
-
-            this.ExtendsContentIntoTitleBar = true;
-
-            this.TrySetAcrylicBackdrop();
-
+            ExtendsContentIntoTitleBar = true;
             this.SetTitleBar(AppTitleBar);
-
             appTitleText = "666";
-
             FolderManager = new();
-
+            this.TrySetAcrylicBackdrop();
             //var gcTimer = new DispatcherTimer();
             //gcTimer.Tick += (sender, e) => { Myfind(); };
             //gcTimer.Interval = TimeSpan.FromSeconds(5);
             //gcTimer.Start();
-
         }
 
         public async Task InitFolder(string _pageName)
@@ -143,31 +143,34 @@ namespace OneGallery
         SystemBackdropConfiguration m_configurationSource;
         DesktopAcrylicController m_backdropController;
 
-        bool TrySetAcrylicBackdrop()
+        private async void TrySetAcrylicBackdrop()
         {
+            //this.AppWindow.Resize(new(2084, 1214));
+            //Debug.Print(AppWindow.Presenter.Kind + "");
+            await FolderManager.InitSettings();
+            MySettingsConfig = FolderManager.MySettingsConfig;
+            this.SetWindowSize(MySettingsConfig.LastWidth, MySettingsConfig.LastHeight);
+
             if (DesktopAcrylicController.IsSupported())
-            {
-               
+            {          
                 m_configurationSource = new SystemBackdropConfiguration();
                 m_configurationSource.IsInputActive = true;
                 m_configurationSource.Theme = SystemBackdropTheme.Default;
 
                 m_backdropController = new DesktopAcrylicController();
                 m_backdropController.Kind = DesktopAcrylicKind.Default;
-                //m_backdropController.TintColor = Color.FromArgb(255, 243, 246, 247);
-                m_backdropController.TintColor = Color.FromArgb(240, 255, 255, 255);
+
+                m_backdropController.TintColor = Color.FromArgb(255, 255, 255, 255);
                 m_backdropController.TintOpacity = 0.5f;
                 m_backdropController.AddSystemBackdropTarget(this.As<Microsoft.UI.Composition.ICompositionSupportsSystemBackdrop>());
                 m_backdropController.SetSystemBackdropConfiguration(m_configurationSource);
 
                 this.SystemBackdrop = new DesktopAcrylicBackdrop();
-                this.Closed += Window_Closed;
-                return true;
+
             }
-
-
-
-            return false; // Acrylic is not supported on this system
+            
+            this.Closed += Window_Closed;
+            
         }
 
         private void NavView_Navigate(Type navPageType, Category page)
@@ -247,12 +250,16 @@ namespace OneGallery
                 {
                     if (ParentDictionary[SelectPageName] is not null)
                     {
-                        ExpandParentPage(ParentDictionary[SelectPageName]);
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            ExpandParentPage(ParentDictionary[SelectPageName]);
+                        });
                     }
 
-                    if (IsPaneOpened)
+                    if (Nv.IsPaneOpen)
                     {
-                        Nv.SelectedItem = NvItemDictionary[SelectPageName];
+
+                         Nv.SelectedItem = NvItemDictionary[SelectPageName];
                     }
                     else
                     {
@@ -286,7 +293,6 @@ namespace OneGallery
             Nv.SelectedItem = NvItemDictionary[ParentPageName];
             await Task.Delay(50);
             Nv.SelectedItem = NvItemDictionary[PageName];
-
         }
 
         private void FindNaView(DependencyObject Item)
@@ -304,11 +310,6 @@ namespace OneGallery
                     {
                         PageDictionary.Add(PageName, NaView);
                     }
-                    //else
-                    //{
-                    //    PageDictionary.Remove(PageName);
-                    //    PageDictionary.Add(PageName, NaView);
-                    //}
 
                     if (!ParentDictionary.ContainsKey(PageName))
                     {
@@ -370,50 +371,47 @@ namespace OneGallery
             return;
         }
 
-        private async void Nv_Loaded(object sender, RoutedEventArgs e)
+        private void Nv_Loaded(object sender, RoutedEventArgs e)
         {
             Nv_page.CacheSize = 0;
+
             FolderManager.InitFolder();
             var rootGrid = VisualTreeHelper.GetChild(sender as NavigationView, 0);
             FindNaView(rootGrid);
             UpdateNvItemDir(Categories);
             SelectPageName = "HomePage";
             Nv.SelectedItem = NvItemDictionary["HomePage"];
-            NavView_Navigate(typeof(ImageListPage), Categories[0]);
-
-            //Nv_page.Content = new ImageListPage(Categories[0]);
-
-            await Task.Delay(10000);
-
-            //Nv_page.Content = new ImageListPage(NvItemDictionary["Menu item 6"]);
-
+            NavView_Navigate(typeof(ImageListPage), (Category)Categories[1]);
         }
 
-        private void UpdateNvItemDir(ObservableCollection<Category> Items)
+        private void UpdateNvItemDir(ObservableCollection<object> Items)
         {
 
             if (Items != null)
             {
-                foreach (var Item in Items)
+                foreach (var _item in Items)
                 {
                     //Debug.Print(Item.Name);
-                    NvItemDictionary.Add(Item.Name, Item);
-                    UpdateNvItemDir(Item.Children);
+                    if (_item is Category)
+                    {
+                        NvItemDictionary.Add((_item as Category).Name, (Category)_item);
+                        UpdateNvItemDir((_item as Category).Children);
+                    }
+
                 }
 
             }
             return;
         }
 
-        private void Nv_PaneClosed(NavigationView sender, object args)
+        private void Nv_PaneClosing(NavigationView sender, object args)
         {
-            IsPaneOpened = false;
+            Nv_page.Width = Nv.ActualWidth - Nv.CompactPaneLength + 8;
         }
 
-        private void Nv_PaneOpened(NavigationView sender, object args)
+        private void Nv_PaneOpening(NavigationView sender, object args)
         {
-            IsPaneOpened = true;
-
+            Nv_page.Width = Nv.ActualWidth - Nv.OpenPaneLength + 8;
         }
 
         private void Window_Closed(object sender, WindowEventArgs args)
@@ -423,10 +421,11 @@ namespace OneGallery
             {
                 m_backdropController.Dispose();
                 m_backdropController = null;
+                m_configurationSource = null;
             }
 
-            m_configurationSource = null;
-            FolderManager.SaveConfig();
+
+            FolderManager.SaveConfig((int)Width, (int)Height);
         }
 
         int kk = 0;
@@ -457,15 +456,55 @@ namespace OneGallery
             return;
         }
 
-        private void Myfind()
+        private void Nv_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            //kk = 0;
-            ////var rootGrid = VisualTreeHelper.GetChild(Nv_page as Frame, 0);
-            //FindItem(Grid);
-            //Debug.Print("Find " + kk);
-            ImageListPage temp = Nv_page.Content as ImageListPage;
-            Debug.Print("Find " + temp.ImgList.Count);
+            if (Nv.IsPaneOpen)
+            {
+
+                Nv_page.Width = Nv.ActualWidth - Nv.OpenPaneLength + 8;
+            }
+            else
+            {
+                Nv_page.Width = Nv.ActualWidth - Nv.CompactPaneLength + 8;
+            }
+
+            Nv_page.Height = Nv.ActualHeight - 40;
+
+            if (Nv.ActualWidth < 700)
+            {
+                if (Nv.IsPaneOpen)
+                    Nv.IsPaneOpen = false;
+            }
+            else if (!Nv.IsPaneOpen)
+                Nv.IsPaneOpen = true;
         }
 
+
+
+
+}
+
+    internal class MyTemplateSelector : DataTemplateSelector
+    {
+        public DataTemplate ItemTemplate { get; set; }
+
+        public DataTemplate SeparatorTemplate { get; set; }
+
+        protected override DataTemplate SelectTemplateCore(object item)
+        {
+            // Return the correct data template based on the item's type.
+            if (item.GetType() == typeof(Category))
+            {
+                return ItemTemplate;
+            } 
+            else if (item.GetType() == typeof(NavigationViewItemSeparator))
+            {
+                return SeparatorTemplate;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

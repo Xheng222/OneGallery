@@ -56,15 +56,8 @@ namespace OneGallery
         public ImageListPage()
         {
             this.InitializeComponent();
-            Window = (MainWindow)(Application.Current as App).m_window;
+            Window = (Application.Current as App).Main;
             NavigationCacheMode = NavigationCacheMode.Disabled;
-
-        }
-
-        ~ImageListPage()
-        {
-            Debug.Print("~" + NowCategory.Name);
-
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -117,7 +110,7 @@ namespace OneGallery
                 }
             );
 
-
+            test.Shadow = null;
 
             if (Parameters.FirstShow == true)
             {
@@ -167,7 +160,11 @@ namespace OneGallery
 
         private void Page_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            //ScrollViewer.Height = this.ActualHeight;
+            //this.Height = Window.NaPage.ActualHeight - 8;
+            //this.Width = Window.NaPage.ActualWidth - 8;
+
+            //ScrollViewer.Height = this.Height;
+            //ScrollViewer.Width = this.Width;
         }
 
 

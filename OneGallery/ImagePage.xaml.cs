@@ -57,7 +57,7 @@ namespace OneGallery
         public ImagePage()
         {
             this.InitializeComponent();
-            Window = (MainWindow)(Application.Current as App).m_window;
+            Window = (MainWindow)(Application.Current as App).Main;
             SourcePageName = (Window.NaView.SelectedItem as Category).Name;
             NavigationCacheMode = NavigationCacheMode.Disabled;
         }

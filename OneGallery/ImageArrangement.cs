@@ -10,7 +10,7 @@ using Windows.Foundation;
 
 namespace OneGallery
 {
-    internal class ImageArrangement
+    public class ImageArrangement
     {
         public List<PictureClass> ImgList { get; set; }
 

@@ -8,6 +8,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="Transparent" 
+    VerticalAlignment="Top"
+    HorizontalAlignment="Left"
     SizeChanged="Grid_SizeChanged" >
 
     <Grid 

@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Window
+<winex:WindowEx 
+    xmlns:winex="using:WinUIEx"
+    xmlns:local="using:OneGallery"    
     x:Class="OneGallery.MainWindow"
     x:Name="Main"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:OneGallery"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    >
+    MinHeight="400" MinWidth="600">
 
     <Grid x:Name="Grid" Background="Transparent">
         <Grid.Resources>
+            
+            <DataTemplate  x:Key="NavigationViewMenuItem" x:DataType="local:Category">
+                <NavigationViewItem Tag="{x:Bind Name}" Content="{x:Bind Name}" Icon="{x:Bind Icon}" MenuItemsSource="{x:Bind Children}" IsExpanded="True"/>
+            </DataTemplate>
+                
+            <DataTemplate x:Key="NavigationViewItemSeparator">
+                <NavigationViewItemSeparator></NavigationViewItemSeparator>
+            </DataTemplate>
 
-
-            <ResourceDictionary>
-                <ResourceDictionary.ThemeDictionaries>
-                    <ResourceDictionary x:Key="Default">
-                        <AcrylicBrush x:Key="CustomAcrylicInAppBrush" TintOpacity="1" TintColor="Black" FallbackColor="Red"/>
-                        <AcrylicBrush x:Key="CustomAcrylicInAppLuminosity" TintOpacity="0" TintLuminosityOpacity="0" TintColor="Black" FallbackColor="Transparent"/>
-                    </ResourceDictionary>
-                </ResourceDictionary.ThemeDictionaries>
-                <DataTemplate  x:Key="NavigationViewMenuItem" x:DataType="local:Category">
-                    <NavigationViewItem Tag="{x:Bind Name}" Content="{x:Bind Name}" Icon="{x:Bind Icon}" MenuItemsSource="{x:Bind Children}" IsExpanded="True"/>
-                </DataTemplate>                
-            </ResourceDictionary>
+            <local:MyTemplateSelector x:Key="MyTemplateSelector"
+                             ItemTemplate="{StaticResource NavigationViewMenuItem}"
+                             SeparatorTemplate="{StaticResource NavigationViewItemSeparator}"/>
 
         </Grid.Resources>
         
@@ -63,16 +63,19 @@
                         IsTabStop="False"
                         IsBackButtonVisible="Visible"
                         PaneTitle=""
-                        ItemInvoked="NavView_ItemInvoked"
-                        BackRequested="Nv_BackRequested"
-                        Loaded="Nv_Loaded"
-                        PaneClosing="Nv_PaneClosed"
-                        PaneOpening="Nv_PaneOpened"
                         Grid.RowSpan="2"
                         Grid.Column="1"
                         Canvas.ZIndex="0"
-                        MenuItemsSource="{x:Bind Categories, Mode=OneWay}"
-                        MenuItemTemplate="{StaticResource NavigationViewMenuItem}">
+                        OpenPaneLength="275"
+                        MenuItemsSource="{x:Bind Categories, Mode=TwoWay}"
+                        MenuItemTemplateSelector="{StaticResource MyTemplateSelector}"                        
+                        ItemInvoked="NavView_ItemInvoked"
+                        BackRequested="Nv_BackRequested"
+                        Loaded="Nv_Loaded"
+                        PaneClosing="Nv_PaneClosing"
+                        PaneOpening="Nv_PaneOpening"
+                        SizeChanged="Nv_SizeChanged"
+>
             <NavigationView.Resources>
                 <!-- This top margin is the height of the custom titleBar -->
                 <Thickness x:Key="NavigationViewContentMargin">0,48,0,0</Thickness>
@@ -81,10 +84,18 @@
                 <!-- This is the rounded corner on the Top left of the L Pattern -->
                 <CornerRadius x:Key="NavigationViewContentGridCornerRadius">8,0,0,0</CornerRadius>
 
-                <SolidColorBrush x:Key="NavigationViewContentBackground" Color="#FAFFFF" Opacity="0.5"/>
+                <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" Opacity="0"/>
             </NavigationView.Resources>
 
-            <Frame x:Name="Nv_page" Navigated="Nv_Page_Navigated" Background="Transparent">
+            <Frame x:Name="Nv_page" 
+                   Navigated="Nv_Page_Navigated" 
+                   Background="Transparent" 
+                   BorderThickness="1"
+                   BorderBrush="#E1E6EA"
+                   CornerRadius="8"
+                   >
+
+                
                 <Frame.ContentTransitions>
                     <TransitionCollection>
                         <NavigationThemeTransition  />
@@ -99,4 +110,4 @@
 
 
 
-</Window>
+</winex:WindowEx>

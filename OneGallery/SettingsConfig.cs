@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -11,29 +10,26 @@ using Windows.Storage;
 
 namespace OneGallery
 {
-    class Config
+    public class SettingsConfig
     {
-        public Dictionary<string, string> FolderPathConfig { get; set; }
+        public int LastWidth { get; set; }
 
-        public Dictionary<string, List<string>> GalleryToFolderListConfig { get; set; }
+        public int LastHeight { get; set; }
 
-        public Dictionary<string, string> FolderToFolderListConfig { get; set; }
+
 
         [JsonIgnore]
         public StorageFile ConfigFile { get; set; }
 
-        public async void ToConfigFile()
+        public async void StoreSettingsConfig(int _lastWidth, int _lastHeight)
         {
+            LastWidth = _lastWidth;
+            LastHeight = _lastHeight;
+
             var options = new JsonSerializerOptions { WriteIndented = true };
             var jsonString = JsonSerializer.Serialize(this, options);
-        
-            Debug.Print(jsonString + "");
 
             await FileIO.WriteTextAsync(ConfigFile, jsonString);
-
-            Debug.Print("Finish");
-
-   
         }
 
     }
