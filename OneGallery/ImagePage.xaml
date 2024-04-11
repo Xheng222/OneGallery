@@ -324,10 +324,9 @@
             PointerReleased="DeleteFontIcon_PointerReleased" />
 
 
-        <Grid.Resources>
-            
-            <!--ImageBorder-->
-            <Storyboard x:Name="ImageBorderWidthUp">
+        <Grid.Resources>        
+            <!--ImageBorder Zoom-->
+            <Storyboard x:Name="ImageBorderUp">
                 <DoubleAnimation
                     Storyboard.TargetName="ImageBorder"
                     Storyboard.TargetProperty="Width"
@@ -337,10 +336,8 @@
                     <DoubleAnimation.EasingFunction>
                         <QuinticEase EasingMode="EaseOut" />
                     </DoubleAnimation.EasingFunction>
-
                 </DoubleAnimation>
-            </Storyboard>
-            <Storyboard x:Name="ImageBorderHeightUp">
+
                 <DoubleAnimation
                 Storyboard.TargetName="ImageBorder"
                 Storyboard.TargetProperty="Height"
@@ -353,7 +350,7 @@
                 </DoubleAnimation>
             </Storyboard>
 
-            <Storyboard x:Name="ImageBorderWidthDown">
+            <Storyboard x:Name="ImageBorderDown">
                 <DoubleAnimation
                 Storyboard.TargetName="ImageBorder"
                 Storyboard.TargetProperty="Width"
@@ -364,8 +361,7 @@
                         <QuinticEase EasingMode="EaseOut" />
                     </DoubleAnimation.EasingFunction>
                 </DoubleAnimation>
-            </Storyboard>
-            <Storyboard x:Name="ImageBorderHeightDown">
+
                 <DoubleAnimation
                 Storyboard.TargetName="ImageBorder"
                 Storyboard.TargetProperty="Height"
@@ -375,11 +371,10 @@
                     <DoubleAnimation.EasingFunction>
                         <QuinticEase EasingMode="EaseOut" />
                     </DoubleAnimation.EasingFunction>
-                </DoubleAnimation>
+                </DoubleAnimation>                
             </Storyboard>
 
-
-            <!--ToolsBar-->
+            <!--ToolsBar Out-->
             <Storyboard x:Name="ToolsBarOut">
                 <DoubleAnimation
                 Storyboard.TargetName="ToolsBar"
@@ -387,6 +382,83 @@
                 To="0.0" Duration="0:0:0.2" 
                 AutoReverse="False" />
             </Storyboard>
+
+            <!-- Left Out -->
+            <Storyboard x:Name="LeftOut">
+                <DoubleAnimation
+                Storyboard.TargetName="LeftEllipse"
+                Storyboard.TargetProperty="Opacity"
+                To="0.0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+
+                <DoubleAnimation
+                Storyboard.TargetName="LeftFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                To="0.0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+            
+            <!-- Right Out -->
+            <Storyboard x:Name="RightOut">     
+                <DoubleAnimation
+                Storyboard.TargetName="RightEllipse"
+                Storyboard.TargetProperty="Opacity"
+                To="0.0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+
+                <DoubleAnimation
+                Storyboard.TargetName="RightFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                To="0.0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+
+            <!-- Center Out-->
+            <Storyboard x:Name="CenterOut">
+                <DoubleAnimation
+                Storyboard.TargetName="CenterEllipse"
+                Storyboard.TargetProperty="Opacity"
+                To="0.0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+
+                <DoubleAnimation
+                Storyboard.TargetName="CenterFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                To="0.0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+
+            <!-- Delete Out-->
+            <Storyboard x:Name="DeleteOut">
+                <DoubleAnimation
+                Storyboard.TargetName="DeleteEllipse"
+                Storyboard.TargetProperty="Opacity"
+                To="0.0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+
+                <DoubleAnimation
+                Storyboard.TargetName="DeleteFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                To="0.0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+
+            <!--Reset Out-->
+            <Storyboard x:Name="ResetOut">
+                <DoubleAnimation
+                Storyboard.TargetName="ResetEllipse"
+                Storyboard.TargetProperty="Opacity"
+                To="0.0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+
+                <DoubleAnimation
+                Storyboard.TargetName="ResetFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                To="0.0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+
+            <!--ToolsBar In-->
             <Storyboard x:Name="ToolsBarIn">
                 <DoubleAnimation
                 Storyboard.TargetName="ToolsBar"
@@ -394,69 +466,100 @@
                 To="0.5" Duration="0:0:0.2" 
                 AutoReverse="False" />
             </Storyboard>
-            
-            <!--Reset-->
-            <Storyboard x:Name="ResetEllipseOut">
+
+            <!-- Left In -->            
+            <Storyboard x:Name="LeftIn">
                 <DoubleAnimation
-                Storyboard.TargetName="ResetEllipse"
+                Storyboard.TargetName="LeftEllipse"
                 Storyboard.TargetProperty="Opacity"
-                To="0.0" Duration="0:0:0.2" 
+                To="0.8" Duration="0:0:0.2" 
+                AutoReverse="False" />
+
+                <DoubleAnimation
+                Storyboard.TargetName="LeftFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                To="1.0" Duration="0:0:0.2" 
                 AutoReverse="False" />
             </Storyboard>
-            <Storyboard x:Name="ResetEllipseIn">
+
+            <!-- Right In -->
+            <Storyboard x:Name="RightIn">
+                <DoubleAnimation
+                Storyboard.TargetName="RightEllipse"
+                Storyboard.TargetProperty="Opacity"
+                To="0.8" Duration="0:0:0.2" 
+                AutoReverse="False" />
+
+                <DoubleAnimation
+                Storyboard.TargetName="RightFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                To="1.0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+
+            <!-- Center In -->
+            <Storyboard x:Name="CenterIn">                  
+                <DoubleAnimation
+                Storyboard.TargetName="CenterEllipse"
+                Storyboard.TargetProperty="Opacity"
+                To="0.8" Duration="0:0:0.2" 
+                AutoReverse="False" />
+
+                <DoubleAnimation
+                Storyboard.TargetName="CenterFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                To="1.0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+
+            <!-- Delete In -->
+            <Storyboard x:Name="DeleteIn">               
+                <DoubleAnimation
+                Storyboard.TargetName="DeleteEllipse"
+                Storyboard.TargetProperty="Opacity"
+                To="0.8" Duration="0:0:0.2" 
+                AutoReverse="False" />
+
+                <DoubleAnimation
+                Storyboard.TargetName="DeleteFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                To="1.0" Duration="0:0:0.2" 
+                AutoReverse="False" />
+            </Storyboard>
+
+            <!--Reset In-->
+            <Storyboard x:Name="ResetIn">
                 <DoubleAnimation
                 Storyboard.TargetName="ResetEllipse"
                 Storyboard.TargetProperty="Opacity"
                 To="0.8" Duration="0:0:0.2" 
                 AutoReverse="False" />
+
+                <DoubleAnimation
+                Storyboard.TargetName="ResetFontIcon"
+                Storyboard.TargetProperty="Opacity"
+                To="1.0" Duration="0:0:0.2" 
+                AutoReverse="False" />                         
             </Storyboard>
 
+            <!-- ResetEllipseBorder -->
             <Storyboard x:Name="ResetEllipseBorderIn">
                 <DoubleAnimation
                 Storyboard.TargetName="ResetEllipseBorder"
                 Storyboard.TargetProperty="Opacity"
                 To="0.5" Duration="0:0:0.2" 
-                AutoReverse="False" />
+                AutoReverse="False" />    
             </Storyboard>
+
             <Storyboard x:Name="ResetEllipseBorderOut">
                 <DoubleAnimation
                 Storyboard.TargetName="ResetEllipseBorder"
                 Storyboard.TargetProperty="Opacity"
                 To="0" Duration="0:0:0.2" 
                 AutoReverse="False" />
-            </Storyboard>
+            </Storyboard> 
 
-            <Storyboard x:Name="ResetFontIconOut">
-                <DoubleAnimation
-                Storyboard.TargetName="ResetFontIcon"
-                Storyboard.TargetProperty="Opacity"
-                To="0.0" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>
-            <Storyboard x:Name="ResetFontIconIn">
-                <DoubleAnimation
-                Storyboard.TargetName="ResetFontIcon"
-                Storyboard.TargetProperty="Opacity"
-                To="1.0" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>
-
-            <!--Left-->
-            <Storyboard x:Name="LeftEllipseOut">
-                <DoubleAnimation
-                Storyboard.TargetName="LeftEllipse"
-                Storyboard.TargetProperty="Opacity"
-                To="0.0" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>
-            <Storyboard x:Name="LeftEllipseIn">
-                <DoubleAnimation
-                Storyboard.TargetName="LeftEllipse"
-                Storyboard.TargetProperty="Opacity"
-                To="0.8" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>  
-                      
+            <!-- LeftEllipseBorder -->
             <Storyboard x:Name="LeftEllipseBorderIn">
                 <DoubleAnimation
                 Storyboard.TargetName="LeftEllipseBorder"
@@ -464,14 +567,16 @@
                 To="0.5" Duration="0:0:0.2" 
                 AutoReverse="False" />
             </Storyboard>
+
             <Storyboard x:Name="LeftEllipseBorderOut">
                 <DoubleAnimation
                 Storyboard.TargetName="LeftEllipseBorder"
                 Storyboard.TargetProperty="Opacity"
                 To="0" Duration="0:0:0.2" 
                 AutoReverse="False" />
-            </Storyboard>
-
+            </Storyboard>           
+            
+            <!-- LeftEllipseBorder Move -->
             <Storyboard x:Name="LeftEllipseBorderReset">
                 <DoubleAnimation
                 Storyboard.TargetName="LeftEllipseBorder"
@@ -488,6 +593,7 @@
                 To="1" Duration="0:0:0.2" 
                 AutoReverse="False" />
             </Storyboard>
+
             <Storyboard x:Name="LeftFontIconForRotateOut">
                 <DoubleAnimation
                 Storyboard.TargetName="LeftFontIconForRotate"
@@ -496,38 +602,7 @@
                 AutoReverse="False" />
             </Storyboard>
 
-            <Storyboard x:Name="LeftFontIconOut">
-                <DoubleAnimation
-                Storyboard.TargetName="LeftFontIcon"
-                Storyboard.TargetProperty="Opacity"
-                To="0.0" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>
-            <Storyboard x:Name="LeftFontIconIn">
-                <DoubleAnimation
-                Storyboard.TargetName="LeftFontIcon"
-                Storyboard.TargetProperty="Opacity"
-                To="1.0" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>
-
-
-            <!--Right-->
-            <Storyboard x:Name="RightEllipseOut">
-                <DoubleAnimation
-                Storyboard.TargetName="RightEllipse"
-                Storyboard.TargetProperty="Opacity"
-                To="0.0" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>
-            <Storyboard x:Name="RightEllipseIn">
-                <DoubleAnimation
-                Storyboard.TargetName="RightEllipse"
-                Storyboard.TargetProperty="Opacity"
-                To="0.8" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>
-
+            <!-- RightEllipseBorder -->
             <Storyboard x:Name="RightEllipseBorderIn">
                 <DoubleAnimation
                 Storyboard.TargetName="RightEllipseBorder"
@@ -535,14 +610,16 @@
                 To="0.5" Duration="0:0:0.2" 
                 AutoReverse="False" />
             </Storyboard>
+
             <Storyboard x:Name="RightEllipseBorderOut">
                 <DoubleAnimation
                 Storyboard.TargetName="RightEllipseBorder"
                 Storyboard.TargetProperty="Opacity"
                 To="0" Duration="0:0:0.2" 
                 AutoReverse="False" />
-            </Storyboard>
+            </Storyboard>  
 
+            <!-- RightEllipseBorder Move -->
             <Storyboard x:Name="RightEllipseBorderReset">
                 <DoubleAnimation
                 Storyboard.TargetName="RightEllipseBorder"
@@ -559,6 +636,7 @@
                 To="1" Duration="0:0:0.2" 
                 AutoReverse="False" />
             </Storyboard>
+
             <Storyboard x:Name="RightFontIconForRotateOut">
                 <DoubleAnimation
                 Storyboard.TargetName="RightFontIconForRotate"
@@ -567,53 +645,7 @@
                 AutoReverse="False" />
             </Storyboard>
 
-            <Storyboard x:Name="RightFontIconOut">
-                <DoubleAnimation
-                Storyboard.TargetName="RightFontIcon"
-                Storyboard.TargetProperty="Opacity"
-                To="0.0" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>
-            <Storyboard x:Name="RightFontIconIn">
-                <DoubleAnimation
-                Storyboard.TargetName="RightFontIcon"
-                Storyboard.TargetProperty="Opacity"
-                To="1.0" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>
-
-
-            <!--Center-->
-            <Storyboard x:Name="CenterEllipseOut">
-                <DoubleAnimation
-                Storyboard.TargetName="CenterEllipse"
-                Storyboard.TargetProperty="Opacity"
-                To="0.0" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>
-            <Storyboard x:Name="CenterEllipseIn">
-                <DoubleAnimation
-                Storyboard.TargetName="CenterEllipse"
-                Storyboard.TargetProperty="Opacity"
-                To="0.8" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>
-            
-            <Storyboard x:Name="CenterFontIconOut">
-                <DoubleAnimation
-                Storyboard.TargetName="CenterFontIcon"
-                Storyboard.TargetProperty="Opacity"
-                To="0.0" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>
-            <Storyboard x:Name="CenterFontIconIn">
-                <DoubleAnimation
-                Storyboard.TargetName="CenterFontIcon"
-                Storyboard.TargetProperty="Opacity"
-                To="1.0" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>
-
+            <!-- CenterEllipseBorder -->
             <Storyboard x:Name="CenterEllipseBorderIn">
                 <DoubleAnimation
                 Storyboard.TargetName="CenterEllipseBorder"
@@ -621,42 +653,12 @@
                 To="0.5" Duration="0:0:0.2" 
                 AutoReverse="False" />
             </Storyboard>
+
             <Storyboard x:Name="CenterEllipseBorderOut">
                 <DoubleAnimation
                 Storyboard.TargetName="CenterEllipseBorder"
                 Storyboard.TargetProperty="Opacity"
                 To="0" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>
-
-            <!--Delete-->
-            <Storyboard x:Name="DeleteEllipseOut">
-                <DoubleAnimation
-                Storyboard.TargetName="DeleteEllipse"
-                Storyboard.TargetProperty="Opacity"
-                To="0.0" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>
-            <Storyboard x:Name="DeleteEllipseIn">
-                <DoubleAnimation
-                Storyboard.TargetName="DeleteEllipse"
-                Storyboard.TargetProperty="Opacity"
-                To="0.8" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>
-            
-            <Storyboard x:Name="DeleteFontIconOut">
-                <DoubleAnimation
-                Storyboard.TargetName="DeleteFontIcon"
-                Storyboard.TargetProperty="Opacity"
-                To="0.0" Duration="0:0:0.2" 
-                AutoReverse="False" />
-            </Storyboard>
-            <Storyboard x:Name="DeleteFontIconIn">
-                <DoubleAnimation
-                Storyboard.TargetName="DeleteFontIcon"
-                Storyboard.TargetProperty="Opacity"
-                To="1.0" Duration="0:0:0.2" 
                 AutoReverse="False" />
             </Storyboard>
 

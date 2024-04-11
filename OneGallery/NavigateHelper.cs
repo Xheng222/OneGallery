@@ -14,18 +14,21 @@ namespace OneGallery
 {
     internal class NavigateHelper
     {    
-        private static readonly Dictionary<string, PageStackContent> DictPageContent
+        private static readonly Dictionary<string, PageStackContent> DictPageForGalleryPage
                     = new();
+
+        private static readonly Dictionary<string, PageStackContent> DictPageContentForFolderPage
+            = new();
         public static void GetContent(MainWindow window, Frame frame, string pageName)
         {
 
-            if (DictPageContent.ContainsKey(pageName))
+            if (DictPageForGalleryPage.ContainsKey(pageName))
             {
-                var _tempPage = (ImageListPage)DictPageContent[pageName].PageContent;
+                var _tempPage = (ImageListPage)DictPageForGalleryPage[pageName].PageContent;
                 _tempPage.MyActivityFeedLayout.LayoutImgArrangement = window.FolderManager.MyImageArrangement;
                 window.FolderManager.MyImageArrangement.ImgListForRepeater = _tempPage.ImgList;
                 window.FolderManager.MyImageArrangement.ImgListChanged();
-                frame.Content = DictPageContent[pageName].PageContent;
+                frame.Content = DictPageForGalleryPage[pageName].PageContent;
             }
 
         }
@@ -34,9 +37,9 @@ namespace OneGallery
         {
 
             PageParameters pageParameter = null;
-            if (DictPageContent.ContainsKey(pageName))
+            if (DictPageForGalleryPage.ContainsKey(pageName))
             {
-                pageParameter = DictPageContent[pageName].PageParameter;
+                pageParameter = DictPageForGalleryPage[pageName].PageParameter;
             }
 
             if (backPageCallBack != null)
@@ -46,14 +49,14 @@ namespace OneGallery
         public static void StoreContent(Frame frame, string pageName, PageParameters pageContent)
         {
 
-            if (DictPageContent.ContainsKey(pageName))
+            if (DictPageForGalleryPage.ContainsKey(pageName))
             {
-                DictPageContent[pageName].PageContent = frame.Content;
-                DictPageContent[pageName].PageParameter = pageContent.Clone();
+                DictPageForGalleryPage[pageName].PageContent = frame.Content;
+                DictPageForGalleryPage[pageName].PageParameter = pageContent.Clone();
                 return;
             }
             var _temp = new PageStackContent(frame.Content, pageContent?.Clone());
-            DictPageContent.Add(pageName, _temp);
+            DictPageForGalleryPage.Add(pageName, _temp);
 
         }
     }

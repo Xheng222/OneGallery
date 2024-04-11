@@ -52,6 +52,8 @@ namespace OneGallery
 
         private MainWindow Window { get; set; }
 
+        private Category NowCategory { get; set; }
+
         readonly string SourcePageName;
 
         public ImagePage()
@@ -60,6 +62,7 @@ namespace OneGallery
             Window = (MainWindow)(Application.Current as App).Main;
             SourcePageName = (Window.NaView.SelectedItem as Category).Name;
             NavigationCacheMode = NavigationCacheMode.Disabled;
+            NowCategory = Window._nowCategory;
         }
 
 
@@ -82,20 +85,27 @@ namespace OneGallery
             ToolsBarIn.Completed += ToolBarInCompelete;
 
             NowImagePage = this;
+            Window.TitleBorderUp.Begin();
+            //Window.TitleBorderUp.Begin();
         }
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
             if (Window.NaView.SelectedItem is Category)
             {
 
-                if (SourcePageName == (Window.NaView.SelectedItem as Category).Name)
+                //if (SourcePageName == (Window.NaView.SelectedItem as Category).Name)
+                //{
+                //    var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("BackwardConnectedAnimation", image);
+                //    anim.Configuration = new DirectConnectedAnimationConfiguration();
+                //}
+                if (NowCategory == Window.NaView.SelectedItem as Category)
                 {
                     var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("BackwardConnectedAnimation", image);
                     anim.Configuration = new DirectConnectedAnimationConfiguration();
                 }
 
             }
-
+            Window.TitleBorderDown.Begin();
             base.OnNavigatingFrom(e);
         }
 
@@ -104,7 +114,6 @@ namespace OneGallery
             if (e.NavigationMode == NavigationMode.New)
             {
                 Window.NaPage.BackStack.RemoveAt(Window.NaPage.BackStack.Count - 1);
-                Window.HistoryPages.Pop();
             }
 
             base.OnNavigatedFrom(e);
@@ -208,24 +217,13 @@ namespace OneGallery
             CheckAnimate();
 
             ToolsBarIn.Begin();
-
-            LeftEllipseIn.Begin();
-            LeftFontIconIn.Begin();
-
-            CenterEllipseIn.Begin();
-            CenterFontIconIn.Begin();
-
-            RightEllipseIn.Begin();
-            RightFontIconIn.Begin();
-
-            DeleteEllipseIn.Begin();
-            DeleteFontIconIn.Begin();
+            LeftIn.Begin();
+            RightIn.Begin();
+            CenterIn.Begin();
+            DeleteIn.Begin();
 
             if (ViewChanged)
-            {
-                ResetEllipseIn.Begin();
-                ResetFontIconIn.Begin();
-            }
+                ResetIn.Begin();  
         }
 
         private async void ToolBarInCompelete(object sender, object e)
@@ -238,49 +236,28 @@ namespace OneGallery
             
             ToolsBarOut.Begin();
 
-            LeftEllipseOut.Begin();
-            LeftFontIconOut.Begin();
-
-            CenterEllipseOut.Begin();
-            CenterFontIconOut.Begin();
-
-            RightEllipseOut.Begin();
-            RightFontIconOut.Begin();
-
-            DeleteEllipseOut.Begin();
-            DeleteFontIconOut.Begin();
+            LeftOut.Begin();
+            CenterOut.Begin();
+            RightOut.Begin();
+            DeleteOut.Begin();
 
             if (ViewChanged)
-            {
-                ResetEllipseOut.Begin();
-                ResetFontIconOut.Begin();
-            }
+                ResetOut.Begin();
 
             AnimateState = 1;
-
         }
 
         private void CheckAnimate()
         {
             ToolsBarOut.Pause();
 
-            LeftEllipseOut.Pause();
-            LeftFontIconOut.Pause();
-
-            CenterEllipseOut.Pause();
-            CenterFontIconOut.Pause();
-
-            RightEllipseOut.Pause();
-            RightFontIconOut.Pause();
-
-            DeleteEllipseOut.Pause();
-            DeleteFontIconOut.Pause();
+            LeftOut.Pause();
+            CenterOut.Pause();
+            RightOut.Pause();
+            DeleteOut.Pause();
 
             if (ViewChanged)
-            {
-                ResetEllipseOut.Pause();
-                ResetFontIconOut.Pause();
-            }
+                ResetOut.Pause();
         }
 
         private void SwitchResetBtn(int state)
@@ -297,11 +274,7 @@ namespace OneGallery
                     ResetFontIcon.PointerReleased += ResetFontIcon_PointerReleased;
 
                     if (ToolsBar.Opacity != 0)
-                    {
-                        ResetEllipseIn.Begin();
-                        ResetFontIconIn.Begin();
-                    }
-
+                        ResetIn.Begin();
                 }
                 return;
             }
@@ -314,8 +287,7 @@ namespace OneGallery
                 ResetFontIcon.PointerPressed -= ResetFontIcon_PointerPressed;
                 ResetFontIcon.PointerReleased -= ResetFontIcon_PointerReleased;
 
-                ResetEllipseOut.Begin();
-                ResetFontIconOut.Begin();
+                ResetOut.Begin();
                 ResetEllipseBorderOut.Begin();
                 isPointInToolBar = false;
                 
@@ -349,14 +321,10 @@ namespace OneGallery
                             scrollViewer.RotationTransition = null;
                             StartRotate = scrollViewer.Rotation;
 
-                            CenterEllipseOut.Begin();
-                            CenterFontIconOut.Begin();
-
-                            RightEllipseOut.Begin();
-                            RightFontIconOut.Begin();
-
+                            LeftOut.Begin();
+                            CenterOut.Begin();
+                            RightOut.Begin();
                             LeftFontIconForRotateIn.Begin();
-                            LeftFontIconOut.Begin();
                         }
 
                         scrollViewer.Rotation = (float)(StartRotate - deltaX * 360 / (ToolsBar.Width - 50));
@@ -376,14 +344,12 @@ namespace OneGallery
                             scrollViewer.RotationTransition = null;
                             StartRotate = scrollViewer.Rotation;
 
-                            CenterEllipseOut.Begin();
-                            CenterFontIconOut.Begin();
-
-                            LeftEllipseOut.Begin();
-                            LeftFontIconOut.Begin();
+                            LeftOut.Begin();
+                            CenterOut.Begin();
+                            RightOut.Begin();
+                            DeleteOut.Begin();
 
                             RightFontIconForRotateIn.Begin();
-                            RightFontIconOut.Begin();
                         }
 
                         scrollViewer.Rotation = (float)(StartRotate + deltaX * 360 / (ToolsBar.Width - 50));
@@ -403,26 +369,21 @@ namespace OneGallery
                 Duration = TimeSpan.FromMilliseconds(200)
             };
 
-            CenterEllipseIn.Begin();
-            CenterFontIconIn.Begin();
+            LeftIn.Begin();
+            RightIn.Begin();
+            CenterIn.Begin();
 
-            switch(RotationState)
+            switch (RotationState)
             {
                 case 1:
                     {
                         LeftFontIconForRotateOut.Begin();
-                        LeftFontIconIn.Begin();
-                        RightEllipseIn.Begin();
-                        RightFontIconIn.Begin();
                         break;
                     }
 
                 case -1:
                     {
                         RightFontIconForRotateOut.Begin();
-                        RightFontIconIn.Begin();
-                        LeftEllipseIn.Begin();
-                        LeftFontIconIn.Begin();
                         break;
                     }
                 default: return;
@@ -529,6 +490,9 @@ namespace OneGallery
          */
         private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
+            var ActualHeight = Window.NaGrid.ActualHeight;
+            var ActualWidth = Window.NaGrid.ActualWidth;
+
             var _tempLength = ActualHeight + ActualWidth;
 
             PageGrid.Height = _tempLength;
@@ -682,9 +646,8 @@ namespace OneGallery
                     _newZoom = (float)(_tempWidth / ImageBorder.Width * Zoom);
                     if (_newZoom <= 5)
                     {
-                        ImageBorderWidthUp.Begin();
-                        ImageBorderHeightUp.Begin();           
-                        
+                        ImageBorderUp.Begin();
+                                 
                         await Task.Delay(500);
                         ChangeSrollView(_newZoom, Zoom);
                         SwitchResetBtn(1);
@@ -696,8 +659,7 @@ namespace OneGallery
                     _newZoom = (float)(_tempWidth / ImageBorder.Width * Zoom);
                     if (_newZoom >= 1)
                     {
-                        ImageBorderWidthDown.Begin();
-                        ImageBorderHeightDown.Begin();
+                        ImageBorderDown.Begin();
 
                         await Task.Delay(500);
                         ChangeSrollView(_newZoom, Zoom);
@@ -707,8 +669,7 @@ namespace OneGallery
                     {
                         if (_tempWidth == ActualHeight + ActualWidth)
                         {
-                            ImageBorderWidthDown.Begin();
-                            ImageBorderHeightDown.Begin();
+                            ImageBorderDown.Begin();
 
                             await Task.Delay(500);
                             ChangeSrollView(1, Zoom);

@@ -5,346 +5,218 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:OneGallery"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:animatedvisuals="using:ABI.Microsoft.UI.Xaml.Controls.AnimatedVisuals"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="Transparent" 
     VerticalAlignment="Top"
-    HorizontalAlignment="Left"
-    >
+    HorizontalAlignment="Left">
 
     <Page.Resources>
         <DataTemplate  x:Key="LinedFlowLayoutItemTemplate" x:DataType="local:PictureClass">
-            <ItemContainer 
-                CanBeScrollAnchor="False"
-                Loaded="ItemContainer_Loaded"
-                PointerEntered="ItemContainer_PointerEntered"
-                PointerExited="ItemContainer_PointerExited"
-                PointerPressed="ItemContainer_PointerPressed"
-                PointerReleased="ItemContainer_PointerReleased">
-                <Grid>
-                    <Rectangle  
-                        Name="Border"
-                        Stroke="#0067C0"
-                        Fill="Transparent"
-                        StrokeThickness="2.5"
-                        Canvas.ZIndex="2" 
-                        RadiusX="5"
-                        RadiusY="5"
-                        Opacity="0" />
+            <Grid PointerEntered="ItemGrid_PointerEntered"
+                  PointerExited="ItemGrid_PointerExited"
+                  PointerPressed="ItemGrid_PointerPressed"
+                  PointerReleased="ItemGrid_PointerReleased" >
 
-                    <Rectangle 
-                        Name="Rectangle"
-                        Fill="White"  
-                        Canvas.ZIndex="1" 
-                        MinWidth="20" MinHeight="20"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Top"
-                        Margin="0, 5, 5, 0"
-                        RadiusX="5"
-                        RadiusY="5"
-                        Opacity="0" />
+                <!--PointerEntered="ItemContainer_PointerEntered"
+                    PointerExited="ItemContainer_PointerExited"-->
+                <ItemContainer 
+                    CanBeScrollAnchor="False"
+                    Loaded="ItemContainer_Loaded">
+                    <Grid>
+                        <Rectangle  
+                            Name="Border"
+                            Stroke="#0067C0"
+                            Fill="Transparent"
+                            StrokeThickness="2.5"
+                            Canvas.ZIndex="2" 
+                            RadiusX="5"
+                            RadiusY="5"
+                            Opacity="0" />
 
-                    <CheckBox
-                        Name="CheckBox"
-                        Canvas.ZIndex="2"
-                        IsChecked="False"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Top"
-                        Margin="0, -1, -95, 0"
-                        CornerRadius="5"
-                        Opacity="0" >
+                        <Rectangle 
+                            Name="Rectangle"
+                            Fill="White"  
+                            Canvas.ZIndex="1" 
+                            MinWidth="20" MinHeight="20"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            Margin="0, 5, 5, 0"
+                            RadiusX="5"
+                            RadiusY="5"
+                            Opacity="0" />
 
-                    </CheckBox>
+                        <CheckBox
+                            Name="CheckBox"
+                            Canvas.ZIndex="2"
+                            IsChecked="False"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            Margin="0, -1, -95, 0"
+                            CornerRadius="5"
+                            Opacity="0" >
+                        </CheckBox>
 
-                    <Image 
-                        Canvas.ZIndex="0"
-                        Stretch="UniformToFill" 
-                        SizeChanged="Image_SizeChanged" >
-                        <Image.Source>
-                            <BitmapImage DecodePixelHeight="350" UriSource="{x:Bind _ImageLocation, Mode=TwoWay}" />
-                        </Image.Source>
-                    </Image>
+                        <Image 
+                            Canvas.ZIndex="0"
+                            Stretch="UniformToFill" >
+                            <Image.Source>
+                                <BitmapImage DecodePixelHeight="350" UriSource="{x:Bind _ImageLocation, Mode=TwoWay}" />
+                            </Image.Source>
+                        </Image>
+                    </Grid>
 
-                </Grid>
+                    <ItemContainer.Resources>
+                        <Storyboard x:Key="BorderIn">
+                            <DoubleAnimation                
+                                Storyboard.TargetName="Border"
+                                Storyboard.TargetProperty="Opacity"
+                                To="1.0" Duration="0:0:0.2" 
+                                AutoReverse="False">
+                            </DoubleAnimation>
+                        </Storyboard>
+                        <Storyboard x:Key="BorderOut">
+                            <DoubleAnimation                
+                                Storyboard.TargetName="Border"
+                                Storyboard.TargetProperty="Opacity"
+                                To="0.0" Duration="0:0:0.2" 
+                                AutoReverse="False">
+                            </DoubleAnimation>
+                        </Storyboard>
+                        <Storyboard x:Key="CheckBoxIn">
+                            <DoubleAnimation                
+                                Storyboard.TargetName="CheckBox"
+                                Storyboard.TargetProperty="Opacity"
+                                To="1.0" Duration="0:0:0.2" 
+                                AutoReverse="False">
+                            </DoubleAnimation>
+                        </Storyboard>
+                        <Storyboard x:Key="CheckBoxOut">
+                            <DoubleAnimation                
+                                Storyboard.TargetName="CheckBox"
+                                Storyboard.TargetProperty="Opacity"
+                                To="0.0" Duration="0:0:0.2" 
+                                AutoReverse="False">
+                            </DoubleAnimation>
+                        </Storyboard>
+                        <Storyboard x:Key="RectangleIn">
+                            <DoubleAnimation                
+                                Storyboard.TargetName="Rectangle"
+                                Storyboard.TargetProperty="Opacity"
+                                To="0.8" Duration="0:0:0.2" 
+                                AutoReverse="False">
+                            </DoubleAnimation>
+                        </Storyboard>
+                        <Storyboard x:Key="RectangleOut">
+                            <DoubleAnimation                
+                                Storyboard.TargetName="Rectangle"
+                                Storyboard.TargetProperty="Opacity"
+                                To="0.0" Duration="0:0:0.2" 
+                                AutoReverse="False">
+                            </DoubleAnimation>
+                        </Storyboard>
 
-                <ItemContainer.Resources>
-                    <Storyboard x:Key="BorderIn">
-                        <DoubleAnimation                
-                            Storyboard.TargetName="Border"
-                            Storyboard.TargetProperty="Opacity"
-                            To="1.0" Duration="0:0:0.2" 
-                            AutoReverse="False">
-                        </DoubleAnimation>
-                    </Storyboard>
-                    <Storyboard x:Key="BorderOut">
-                        <DoubleAnimation                
-                            Storyboard.TargetName="Border"
-                            Storyboard.TargetProperty="Opacity"
-                            To="0.0" Duration="0:0:0.2" 
-                            AutoReverse="False">
-                        </DoubleAnimation>
-                    </Storyboard>
-                    <Storyboard x:Key="CheckBoxIn">
-                        <DoubleAnimation                
-                            Storyboard.TargetName="CheckBox"
-                            Storyboard.TargetProperty="Opacity"
-                            To="1.0" Duration="0:0:0.2" 
-                            AutoReverse="False">
-                        </DoubleAnimation>
-                    </Storyboard>
-                    <Storyboard x:Key="CheckBoxOut">
-                        <DoubleAnimation                
-                            Storyboard.TargetName="CheckBox"
-                            Storyboard.TargetProperty="Opacity"
-                            To="0.0" Duration="0:0:0.2" 
-                            AutoReverse="False">
-                        </DoubleAnimation>
-                    </Storyboard>
-                    <Storyboard x:Key="RectangleIn">
-                        <DoubleAnimation                
-                            Storyboard.TargetName="Rectangle"
-                            Storyboard.TargetProperty="Opacity"
-                            To="0.8" Duration="0:0:0.2" 
-                            AutoReverse="False">
-                        </DoubleAnimation>
-                    </Storyboard>
-                    <Storyboard x:Key="RectangleOut">
-                        <DoubleAnimation                
-                            Storyboard.TargetName="Rectangle"
-                            Storyboard.TargetProperty="Opacity"
-                            To="0.0" Duration="0:0:0.2" 
-                            AutoReverse="False">
-                        </DoubleAnimation>
-                    </Storyboard>
+                    </ItemContainer.Resources>
+                </ItemContainer>
 
-                </ItemContainer.Resources>
-            </ItemContainer>
+                <Rectangle Fill="Red" Opacity="0" ToolTipService.Placement="Mouse">
+                    <ToolTipService.ToolTip>
+                        <Border>
+                            <TextBlock Text="{x:Bind Name}"/>
+                        </Border>
+                    </ToolTipService.ToolTip>
+                </Rectangle>
+            </Grid>
         </DataTemplate>
 
+
+        <ControlTemplate TargetType="Button" x:Key="MyButton">
+            <Grid x:Name="RootGrid" Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}"  BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}" BackgroundSizing="{TemplateBinding BackgroundSizing}">
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal">
+                            <Storyboard>
+                                <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
+                                    <LinearColorKeyFrame Value="#363636" KeyTime="0:0:0.2"/>
+                                </ColorAnimationUsingKeyFrames>
+
+                                <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
+                                    <LinearColorKeyFrame Value="Transparent" KeyTime="0:0:0.2"/>
+                                </ColorAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </VisualState>
+
+                        <VisualState x:Name="PointerOver">
+                            <Storyboard>
+                                <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
+                                    <LinearColorKeyFrame Value="#363636" KeyTime="0:0:0"/>
+                                </ColorAnimationUsingKeyFrames>
+
+                                <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
+                                    <LinearColorKeyFrame Value="#E5E4E2" KeyTime="0:0:0.2"/>
+                                </ColorAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </VisualState>
+
+                        <VisualState x:Name="Pressed">
+                            <Storyboard>
+                                <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
+                                    <LinearColorKeyFrame Value="#363636" KeyTime="0:0:0"/>
+                                </ColorAnimationUsingKeyFrames>
+
+                                <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
+                                    <LinearColorKeyFrame Value="#D3D3D3" KeyTime="0:0:0.2"/>
+                                </ColorAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </VisualState>
+                        <VisualState x:Name="Disabled">
+                            <Storyboard>
+                                <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
+                                    <LinearColorKeyFrame Value="Transparent" KeyTime="0:0:0.2"/>
+                                </ColorAnimationUsingKeyFrames>
+
+                                <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
+                                    <LinearColorKeyFrame Value="Transparent" KeyTime="0:0:0.2"/>
+                                </ColorAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <ContentPresenter x:Name="ContentPresenter" Content="{TemplateBinding Content}" ContentTransitions="{TemplateBinding ContentTransitions}" ContentTemplate="{TemplateBinding ContentTemplate}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" AutomationProperties.AccessibilityView="Raw" />
+            </Grid>
+        </ControlTemplate>
+
+        <Style TargetType="Button" >
+            <Setter Property="Template" Value="{StaticResource MyButton}" />
+        </Style>
+
+        <Style TargetType="DropDownButton">
+            <Setter Property="Template" Value="{StaticResource MyButton}"/>
+        </Style>
     </Page.Resources>
 
 
 
-    <Grid x:Name="grid" Height="Auto" SizeChanged="Page_SizeChanged">
-
-        <Grid.RowDefinitions>
-            <RowDefinition Height="120" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="8" />
-        </Grid.RowDefinitions>
-
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="8" />
-        </Grid.ColumnDefinitions>
-
-        <FontIcon Glyph="&#xE8B9;" 
-                  Grid.Row="0"
-                  Grid.Column="0"
-                  VerticalAlignment="Top"
-                  HorizontalAlignment="Left"
-                  Margin="45, 45, 0, 0"
-                  />
-
-        <TextBlock Text="{x:Bind NowCategory.Name, Mode=TwoWay}" 
-                  FontSize="28" 
-                  Foreground="Black" 
-                  Grid.Row="0"
-                  Grid.Column="0"
-                  VerticalAlignment="Top"
-                  HorizontalAlignment="Left"
-                  Margin="75, 35, 0, 0"
-                   />
-
-        <TextBlock Text="666 张照片" 
-                  FontSize="14" 
-                  Foreground="#808080" 
-                  Grid.Row="0"
-                  Grid.Column="0"
-                  VerticalAlignment="Center"
-                  HorizontalAlignment="Left"
-                  Margin="75, 45, 0, 0"
-                   />
-
-        <DropDownButton
-            x:Name="test"
-            Grid.Row="0"
-            Grid.Column="0"
-            VerticalAlignment="Center"
-            HorizontalAlignment="Right"
-            Background="Transparent"
-            Foreground="Transparent"
-            BorderBrush="Transparent"
-            >
-            <DropDownButton.Flyout>
-                <MenuFlyout Placement="Bottom">
-                    <MenuFlyoutItem Text="Send">
-                        <MenuFlyoutItem.Icon>
-                            <FontIcon Glyph="&#xE725;"/>
-                        </MenuFlyoutItem.Icon>
-                    </MenuFlyoutItem>
-                    <MenuFlyoutItem Text="Reply">
-                        <MenuFlyoutItem.Icon>
-                            <FontIcon Glyph="&#xE8CA;"/>
-                        </MenuFlyoutItem.Icon>
-                    </MenuFlyoutItem>
-                    <MenuFlyoutItem Text="Reply All">
-                        <MenuFlyoutItem.Icon>
-                            <FontIcon Glyph="&#xE8C2;"/>
-                        </MenuFlyoutItem.Icon>
-                    </MenuFlyoutItem>
-                </MenuFlyout>
-            </DropDownButton.Flyout>
-
-            <DropDownButton.Content>
-                <FontIcon Glyph="&#xE715;"/>
-            </DropDownButton.Content>
-
-            <DropDownButton.Resources>
-                <!--<SolidColorBrush x:Key="DropDownButtonForegroundSecondary" Color="Transparent" />-->
-                <!--<SolidColorBrush x:Key="DropDownButtonForegroundSecondaryPointerOver" Color="Transparent" />-->
-                <!--<SolidColorBrush x:Key="DropDownButtonForegroundSecondaryPressed" Color="Transparent" />-->
-                <Style TargetType="DropDownButton">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <Grid x:Name="RootGrid" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}" BackgroundSizing="{TemplateBinding BackgroundSizing}">
-                                    <Grid.BackgroundTransition>
-                                        <BrushTransition Duration="0:0:5" />
-                                    </Grid.BackgroundTransition>
-
-                                    <VisualStateManager.VisualStateGroups>
-                                        <VisualStateGroup x:Name="CommonStates">
-                                            <VisualState x:Name="Normal" />
-
-                                            <VisualState x:Name="PointerOver">
-
-                                                <Storyboard>
-                                                    <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="Background">
-                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonBackgroundPointerOver}" />
-                                                    </ObjectAnimationUsingKeyFrames>
-                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="BorderBrush">
-                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonBorderBrushPointerOver}" />
-                                                    </ObjectAnimationUsingKeyFrames>-->
-                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonForegroundPointerOver}" />
-                                                    </ObjectAnimationUsingKeyFrames>
-                                                    <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ChevronIcon" Storyboard.TargetProperty="Foreground">
-                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource DropDownButtonForegroundSecondaryPointerOver}" />
-                                                    </ObjectAnimationUsingKeyFrames>-->
-                                                </Storyboard>
-                                                <!--<VisualState.Setters>
-                                                    <Setter Target="ChevronIcon.(controls:AnimatedIcon.State)" Value="PointerOver" />
-
-                                                </VisualState.Setters>-->
-                                            </VisualState>
-
-                                            <VisualState x:Name="Pressed">
-
-                                                <Storyboard>
-                                                    <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="Background">
-                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonBackgroundPressed}" />
-                                                    </ObjectAnimationUsingKeyFrames>
-                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="BorderBrush">
-                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonBorderBrushPressed}" />
-                                                    </ObjectAnimationUsingKeyFrames>-->
-                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonForegroundPressed}" />
-                                                    </ObjectAnimationUsingKeyFrames>
-                                                    <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ChevronIcon" Storyboard.TargetProperty="Foreground">
-                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource DropDownButtonForegroundSecondaryPressed}" />
-                                                    </ObjectAnimationUsingKeyFrames>-->
-                                                </Storyboard>
-                                                <!--<VisualState.Setters>
-                                                    <Setter Target="ChevronIcon.(controls:AnimatedIcon.State)" Value="Pressed" />
-
-                                                </VisualState.Setters>-->
-                                            </VisualState>
-
-                                            <VisualState x:Name="Disabled">
-
-                                                <Storyboard>
-                                                    <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="Background">
-                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonBackgroundDisabled}" />
-                                                    </ObjectAnimationUsingKeyFrames>
-                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="BorderBrush">
-                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonBorderBrushDisabled}" />
-                                                    </ObjectAnimationUsingKeyFrames>-->
-                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Foreground">
-                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonForegroundDisabled}" />
-                                                    </ObjectAnimationUsingKeyFrames>
-                                                    <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetName="ChevronIcon" Storyboard.TargetProperty="Foreground">
-                                                        <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonForegroundDisabled}" />
-                                                    </ObjectAnimationUsingKeyFrames>-->
-                                                </Storyboard>
-                                                <!--<VisualState.Setters>
-                                                    --><!-- DisabledVisual Should be handled by the control, not the animated icon. --><!--
-                                                    <Setter Target="ChevronIcon.(controls:AnimatedIcon.State)" Value="Normal" />
-
-                                                </VisualState.Setters>-->
-                                            </VisualState>
-
-                                        </VisualStateGroup>
-
-                                    </VisualStateManager.VisualStateGroups>
-
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <ContentPresenter x:Name="ContentPresenter" Content="{TemplateBinding Content}" ContentTransitions="{TemplateBinding ContentTransitions}" ContentTemplate="{TemplateBinding ContentTemplate}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" AutomationProperties.AccessibilityView="Raw" />
-                                    <!--<AnimatedIcon x:Name="ChevronIcon" Grid.Column="1" Margin="8,0,0,0" Width="12" Height="12" Foreground="{ThemeResource DropDownButtonForegroundSecondary}" AutomationProperties.AccessibilityView="Raw" local:AnimatedIcon.State="Normal" xmlns:local="using:Microsoft.UI.Xaml.Controls">
-                                        <AnimatedIcon.FallbackIconSource>
-                                            <FontIconSource FontSize="8" FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE96E;" IsTextScaleFactorEnabled="False" />
-                                        </AnimatedIcon.FallbackIconSource>
-                                    </AnimatedIcon>-->
-
-                                </Grid>
-
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>                
-            </DropDownButton.Resources>
-
-
-   
-        </DropDownButton>
-
-
+    <Grid x:Name="grid">
 
         <ScrollViewer x:Name="ScrollViewer" 
                       Background="Transparent" 
-                      Grid.Row="1" 
-                      Grid.Column="0"
                       Canvas.ZIndex="2">
 
-            <ItemsRepeater x:Name="repeater2" 
+            <ItemsRepeater x:Name="ImageRepeater" ToolTipService.Placement="Mouse"
                            Background="Transparent"
                            HorizontalAlignment="Stretch"
                            ItemTemplate="{StaticResource LinedFlowLayoutItemTemplate}"
                            ItemsSource="{x:Bind ImgList, Mode=TwoWay}"
                            Layout="{x:Bind MyActivityFeedLayout, Mode=TwoWay}"
-                           Loaded="repeater2_Loaded">
-                <!--<ItemsRepeater.Layout>
-                    <UniformGridLayout />
-                </ItemsRepeater.Layout>-->
-
+                           Loaded="ImageRepeater_Loaded">
             </ItemsRepeater>
             
         </ScrollViewer>
         
-        <!--<Rectangle
-            Fill="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
-            VerticalAlignment="Top"
-            HorizontalAlignment="Center"
-
-            Canvas.ZIndex="5"
-            Grid.Row="1"
-            >
-            Height="200"
-            Width="2000"            
-        </Rectangle>-->        
-                           <!--Layout="{x:Bind MyActivityFeedLayout, Mode=TwoWay}"-->
-        <!--Layout="{StaticResource MyFeedLayout}"-->
     </Grid>
 </Page>

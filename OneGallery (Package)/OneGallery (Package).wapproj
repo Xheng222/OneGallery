@@ -44,12 +44,23 @@
     <EntryPointProjectUniqueName>..\OneGallery\OneGallery.csproj</EntryPointProjectUniqueName>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="Images\Calendar_add.svg" />
+    <Content Include="Images\Checkbox_1.svg" />
+    <Content Include="Images\Checkbox_sync.svg" />
+    <Content Include="Images\Checkbox_warning.svg" />
+    <Content Include="Images\Chevron_down.svg" />
+    <Content Include="Images\Chevron_up.svg" />
+    <Content Include="Images\Image_add.svg" />
+    <Content Include="Images\Image_edit.svg" />
+    <Content Include="Images\Select_all.svg" />
+    <Content Include="Images\Select_off.svg" />
     <Content Include="Images\SplashScreen.scale-200.png" />
     <Content Include="Images\LockScreenLogo.scale-200.png" />
     <Content Include="Images\Square150x150Logo.scale-200.png" />
     <Content Include="Images\Square44x44Logo.scale-200.png" />
     <Content Include="Images\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Images\StoreLogo.png" />
+    <Content Include="Images\Text_t.svg" />
     <Content Include="Images\Wide310x150Logo.scale-200.png" />
     <Content Include="Res\Path.json" />
     <Content Include="Res\Settings.json" />

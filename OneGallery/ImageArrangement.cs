@@ -134,9 +134,9 @@ namespace OneGallery
             {
                 _acutualWidth = ItemSize.Height / 2;
             }
-            else if (_acutualWidth > ItemSize.Height * 3)
+            else if (_acutualWidth > ItemSize.Height * 2.5)
             {
-                _acutualWidth = ItemSize.Height * 3;
+                _acutualWidth = ItemSize.Height * 2.5;
             }
 
             List<double> list;

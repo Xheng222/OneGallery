@@ -165,8 +165,8 @@ namespace OneGallery
                 }
                 else
                 {
-                    FileDeletedEvent(new(_tempImage));
                     ImageList.Remove(_tempImage);
+                    FileDeletedEvent(new(_tempImage));
                 }
             }
         }

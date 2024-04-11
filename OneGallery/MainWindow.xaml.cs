@@ -2,14 +2,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Reflection.PortableExecutable;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -34,78 +37,49 @@ using WinUIEx.Messaging;
 
 namespace OneGallery
 {
-    public class Category
-    {
-        public string Name { get; set; }
 
-        public FontIcon Icon = new();
 
-        public ObservableCollection<object> Children { get; set; }
-
-        public string PageType { get; set; }
-
-        public int[] PageSource { get; set; }
-
-        public Category() 
-        {
-            Icon.Glyph = "\uE80F";
-        }
-    }
-
-    public partial class MainWindow : WindowEx
+    public partial class MainWindow : WindowEx, INotifyPropertyChanged
     {
         public string appTitleText = "OneGallery";
 
-        public Stack<string> HistoryPages = new();
+        //public Stack<string> HistoryPages = new();
 
-        Stack<string> PartenPagemName = new();
+        //Stack<string> PartenPagemName = new();
 
         public SettingsConfig MySettingsConfig { get; set; }
 
+        public PathConfig MyPathConfig { get; set; }
+
         // expand 用
-        Dictionary<string, string> ParentDictionary = new Dictionary<string, string>();
+        //Dictionary<string, string> ParentDictionary = new Dictionary<string, string>();
 
         // expand 用
         Dictionary<string, NavigationViewItem> PageDictionary = new Dictionary<string, NavigationViewItem>();
 
         // select 用
-        Dictionary<string, Category> NvItemDictionary = new Dictionary<string, Category>();
+        //Dictionary<string, Category> NvItemDictionary = new Dictionary<string, Category>();
 
         // Folder
         public LocalFolderManager FolderManager { get; set; }
 
-        public ObservableCollection<object> Categories = new()
+        public ObservableCollection<object> Categories = new();
+
+        public Category SettingCategory = new()
         {
-            new NavigationViewItemSeparator(),
-            new Category() {
-            Name = "HomePage",
-            PageType = "ImageListPage",
-            PageSource = new int[] {-1},
-                Children = new ObservableCollection<object>() {
-                    new Category(){
-                        PageType = "ImageListPage",
-                        Name = "Menu item 2",               
-                    }
-                }
-            },
-            new NavigationViewItemSeparator(),
-            new Category(){
-                Name = "Menu item 6",
-                PageType = "ImageListPage",
-                Children = new ObservableCollection<object>() {
-                    new Category(){
-                        Name = "Menu item 7",
-                        PageType = "ImageListPage"
-                    }
-                }
-            },
-            new NavigationViewItemSeparator(),
-            new Category(){
-                Name = "Menu item 10",
-                PageType = "ImageListPage",
-                PageSource = new int[] {1},
-            }
+            Name = "Settings",
         };
+        public Category NowCategory {  get; set; }
+
+        public Category _nowCategory
+        {
+            get => NowCategory;
+            set
+            {
+                NowCategory = value;
+                OnPropertyChanged();
+            }
+        }
 
         private string SelectPageName {  get; set; }
 
@@ -118,38 +92,52 @@ namespace OneGallery
         public NavigationView NaView
         {
             get { return Nv; }
-            set { Nv = value; }
         }
 
+        public Storyboard TitleBorderUp
+        {
+            get { return BorderUpForImagePage; }
+        }
+
+        public Storyboard TitleBorderDown
+        {
+            get { return BorderDownForImagePage; }
+        }
+
+        public Grid NaGrid
+        {
+            get { return Nv_grid; }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         public MainWindow()
         {
-            this.InitializeComponent();
+            InitializeComponent();
             ExtendsContentIntoTitleBar = true;
-            this.SetTitleBar(AppTitleBar);
-            appTitleText = "666";
+            SetTitleBar(AppTitleBar);
             FolderManager = new();
-            this.TrySetAcrylicBackdrop();
-            //var gcTimer = new DispatcherTimer();
-            //gcTimer.Tick += (sender, e) => { Myfind(); };
-            //gcTimer.Interval = TimeSpan.FromSeconds(5);
-            //gcTimer.Start();
+            //_nowCategory = (Category)Categories[1];
+            InitWindow();
         }
 
-        public async Task InitFolder(string _pageName)
+        public async Task InitFolder()
         {
-            await FolderManager.InitPageFolder(_pageName);
+            await FolderManager.InitPageFolder(NowCategory);
         }
 
         SystemBackdropConfiguration m_configurationSource;
         DesktopAcrylicController m_backdropController;
 
-        private async void TrySetAcrylicBackdrop()
+        private async void InitWindow()
         {
-            //this.AppWindow.Resize(new(2084, 1214));
-            //Debug.Print(AppWindow.Presenter.Kind + "");
-            await FolderManager.InitSettings();
-            MySettingsConfig = FolderManager.MySettingsConfig;
+            await FolderManager.InitConfigs();
+            //MySettingsConfig = FolderManager.MySettingsConfig;
+
             this.SetWindowSize(MySettingsConfig.LastWidth, MySettingsConfig.LastHeight);
+            InitCategories();
 
             if (DesktopAcrylicController.IsSupported())
             {          
@@ -166,12 +154,94 @@ namespace OneGallery
                 m_backdropController.SetSystemBackdropConfiguration(m_configurationSource);
 
                 this.SystemBackdrop = new DesktopAcrylicBackdrop();
-
             }
-            
+            FindItem();
             this.Closed += Window_Closed;
             
         }
+
+        private void InitCategories()
+        {
+            Categories.Add(new NavigationViewItemSeparator());
+            Category _temp = new Category()
+            {
+                _name = "所有照片",
+                PageType = "ImageListPage",
+                IsGallery = true,
+            };
+            _temp.SetFontIcon("\uE80F");
+            
+            Categories.Add(_temp);
+            Categories.Add(new NavigationViewItemSeparator());
+
+            _temp = new Category()
+            {
+                _name = "画廊",
+                PageType = "ImageListPage",
+                IsGallery = true,
+            };
+            _temp.SetFontIcon("\uE8B9");
+            AddCategories(_temp, MyPathConfig.GalleryToFolderListConfig.Keys.ToList(), false);
+            Categories.Add(_temp);
+            Categories.Add(new NavigationViewItemSeparator());
+            
+            _temp = new Category()
+            {
+                _name = "文件夹",
+                PageType = "ImageListPage",
+                IsGallery = true,
+            };
+            _temp.SetFontIcon("\uEC50");
+            AddCategories(_temp, MyPathConfig.FolderToFolderListConfig.Keys.ToList(), true);
+            Categories.Add(_temp);
+        }
+
+        private void AddCategories(Category _parent, List<string> _children, bool _isFolder)
+        {
+            foreach (var _child in _children)
+            {
+                Category _temp = new Category()
+                {
+                    _name = _child,
+                    PageType = "ImageListPage",
+                };
+
+                if (_isFolder)
+                {
+                    _temp.IsFolder = true;
+                    _temp.SetFontIcon("\uE8B7");
+                }
+                    
+                else
+                {
+                    _temp.IsGallery = true;
+                    _temp.SetFontIcon("\uE8EC");
+                }
+                    
+                
+                _parent.Children.Add(_temp);
+            }
+        }
+
+
+
+        private void Window_Closed(object sender, WindowEventArgs args)
+        {
+            // Make sure any Mica/Acrylic controller is disposed
+            if (m_backdropController != null)
+            {
+                m_backdropController.Dispose();
+                m_backdropController = null;
+                m_configurationSource = null;
+            }
+
+            FolderManager.SaveConfig((int)Width, (int)Height);
+        }
+
+
+        /*
+         * NavView_Navigate
+         */
 
         private void NavView_Navigate(Type navPageType, Category page)
         {
@@ -182,6 +252,16 @@ namespace OneGallery
             }
         }
 
+        private void NavView_Navigate(Type navPageType)
+        {
+            // Only navigate if the selected page isn't currently loaded.
+            if (navPageType is not null)
+            {
+                Nv_page.Navigate(navPageType, SettingCategory, new EntranceNavigationTransitionInfo());
+            }
+        }
+
+
         private void NavView_ItemInvoked(NavigationView sender,
                                  NavigationViewItemInvokedEventArgs args)
         {
@@ -191,31 +271,32 @@ namespace OneGallery
             {
                 if (args.IsSettingsInvoked == true)
                 {
-                    //if (!string.Equals(CurrentPage.Name, "Settings"))
-                    //{
-                        HistoryPages.Push(SelectPageName);
+                    if (!string.Equals(CurrentPage.Name, "Settings"))
+                    {
+                        //HistoryPages.Push(SelectPageName);
                         SelectPageName = "Settings";
-                        NavView_Navigate(typeof(SettingPage), null);
-                    //}
+                        NavView_Navigate(typeof(SettingPage));
+                    }
                 }
                 else if (args.InvokedItemContainer != null)
                 {
                     var PageCategory = Nv.SelectedItem as Category;
 
-                    //if (!string.Equals(PageCategory.Name, SelectPageName))
-                    //{
-                        HistoryPages.Push(SelectPageName);
+                    if (PageCategory != NowCategory)
+                    {
+                        //HistoryPages.Push(SelectPageName);
                         SelectPageName = PageCategory.Name;
                         Type navPageType = Type.GetType("OneGallery." + PageCategory.PageType);
                         NavView_Navigate(navPageType, PageCategory);
-                    //}   
-                
+                    }
+
                 }
 
             }
 
         }
 
+        private Category LastCategory {  get; set; }
         public async void Nv_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
         {
             Nv.IsBackEnabled = false;
@@ -226,7 +307,12 @@ namespace OneGallery
                 {
                     await ImagePage.NowImagePage.ResetAll();
                 }
-                
+                if (Nv_page.BackStack.Count > 0)
+                {
+                    Debug.Print((Nv_page.BackStack.First().Parameter as Category).Name + " First");
+                    Debug.Print((Nv_page.BackStack.Last().Parameter as Category).Name + " Last");
+                }
+                LastCategory = Nv_page.BackStack.Last().Parameter as Category;
                 Nv_page.GoBack();
             }
         }
@@ -235,141 +321,108 @@ namespace OneGallery
         {
             if (e.NavigationMode == NavigationMode.Back)
             {
-                SelectPageName = HistoryPages.Pop();
-                if (!PageDictionary.ContainsKey(SelectPageName))
-                {
-                    var rootGrid = VisualTreeHelper.GetChild(Nv, 0);
-                    FindNaView(rootGrid);
-                }
+                Debug.Print(_nowCategory.Name);
 
-                if (SelectPageName.Equals("Settings"))
-                {
+                if (LastCategory == SettingCategory)
                     Nv.SelectedItem = PageDictionary["Settings"];
-                }
                 else
                 {
-                    if (ParentDictionary[SelectPageName] is not null)
-                    {
-                        DispatcherQueue.TryEnqueue(() =>
-                        {
-                            ExpandParentPage(ParentDictionary[SelectPageName]);
-                        });
-                    }
-
-                    if (Nv.IsPaneOpen)
+                    if (LastCategory.IsFolder)
                     {
 
-                         Nv.SelectedItem = NvItemDictionary[SelectPageName];
                     }
                     else
                     {
-                        SelectPage(SelectPageName);
-                    }
 
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            ExpandParentPage();
+                        });
+
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            if (Nv.IsPaneOpen)
+                            {
+                                Nv.SelectedItem = LastCategory;
+                            }
+                            else
+                            {
+                                SelectPage();
+                            }
+                        });
+                        //if (Nv.IsPaneOpen)
+                        //{
+                        //    Nv.SelectedItem = LastCategory;
+                        //}
+                        //else
+                        //{
+                        //    SelectPage();
+                        //}
+                    }
                 }
             }
-            else if (Nv_page.CurrentSourcePageType == typeof(ImagePage))
-            {
-                HistoryPages.Push(SelectPageName);
-            }
+
 
             if (Nv_page.CanGoBack)
             {
                 await Task.Delay(250);
                 Nv.IsBackEnabled = true;
             }
-
         }
 
-        private async void SelectPage(string PageName)
+        private async void SelectPage()
         {
-
-            string ParentPageName = PageName;
-            while (ParentDictionary[ParentPageName] != null)
+            if (LastCategory.IsFolder)
             {
-                ParentPageName = ParentDictionary[ParentPageName];
+                Nv.SelectedItem = Categories[5];
+                await Task.Delay(50);
             }
-
-            Nv.SelectedItem = NvItemDictionary[ParentPageName];
-            await Task.Delay(50);
-            Nv.SelectedItem = NvItemDictionary[PageName];
-        }
-
-        private void FindNaView(DependencyObject Item)
-        {
-            var TypeName = Item.GetType().Name;
-            var ChildNum = VisualTreeHelper.GetChildrenCount(Item);
-            if (ChildNum > 0)
+            else
             {
-                if (TypeName.Equals("NavigationViewItem"))
+                if (LastCategory.IsGallery)
                 {
-                    var NaView = (NavigationViewItem)Item;
-                    var PageName = NaView.Tag.ToString();
-                    
-                    if (!PageDictionary.ContainsKey(PageName))
-                    {
-                        PageDictionary.Add(PageName, NaView);
-                    }
-
-                    if (!ParentDictionary.ContainsKey(PageName))
-                    {
-                        if (PartenPagemName.Count != 0)
-                        {
-                            ParentDictionary.Add(PageName, PartenPagemName.Peek());
-                        }
-                        else
-                        {
-                            ParentDictionary.Add(PageName, null);
-                        }
-                        
-                    }
-
-                    PartenPagemName.Push(PageName);
-
-                    for (var i = 0; i < ChildNum; i++)
-                    {
-                        FindNaView(VisualTreeHelper.GetChild(Item, i));
-                    }
-
-                    PartenPagemName.Pop();
+                    Nv.SelectedItem = Categories[3];
+                    await Task.Delay(50);
                 }
+            }
 
-                else
+            Nv.SelectedItem = LastCategory;
+            //string ParentPageName = PageName;
+            //while (ParentDictionary[ParentPageName] != null)
+            //{
+            //    ParentPageName = ParentDictionary[ParentPageName];
+            //}
+
+            //Nv.SelectedItem = NvItemDictionary[ParentPageName];
+            //await Task.Delay(50);
+            //Nv.SelectedItem = NvItemDictionary[PageName];
+        }
+        private void ExpandParentPage()
+        {
+            //if (ParentDictionary[PageName] != null)
+            //{
+            //    ExpandParentPage(ParentDictionary[PageName]);
+            //}
+
+            if (_nowCategory.IsFolder)
+            {
+                //Nv.SelectedItem = Categories[5];
+                Nv.Expand(PageDictionary["文件夹"]);
+            }
+            else
+            {
+                if (_nowCategory.IsGallery)
                 {
-                    for (var i = 0; i < ChildNum; i++)
-                    {
-                        FindNaView(VisualTreeHelper.GetChild(Item, i));
-                    }
+                    Nv.Expand(PageDictionary["画廊"]);
                 }
-
             }
 
             return;
         }
 
-
-
-        private void ExpandParentPage(string PageName)
-        {
-            if (ParentDictionary[PageName] != null)
-            {
-                ExpandParentPage(ParentDictionary[PageName]);
-            }
-
-            Nv.Expand(PageDictionary[PageName]);
-
-            return;
-        }
-
-        private void CollapseParentPage(string PageName)
-        {
-            Nv.Collapse(PageDictionary[PageName]);            
-            if (ParentDictionary[PageName] != null)
-            {
-                CollapseParentPage(ParentDictionary[PageName]);
-            }
-            return;
-        }
+        /* 
+         * NavigationView
+         */
 
         private void Nv_Loaded(object sender, RoutedEventArgs e)
         {
@@ -378,30 +431,10 @@ namespace OneGallery
             FolderManager.InitFolder();
             var rootGrid = VisualTreeHelper.GetChild(sender as NavigationView, 0);
             FindNaView(rootGrid);
-            UpdateNvItemDir(Categories);
-            SelectPageName = "HomePage";
-            Nv.SelectedItem = NvItemDictionary["HomePage"];
+            //UpdateNvItemDir(Categories);
+
+            Nv.SelectedItem = Categories[1];
             NavView_Navigate(typeof(ImageListPage), (Category)Categories[1]);
-        }
-
-        private void UpdateNvItemDir(ObservableCollection<object> Items)
-        {
-
-            if (Items != null)
-            {
-                foreach (var _item in Items)
-                {
-                    //Debug.Print(Item.Name);
-                    if (_item is Category)
-                    {
-                        NvItemDictionary.Add((_item as Category).Name, (Category)_item);
-                        UpdateNvItemDir((_item as Category).Children);
-                    }
-
-                }
-
-            }
-            return;
         }
 
         private void Nv_PaneClosing(NavigationView sender, object args)
@@ -414,70 +447,133 @@ namespace OneGallery
             Nv_page.Width = Nv.ActualWidth - Nv.OpenPaneLength + 8;
         }
 
-        private void Window_Closed(object sender, WindowEventArgs args)
+        private void Nv_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            // Make sure any Mica/Acrylic controller is disposed
-            if (m_backdropController != null)
-            {
-                m_backdropController.Dispose();
-                m_backdropController = null;
-                m_configurationSource = null;
-            }
+            if (Nv.IsPaneOpen)
+                Nv_grid.Width = Nv.ActualWidth - Nv.OpenPaneLength + 8;
+            else
+                Nv_grid.Width = Nv.ActualWidth - Nv.CompactPaneLength + 8;
 
+            Nv_grid.Height = Nv.ActualHeight - 40;
 
-            FolderManager.SaveConfig((int)Width, (int)Height);
+            if (Nv.ActualWidth < 700)
+                if (Nv.IsPaneOpen)
+                    Nv.IsPaneOpen = false;
+            else if (!Nv.IsPaneOpen)
+                Nv.IsPaneOpen = true;
         }
 
-        int kk = 0;
 
-        private void FindItem(DependencyObject Item)
+        private void FindNaView(DependencyObject Item)
         {
-            var TypeName = Item.GetType().Name;
             var ChildNum = VisualTreeHelper.GetChildrenCount(Item);
             if (ChildNum > 0)
             {
-                Debug.Print(TypeName);
-                if (TypeName.Equals("ItemsRepeater"))
+                if (Item.GetType() == typeof(NavigationViewItem))
                 {
-                    kk++;
-                }
+                    var NaView = (NavigationViewItem)Item;
+                    var PageName = NaView.Tag.ToString();
+                    Debug.Print("FIND " +  PageName);   
+                    if (!PageDictionary.ContainsKey(PageName))
+                    {
+                        PageDictionary.Add(PageName, NaView);
+                    }
 
+                    return;
+
+                    //if (!ParentDictionary.ContainsKey(PageName))
+                    //{
+                    //    if (PartenPagemName.Count != 0)
+                    //    {
+                    //        ParentDictionary.Add(PageName, PartenPagemName.Peek());
+                    //    }
+                    //    else
+                    //    {
+                    //        ParentDictionary.Add(PageName, null);
+                    //    }
+                        
+                    //}
+
+                    //PartenPagemName.Push(PageName);
+
+                    //for (var i = 0; i < ChildNum; i++)
+                    //    FindNaView(VisualTreeHelper.GetChild(Item, i));
+
+                    //PartenPagemName.Pop();
+                }
 
                 else
                 {
                     for (var i = 0; i < ChildNum; i++)
-                    {
-                        FindItem(VisualTreeHelper.GetChild(Item, i));
-                    }
+                        FindNaView(VisualTreeHelper.GetChild(Item, i));
                 }
-
             }
-
             return;
         }
+        //private void UpdateNvItemDir(ObservableCollection<object> Items)
+        //{
 
-        private void Nv_SizeChanged(object sender, SizeChangedEventArgs e)
+        //    if (Items != null)
+        //    {
+        //        foreach (var _item in Items)
+        //        {
+        //            if (_item is Category)
+        //            {
+        //                NvItemDictionary.Add((_item as Category).Name, (Category)_item);
+        //                UpdateNvItemDir((_item as Category).Children);
+        //            }
+
+        //        }
+
+        //    }
+        //    return;
+        //}
+
+
+
+
+
+        double RowHeight = 120;
+
+        double _rowHeight
         {
-            if (Nv.IsPaneOpen)
+            get => RowHeight;
+            set
             {
-
-                Nv_page.Width = Nv.ActualWidth - Nv.OpenPaneLength + 8;
+                RowHeight = value;
+                OnPropertyChanged();
             }
-            else
-            {
-                Nv_page.Width = Nv.ActualWidth - Nv.CompactPaneLength + 8;
-            }
-
-            Nv_page.Height = Nv.ActualHeight - 40;
-
-            if (Nv.ActualWidth < 700)
-            {
-                if (Nv.IsPaneOpen)
-                    Nv.IsPaneOpen = false;
-            }
-            else if (!Nv.IsPaneOpen)
-                Nv.IsPaneOpen = true;
         }
+
+
+
+        private async void FindItem()
+        {
+            //await Task.Delay(5000);
+            //while (true)
+            //{
+            //    Category category = (Category)Categories[1];
+            //    if (category.Icon.Glyph == "\uE701")
+            //    {
+            //        category.SetFontIcon("\uE80F");
+            //        //category.Name = "555";
+            //        _nowCategory = (Category)Categories[1];
+            //    }
+            //    else
+            //    {
+            //        category.SetFontIcon("\uE701");
+            //        //category.Name = "HomePage";
+            //        _nowCategory = (Category)Categories[3];
+            //    }
+            //    await Task.Delay(1500);
+            //    Debug.Print("111");
+            //}
+
+
+
+        }
+
+
 
 
 

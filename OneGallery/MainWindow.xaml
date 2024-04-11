@@ -14,6 +14,74 @@
     <Grid x:Name="Grid" Background="Transparent">
         <Grid.Resources>
             
+            <ControlTemplate TargetType="Button" x:Key="MyButton">
+                <Grid x:Name="RootGrid" Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}"  BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}" BackgroundSizing="{TemplateBinding BackgroundSizing}">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <Storyboard>
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="#363636" KeyTime="0:0:0.2"/>
+                                    </ColorAnimationUsingKeyFrames>
+
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="Transparent" KeyTime="0:0:0.2"/>
+                                    </ColorAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="PointerOver">
+                                <Storyboard>
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="#363636" KeyTime="0:0:0"/>
+                                    </ColorAnimationUsingKeyFrames>
+
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="#E5E4E2" KeyTime="0:0:0.2"/>
+                                    </ColorAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="Pressed">
+                                <Storyboard>
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="#363636" KeyTime="0:0:0"/>
+                                    </ColorAnimationUsingKeyFrames>
+
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="#D3D3D3" KeyTime="0:0:0.1"/>
+                                    </ColorAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </VisualState>
+                            <VisualState x:Name="Disabled">
+                                <Storyboard>
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="Transparent" KeyTime="0:0:0.2"/>
+                                    </ColorAnimationUsingKeyFrames>
+
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="Transparent" KeyTime="0:0:0.2"/>
+                                    </ColorAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ContentPresenter x:Name="ContentPresenter" Content="{TemplateBinding Content}" ContentTransitions="{TemplateBinding ContentTransitions}" ContentTemplate="{TemplateBinding ContentTemplate}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" AutomationProperties.AccessibilityView="Raw" />
+                </Grid>
+            </ControlTemplate>
+
+            <Style TargetType="Button" >
+                <Setter Property="Template" Value="{StaticResource MyButton}" />
+            </Style>
+
+            <Style TargetType="DropDownButton">
+                <Setter Property="Template" Value="{StaticResource MyButton}"/>
+            </Style>
+            
             <DataTemplate  x:Key="NavigationViewMenuItem" x:DataType="local:Category">
                 <NavigationViewItem Tag="{x:Bind Name}" Content="{x:Bind Name}" Icon="{x:Bind Icon}" MenuItemsSource="{x:Bind Children}" IsExpanded="True"/>
             </DataTemplate>
@@ -26,21 +94,66 @@
                              ItemTemplate="{StaticResource NavigationViewMenuItem}"
                              SeparatorTemplate="{StaticResource NavigationViewItemSeparator}"/>
 
+            <Storyboard x:Name="BorderUpForImagePage">
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetName="TitleBorder"
+                    Storyboard.TargetProperty="Height"
+                    EnableDependentAnimation="True">
+
+                    <EasingDoubleKeyFrame Value="120" KeyTime="0:0:0.8">
+                        <EasingDoubleKeyFrame.EasingFunction>
+                            <QuinticEase EasingMode="EaseOut"/>
+                        </EasingDoubleKeyFrame.EasingFunction>
+                    </EasingDoubleKeyFrame>
+
+                    <!--<EasingDoubleKeyFrame Value="40" KeyTime="0:0:1">
+                        <EasingDoubleKeyFrame.EasingFunction>
+                            <QuinticEase EasingMode="EaseOut"/>
+                        </EasingDoubleKeyFrame.EasingFunction>
+                    </EasingDoubleKeyFrame>-->
+
+                    <EasingDoubleKeyFrame Value="0" KeyTime="0:0:1.6">
+                        <EasingDoubleKeyFrame.EasingFunction>
+                            <QuinticEase EasingMode="EaseOut"/>
+                        </EasingDoubleKeyFrame.EasingFunction>
+                    </EasingDoubleKeyFrame>
+                </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+
+            <Storyboard x:Name="BorderDownForImagePage">
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetName="TitleBorder"
+                    Storyboard.TargetProperty="Height"
+                    EnableDependentAnimation="True">
+                    <EasingDoubleKeyFrame Value="0" KeyTime="0:0:0.8">
+                        <EasingDoubleKeyFrame.EasingFunction>
+                            <QuinticEase EasingMode="EaseOut"/>
+                        </EasingDoubleKeyFrame.EasingFunction>
+                    </EasingDoubleKeyFrame>
+
+                    <EasingDoubleKeyFrame Value="130" KeyTime="0:0:1.4">
+                        <EasingDoubleKeyFrame.EasingFunction>
+                            <QuinticEase EasingMode="EaseOut"/>
+                        </EasingDoubleKeyFrame.EasingFunction>
+                    </EasingDoubleKeyFrame>
+
+                    <EasingDoubleKeyFrame Value="120" KeyTime="0:0:1.8">
+                        <EasingDoubleKeyFrame.EasingFunction>
+                            <QuinticEase EasingMode="EaseOut"/>
+                        </EasingDoubleKeyFrame.EasingFunction>
+                    </EasingDoubleKeyFrame>
+                </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
         </Grid.Resources>
         
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <!--  TitleBar  -->
             <RowDefinition Height="*" />
-            <!--  NavView  -->
         </Grid.RowDefinitions>
 
         <Border x:Name="AppTitleBar" 
-                Grid.Column="1"
+                Grid.Column="0"
                 Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
                 Margin="48,0,0,0" 
                 VerticalAlignment="Stretch"
@@ -64,7 +177,7 @@
                         IsBackButtonVisible="Visible"
                         PaneTitle=""
                         Grid.RowSpan="2"
-                        Grid.Column="1"
+                        Grid.Column="0"
                         Canvas.ZIndex="0"
                         OpenPaneLength="275"
                         MenuItemsSource="{x:Bind Categories, Mode=TwoWay}"
@@ -83,26 +196,324 @@
                 <Thickness x:Key="NavigationViewContentGridBorderThickness">0,0,0,0</Thickness>
                 <!-- This is the rounded corner on the Top left of the L Pattern -->
                 <CornerRadius x:Key="NavigationViewContentGridCornerRadius">8,0,0,0</CornerRadius>
-
                 <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" Opacity="0"/>
             </NavigationView.Resources>
 
-            <Frame x:Name="Nv_page" 
-                   Navigated="Nv_Page_Navigated" 
-                   Background="Transparent" 
-                   BorderThickness="1"
-                   BorderBrush="#E1E6EA"
-                   CornerRadius="8"
-                   >
+            <Grid x:Name="Nv_grid"  
+                  BorderThickness="1"
+                  BorderBrush="#E1E6EA"
+                  CornerRadius="8">
+                <Grid.RowDefinitions>
+                    <!--<RowDefinition Height="{x:Bind _rowHeight, Mode=TwoWay}"/>-->
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="8" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="8" />
+                </Grid.ColumnDefinitions>
+                <Border x:Name="TitleBorder" Grid.Row="0" Grid.Column="0" Height="120" CornerRadius="5">
+                    <Grid>
+                        <FontIcon Glyph="&#xE8B9;" 
+                          Grid.Row="0"
+                          Grid.Column="0"
+                          VerticalAlignment="Top"
+                          HorizontalAlignment="Left"
+                          Margin="45, 45, 0, 0" />
+
+                        <TextBlock Text="{x:Bind _nowCategory.Name, Mode=TwoWay}" 
+                            FontSize="28" 
+                            Foreground="Black" 
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            VerticalAlignment="Top"
+                            HorizontalAlignment="Left"
+                            Margin="75, 35, 0, 0" />
+
+                        <TextBlock Text="666 张图片" 
+                            FontSize="14" 
+                            Foreground="#808080" 
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left"
+                            Margin="75, 45, 0, 0"  />
+
+                        <DropDownButton
+                            x:Name="More" Margin="0, 0, 50, 0"
+                            Grid.Row="0" Grid.Column="0" CornerRadius="5"
+                            VerticalAlignment="Center" HorizontalAlignment="Right"
+                            Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
+                            <DropDownButton.Flyout>
+                                <Flyout Placement="Bottom">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <Button Grid.Row="0" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                            <Grid Width="150">
+                                                <!--<FontIcon Glyph="&#xE8B3;" HorizontalAlignment="Left"/>-->
+                                                <Image Source="/Images/Select_all.svg" HorizontalAlignment="Left" VerticalAlignment="Center" Height="24"/>
+                                                <TextBlock Text="全选" HorizontalAlignment="Left" Margin="30, 0, 0, 5" />
+                                                <TextBlock Text="Ctrl+A" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0, 0, 0, 0" FontSize="12"/>
+                                            </Grid>
+                                        </Button>
+
+                                        <Button Grid.Row="1" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                            <Grid Width="150">
+                                                <!--<FontIcon Glyph="&#xE711;" HorizontalAlignment="Left"/>-->
+                                                <Image Source="/Images/Select_off.svg" HorizontalAlignment="Left" VerticalAlignment="Center" Height="24"/>
+                                                <TextBlock Text="全不选" HorizontalAlignment="Left" Margin="30, 0, 0, 5" />
+                                            </Grid>
+                                        </Button>
+                                    </Grid>
+                                </Flyout>
+                            </DropDownButton.Flyout>
+
+                            <DropDownButton.Content>
+                                <FontIcon Glyph="&#xE712;"/>
+                            </DropDownButton.Content>
+                        </DropDownButton>
+
+                        <DropDownButton
+                            x:Name="ImageSize" Margin="0, 0, 120, 0" ToolTipService.ToolTip="Simple ToolTip" ToolTipService.Placement="Mouse"
+                            Grid.Row="0" Grid.Column="0" CornerRadius="5"
+                            VerticalAlignment="Center" HorizontalAlignment="Right"
+                            Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
+                            <DropDownButton.Flyout>
+                                <Flyout Placement="Bottom">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <Button Grid.Row="0" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                            <Grid Width="65">
+                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <FontIcon Glyph="&#xF58B;" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
+                                                <TextBlock Text="小" HorizontalAlignment="Left" Margin="50, 0, 0, 5" />
+                                            </Grid>
+                                        </Button>
+
+                                        <Button Grid.Row="1" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                            <Grid Width="65">
+                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <FontIcon Glyph="&#xF58C;" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
+                                                <TextBlock Text="中" HorizontalAlignment="Left" Margin="50, 0, 0, 5" />
+                                            </Grid>
+                                        </Button>
+
+                                        <Button Grid.Row="2" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                            <Grid Width="65">
+                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <FontIcon Glyph="&#xF58A;" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
+                                                <TextBlock Text="大" HorizontalAlignment="Left" Margin="50, 0, 0, 5" />
+                                            </Grid>
+                                        </Button>
+                                    </Grid>
+                                </Flyout>
+                            </DropDownButton.Flyout>
+
+                            <DropDownButton.Content>
+                                <FontIcon Glyph="&#xECA5;"/>
+                            </DropDownButton.Content>
+                        </DropDownButton>
+
+                        <DropDownButton
+                            x:Name="Sort" Margin="0, 0, 190, 0"
+                            Grid.Row="0" Grid.Column="0"
+                            VerticalAlignment="Center" HorizontalAlignment="Right" CornerRadius="5"
+                            Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
+                            <DropDownButton.Flyout>
+                                <Flyout Placement="Bottom">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="4" />
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <Button Grid.Row="0" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                            <Grid Width="110">
+                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Image Source="/Images/Calendar_add.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
+                                                <TextBlock Text="拍摄日期" HorizontalAlignment="Left" Margin="50, 0, 0, 5" />
+                                            </Grid>
+                                        </Button>
+
+                                        <Button Grid.Row="1" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                            <Grid Width="110">
+                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Image Source="/Images/Image_add.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
+                                                <TextBlock Text="创建日期" HorizontalAlignment="Left" Margin="50, 0, 0, 5" />
+                                            </Grid>
+                                        </Button>
+
+                                        <Button Grid.Row="2" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                            <Grid Width="110">
+                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Image Source="/Images/Image_edit.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
+                                                <TextBlock Text="修改日期" HorizontalAlignment="Left" Margin="50, 0, 0, 0" />
+                                            </Grid>
+                                        </Button>
+
+                                        <Button Grid.Row="3" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                            <Grid Width="110">
+                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Image Source="/Images/Text_t.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
+                                                <TextBlock Text="修改日期" HorizontalAlignment="Left" Margin="50, 0, 0, 0" />
+                                            </Grid>
+                                        </Button>
+
+                                        <Line Grid.Row="4" Stroke="#808080" X1="0" Y1="2" X2="135" Y2="2" StrokeThickness="1"/>
+
+                                        <Button Grid.Row="5" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                            <Grid Width="110">
+                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Image Source="/Images/Chevron_up.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
+                                                <TextBlock Text="升序" HorizontalAlignment="Left" Margin="50, 0, 0, 0" />
+                                            </Grid>
+                                        </Button>
+
+                                        <Button Grid.Row="6" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                            <Grid Width="110">
+                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Image Source="/Images/Chevron_down.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
+                                                <TextBlock Text="降序" HorizontalAlignment="Left" Margin="50, 0, 0, 0" />
+                                            </Grid>
+                                        </Button>
+
+                                    </Grid>
+                                </Flyout>
+                            </DropDownButton.Flyout>
+
+                            <DropDownButton.Content>
+                                <FontIcon Glyph="&#xE8CB;"/>
+                            </DropDownButton.Content>
+                        </DropDownButton>
+
+                        <DropDownButton
+                            x:Name="Chose" Margin="0, 0, 260, 0"
+                            Grid.Row="0" Grid.Column="0" CornerRadius="5"
+                            VerticalAlignment="Center" HorizontalAlignment="Right"
+                            Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
+                            <DropDownButton.Flyout>
+                                <Flyout Placement="Bottom">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <Button Grid.Row="0" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                            <Grid Width="110">
+                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Image Source="/Images/Checkbox_1.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
+                                                <TextBlock Text="单选模式" HorizontalAlignment="Left" Margin="50, 0, 0, 0" />
+                                            </Grid>
+                                        </Button>
+
+                                        <Button Grid.Row="1" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                            <Grid Width="110">
+                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Image Source="/Images/Checkbox_sync.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
+                                                <TextBlock Text="多选模式" HorizontalAlignment="Left" Margin="50, 0, 0, 0" />
+                                            </Grid>
+                                        </Button>
+
+                                        <Button Grid.Row="2" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                            <Grid Width="110">
+                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Image Source="/Images/Checkbox_warning.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0" Height="20"/>
+                                                <TextBlock Text="禁止选择" HorizontalAlignment="Left" Margin="50, 0, 0, 0" />
+                                            </Grid>
+                                        </Button>
+
+                                    </Grid>
+                                </Flyout>
+                            </DropDownButton.Flyout>
+
+                            <DropDownButton.Content>
+                                <FontIcon Glyph="&#xE71C;"/>
+                            </DropDownButton.Content>
+                        </DropDownButton>
+
+                        <Button x:Name="Copy" Margin="0, 0, 330, 0" IsEnabled="True"
+                            Grid.Row="0" Grid.Column="0" CornerRadius="5" 
+                            VerticalAlignment="Center" HorizontalAlignment="Right"
+                            Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
+                            <FontIcon Glyph="&#xE8C8;"/>
+                        </Button>
+
+                        <Button x:Name="Cut" Margin="0, 0, 400, 0" IsEnabled="True"
+                            Grid.Row="0" Grid.Column="0" CornerRadius="5" 
+                            VerticalAlignment="Center" HorizontalAlignment="Right"
+                            Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
+
+                            <FontIcon Glyph="&#xE8C6;"/>
+                        </Button>
+
+                        <Button x:Name="Delete" Margin="0, 0, 470, 0" IsEnabled="True"
+                            Grid.Row="0" Grid.Column="0" CornerRadius="5" 
+                            VerticalAlignment="Center" HorizontalAlignment="Right"
+                            Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
+
+                            <FontIcon Glyph="&#xE74D;"/>
+                        </Button>
+
+                        <Button x:Name="Cancle" Margin="0, 0, 530, 0" IsEnabled="True"
+                            Grid.Row="0" Grid.Column="0" CornerRadius="5" 
+                            VerticalAlignment="Center" HorizontalAlignment="Right"
+                            Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
+                            <Grid Width="80">
+                                <FontIcon Glyph="&#xE711;" HorizontalAlignment="Left"/>
+                                <TextBlock Text="已选择 1" HorizontalAlignment="Right"/>
+                            </Grid>
+
+                        </Button>
+                    </Grid>
+                </Border>
+                
+                <Frame x:Name="Nv_page" 
+                       Grid.Row="1" Grid.Column="0"
+                       Navigated="Nv_Page_Navigated" 
+                       Background="Transparent" 
+                       CornerRadius="8">
 
                 
-                <Frame.ContentTransitions>
-                    <TransitionCollection>
-                        <NavigationThemeTransition  />
-                    </TransitionCollection>
-                </Frame.ContentTransitions>
+                    <Frame.ContentTransitions>
+                        <TransitionCollection>
+                            <NavigationThemeTransition  />
+                        </TransitionCollection>
+                    </Frame.ContentTransitions>
 
-            </Frame>
+                </Frame>                
+            </Grid>
+
         </NavigationView>        
         
     </Grid>

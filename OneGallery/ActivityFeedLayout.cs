@@ -162,7 +162,7 @@ namespace OneGallery
                 {
                     double zoomImg = (availableSize.Width - LayoutImgArrangement.RowImgCount[i] * _colSpacing) / (LayoutImgArrangement.NowWidth - (LayoutImgArrangement.RowImgCount[i] - 1) * _colSpacing);
 
-                    if (_newTop >= context.VisibleRect.Top - 300 && _newTop <= context.VisibleRect.Bottom + 300)
+                    if (_newTop >= context.VisibleRect.Top - 500 && _newTop <= context.VisibleRect.Bottom + 500)
                     {
 
                         if (state.FirstRealizedIndex == -1)
@@ -190,7 +190,7 @@ namespace OneGallery
                             };
                             container.Measure(new Size(_size.Width, _size.Height));
                             state.LayoutRects.Add(_size);
-                            state.IndexToElementMap.Add(_index, (ItemContainer)container);
+                            state.IndexToElementMap.Add(_index, container);
                             _newX += _size.Width + _colSpacing;
 
                         }
@@ -220,7 +220,7 @@ namespace OneGallery
 
             foreach (var arrangeRect in state.LayoutRects)
             {
-                var container = (ItemContainer)context.GetOrCreateElementAt(currentIndex);
+                var container = context.GetOrCreateElementAt(currentIndex);
                 container.Arrange(arrangeRect);
                 currentIndex++;
             }
@@ -230,9 +230,9 @@ namespace OneGallery
 
         protected override void OnItemsChangedCore(VirtualizingLayoutContext context, object source, NotifyCollectionChangedEventArgs args)
         {
-            //Debug.Print("1111 " + args.Action);
             if (args.Action == NotifyCollectionChangedAction.Move)
             {
+                Debug.Print("Move");
                 var _indexToElementMap = (context.LayoutState as ActivityFeedLayoutState).IndexToElementMap;
                 var _tempIndex = args.OldStartingIndex;
 
@@ -257,7 +257,7 @@ namespace OneGallery
                 //Debug.Print("" + args.NewItems);
                 //Debug.Print("" + args.OldStartingIndex);
                 //Debug.Print("" + args.OldItems);
-
+                Debug.Print("Remove");
                 var _state = context.LayoutState as ActivityFeedLayoutState;
                 var _tempIndex = args.OldStartingIndex;
                 if (_state.IndexToElementMap.ContainsKey(_tempIndex))
@@ -265,27 +265,23 @@ namespace OneGallery
                     context.RecycleElement(_state.IndexToElementMap[_tempIndex]);
                     _state.IndexToElementMap.Remove(_tempIndex);
                 }
-
+                _tempIndex = args.NewStartingIndex;
+                if (_state.IndexToElementMap.ContainsKey(_tempIndex))
+                {
+                    context.RecycleElement(_state.IndexToElementMap[_tempIndex]);
+                    _state.IndexToElementMap.Remove(_tempIndex);
+                }
                 this.InvalidateMeasure();
             }
             else if (args.Action == NotifyCollectionChangedAction.Reset)
             {
                 var _indexToElementMap = (context.LayoutState as ActivityFeedLayoutState).IndexToElementMap;
-                Debug.Print("" + context.ItemCount);
-                
-                foreach (var _item in _indexToElementMap.Values)
-                {
-                    context.RecycleElement(_item);
-                }
+                Debug.Print("Reset");
                 _indexToElementMap.Clear();
                 this.InvalidateMeasure();
             }
             else if (args.Action == NotifyCollectionChangedAction.Add)
             {
-                //Debug.Print("" + args.NewStartingIndex);
-                //Debug.Print("" + args.NewItems);
-                //Debug.Print("" + args.OldStartingIndex);
-                //Debug.Print("" + args.OldItems);
                 var _indexToElementMap = (context.LayoutState as ActivityFeedLayoutState).IndexToElementMap;
                 int _start = args.NewStartingIndex;
 
@@ -338,7 +334,7 @@ namespace OneGallery
 
         private List<Rect> _layoutRects;
 
-        public Dictionary<int, ItemContainer> IndexToElementMap
+        public Dictionary<int, UIElement> IndexToElementMap
         {
             get
             {
@@ -348,7 +344,7 @@ namespace OneGallery
             }
         }
 
-        Dictionary<int, ItemContainer> _indexToElementMap;
+        Dictionary<int, UIElement> _indexToElementMap;
     }
 
 }

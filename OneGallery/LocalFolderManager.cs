@@ -1,19 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Windows.Foundation;
-using Windows.Services.Maps;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
-using Windows.Storage.Search;
 
 namespace OneGallery
 {
@@ -21,11 +15,15 @@ namespace OneGallery
     {
         private Dictionary<string, LocalFolder> LocalFolders = new();
 
-        public Dictionary<string, List<PictureClass>> SelectionToImgList = new();
+        private Dictionary<string, List<PictureClass>> GallerySelectionToImgList = new();
+
+        //public Dictionary<string, List<PictureClass>> FolderSelectionToImgList = new();
 
         private bool FolderInitSuccess = false;
 
         private MainWindow Window { get; set; }
+
+        private Category NowCategory { get; set; }
 
         private string NowPageName = string.Empty;
 
@@ -34,6 +32,8 @@ namespace OneGallery
         public SettingsConfig MySettingsConfig { get; set; }
 
         public ImageArrangement MyImageArrangement { get; set; }
+
+
        
         public LocalFolderManager() 
         {
@@ -45,7 +45,7 @@ namespace OneGallery
                 12, 12
             );
 
-            Window = (Application.Current as App).Main;
+            //Window = (Application.Current as App).Main;
         }
 
         public void SaveConfig(int _lastWidth, int _lastHeight)
@@ -54,18 +54,34 @@ namespace OneGallery
             MySettingsConfig.StoreSettingsConfig(_lastWidth, _lastHeight);
         }
 
-        public async Task InitSettings()
+        public async Task InitConfigs()
         {
             var _configFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Res/Settings.json"));     
             string _configString = await FileIO.ReadTextAsync(_configFile);
 
             MySettingsConfig = JsonSerializer.Deserialize<SettingsConfig>(_configString);
-            MySettingsConfig.ConfigFile = _configFile;      
+            MySettingsConfig.ConfigFile = _configFile;
+
+            _configFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Res/Path.json"));
+            _configString = await FileIO.ReadTextAsync(_configFile);
+
+            MyPathConfig = JsonSerializer.Deserialize<PathConfig>(_configString);
+            MyPathConfig.ConfigFile = _configFile;
+
+            Window = (Application.Current as App).Main;
+            Window.MySettingsConfig = MySettingsConfig;
+            Window.MyPathConfig = MyPathConfig;
         }
 
         public async void InitFolder()
         {
-            await InitConfig();
+            while (MyPathConfig is null)
+            {
+                await Task.Delay(500);
+            }
+
+            foreach (var _selectItemName in MyPathConfig.GalleryToFolderListConfig.Keys)
+                GallerySelectionToImgList.Add(_selectItemName, new());
 
             foreach (var _foldPath in MyPathConfig.FolderPathConfig)
             {
@@ -83,28 +99,22 @@ namespace OneGallery
             FolderInitSuccess = true;
         }
 
-        public async Task InitConfig()
-        {
-            var _configFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Res/Path.json"));
-            string _configString = await FileIO.ReadTextAsync(_configFile);
-
-            MyPathConfig = JsonSerializer.Deserialize<PathConfig>(_configString);
-            MyPathConfig.ConfigFile = _configFile;
-
-            foreach (var _selectItemName in MyPathConfig.GalleryToFolderListConfig.Keys)
-                SelectionToImgList.Add(_selectItemName, new());
-        }
-
-        public async Task InitPageFolder(string _pageName)
+        public async Task InitPageFolder(Category _category)
         {
             while (!FolderInitSuccess)
                 await Task.Delay(100);
 
-            NowPageName = _pageName;
-            MyImageArrangement.ImgList = SelectionToImgList[_pageName];
+            //NowPageName = _pageName;
+            NowCategory = _category;
+            if (NowCategory.IsGallery)
+                MyImageArrangement.ImgList = GallerySelectionToImgList[NowCategory.Name];
+            else if (NowCategory.IsFolder)
+            {
+                MyImageArrangement.ImgList = LocalFolders[MyPathConfig.FolderToFolderListConfig[NowCategory.Name]].ImageList;
+            }
+
             MyImageArrangement.SortImg(0);
             MyImageArrangement.UpdateImgRect();
-
             return;
         }
 
@@ -120,26 +130,47 @@ namespace OneGallery
             {
                 if (_selectedItem.Value.Contains(_folderName))
                 {
-                    lock (SelectionToImgList[_selectedItem.Key])
+                    lock (GallerySelectionToImgList[_selectedItem.Key])
                     {
-                        SelectionToImgList[_selectedItem.Key].Add(_tempImg);
+                        GallerySelectionToImgList[_selectedItem.Key].Add(_tempImg);
                     }
+                }
+            }
 
-                    if (_selectedItem.Key == NowPageName)
-                    {
-                        MyImageArrangement.SortImg(0);
-                        MyImageArrangement.UpdateImgRect();
+            if (NowCategory != null)
+            {
 
-                        int _index = SelectionToImgList[_selectedItem.Key].IndexOf(_tempImg);
+                if ((NowCategory.IsGallery && MyPathConfig.GalleryToFolderListConfig[NowCategory.Name].Contains(_folderName)) ||
+                    (NowCategory.IsFolder && MyPathConfig.FolderToFolderListConfig[NowCategory.Name] == _folderName))
+                {
+                    MyImageArrangement.SortImg(0);
+                    MyImageArrangement.UpdateImgRect();
 
                         bool isQueued = Window.DispatcherQueue.TryEnqueue(
                         () =>
                         {
-                            MyImageArrangement.ImgListForRepeater.Insert(_index, _tempImg);
+                            //int _index = MyImageArrangement.ImgList.IndexOf(_tempImg);
+                            //MyImageArrangement.ImgListForRepeater.Insert(_index, _tempImg);
+                            var _tempImgList = MyImageArrangement.ImgList;
+                            var _tempImgListForRepeater = MyImageArrangement.ImgListForRepeater;
+
+                            int i;
+                            for (i = 0; i < _tempImgList.Count; i++)
+                            {
+                                if (i < _tempImgListForRepeater.Count)
+                                {
+                                    if (_tempImgList[i].ImageLocation == _tempImgListForRepeater[i].ImageLocation)
+                                        continue;
+                                    else
+                                        _tempImgListForRepeater.Insert(i, _tempImgList[i]);
+                                }
+                                else
+                                    _tempImgListForRepeater.Add(_tempImgList[i]);
+                            }
                         });
-                    }
-                    
+
                 }
+                
             }
         }
 
@@ -171,13 +202,13 @@ namespace OneGallery
                     Debug.Print("Renamed " + _newName);
                 }
 
-                if (MyPathConfig.GalleryToFolderListConfig.ContainsKey(NowPageName))
+                if (NowCategory != null)
                 {
-                    if (MyPathConfig.GalleryToFolderListConfig[NowPageName].Contains(_folderName))
+                    if ((NowCategory.IsGallery && MyPathConfig.GalleryToFolderListConfig[NowCategory.Name].Contains(_folderName)) ||
+                        (NowCategory.IsFolder && MyPathConfig.FolderToFolderListConfig[NowCategory.Name] == _folderName))
                     {
                         MyImageArrangement.SortImg(0);
                         MyImageArrangement.UpdateImgRect();
-
                         bool isQueued = Window.DispatcherQueue.TryEnqueue(() =>
                         {
                             var _tempImgListForRepeater = MyImageArrangement.ImgListForRepeater;
@@ -190,9 +221,10 @@ namespace OneGallery
                                 });
 
                             }
-                        });    
+                        });
                     }
                 }
+
             }
             else
             {
@@ -231,25 +263,28 @@ namespace OneGallery
             {
                 if (_selectedItem.Value.Contains(_folderName))
                 {
-                    lock(SelectionToImgList[_selectedItem.Key])
+                    lock(GallerySelectionToImgList[_selectedItem.Key])
                     {
-                        SelectionToImgList[_selectedItem.Key].Remove(_tempImg);
-                    }
-
-                    if (_selectedItem.Key == NowPageName)
-                    {
-                        MyImageArrangement.SortImg(0);
-                        MyImageArrangement.UpdateImgRect();
-
-                        bool isQueued = Window.DispatcherQueue.TryEnqueue(
-                        () =>
-                        {
-                            MyImageArrangement.ImgListForRepeater.Remove(_tempImg);
-                        });
-                    }
-                    
+                        GallerySelectionToImgList[_selectedItem.Key].Remove(_tempImg);
+                    }                    
                 }
             }
+            if (NowCategory != null)
+            {
+                if ((NowCategory.IsGallery && MyPathConfig.GalleryToFolderListConfig[NowCategory.Name].Contains(_folderName)) ||
+                    (NowCategory.IsFolder && MyPathConfig.FolderToFolderListConfig[NowCategory.Name] == _folderName))
+                {
+                    MyImageArrangement.SortImg(0);
+                    MyImageArrangement.UpdateImgRect();
+
+                    bool isQueued = Window.DispatcherQueue.TryEnqueue(
+                    () =>
+                    {
+                        MyImageArrangement.ImgListForRepeater.Remove(_tempImg);
+                    });
+                }
+            }
+
         }
 
         /*
@@ -264,41 +299,44 @@ namespace OneGallery
             
             foreach (var _selectedItem in MyPathConfig.GalleryToFolderListConfig)
             {
-                lock (SelectionToImgList[_selectedItem.Key])
+                lock (GallerySelectionToImgList[_selectedItem.Key])
                 {
                     foreach (var _item in LocalFolders[_folderName].ImageList)
-                        SelectionToImgList[_selectedItem.Key].Add(_item);
-                }
-
-                if (_selectedItem.Value.Contains(_folderName))
-                {
-                    if (_selectedItem.Key == NowPageName)
-                    {     
-                        MyImageArrangement.SortImg(0);
-                        MyImageArrangement.UpdateImgRect();
-                        
-                        bool isQueued = Window.DispatcherQueue.TryEnqueue( () =>
-                        {
-                            var _tempImgList = MyImageArrangement.ImgList;
-                            var _tempImgListForRepeater = MyImageArrangement.ImgListForRepeater;
-
-                            int i;
-                            for (i = 0; i < _tempImgList.Count; i++)
-                            {
-                                if (i < _tempImgListForRepeater.Count)
-                                {
-                                    if (_tempImgList[i].ImageLocation == _tempImgListForRepeater[i].ImageLocation)
-                                        continue;                   
-                                    else
-                                        _tempImgListForRepeater.Insert(i, _tempImgList[i]);
-                                }
-                                else
-                                    _tempImgListForRepeater.Add(_tempImgList[i]);
-                            }
-                        });
-                    }                       
+                        GallerySelectionToImgList[_selectedItem.Key].Add(_item);
                 }
             }
+            if (NowCategory != null)
+            {
+
+                if ((NowCategory.IsGallery && MyPathConfig.GalleryToFolderListConfig[NowCategory.Name].Contains(_folderName)) ||
+                    (NowCategory.IsFolder && MyPathConfig.FolderToFolderListConfig[NowCategory.Name] == _folderName))
+                {
+                    MyImageArrangement.SortImg(0);
+                    MyImageArrangement.UpdateImgRect();
+
+                    bool isQueued = Window.DispatcherQueue.TryEnqueue(() =>
+                    {
+                        var _tempImgList = MyImageArrangement.ImgList;
+                        var _tempImgListForRepeater = MyImageArrangement.ImgListForRepeater;
+
+                        int i;
+                        for (i = 0; i < _tempImgList.Count; i++)
+                        {
+                            if (i < _tempImgListForRepeater.Count)
+                            {
+                                if (_tempImgList[i].ImageLocation == _tempImgListForRepeater[i].ImageLocation)
+                                    continue;
+                                else
+                                    _tempImgListForRepeater.Insert(i, _tempImgList[i]);
+                            }
+                            else
+                                _tempImgListForRepeater.Add(_tempImgList[i]);
+                        }
+                    });
+                }
+                
+            }
+
         }
 
         /*
@@ -315,29 +353,45 @@ namespace OneGallery
             {
                 if (_selectedItem.Value.Contains(_folderName))
                 {
-                    lock (SelectionToImgList[_selectedItem.Key])
+                    lock (GallerySelectionToImgList[_selectedItem.Key])
                     {
                         foreach (var _item in LocalFolders[_folderName].ImageList)
-                            SelectionToImgList[_selectedItem.Key].Remove(_item);
+                            GallerySelectionToImgList[_selectedItem.Key].Remove(_item);
                     }
 
-                    if (_selectedItem.Key == NowPageName)
-                    {                        
-                        MyImageArrangement.SortImg(0);
-                        MyImageArrangement.UpdateImgRect();
+                    //if (NowCategory == Window.NowCategory)
+                    //{                        
+                    //    MyImageArrangement.SortImg(0);  
+                    //    MyImageArrangement.UpdateImgRect();
 
-                        foreach (var _item in LocalFolders[_folderName].ImageList)
+                    //    foreach (var _item in LocalFolders[_folderName].ImageList)
+                    //    {
+                    //        bool isQueued = Window.DispatcherQueue.TryEnqueue(
+                    //        () =>
+                    //        {
+                    //            MyImageArrangement.ImgListForRepeater.Remove(_item);
+                    //        });
+                    //    }
+                    //}
+                }
+            }
+
+            if (NowCategory != null)
+            {
+                if ((NowCategory.IsGallery && MyPathConfig.GalleryToFolderListConfig[NowCategory.Name].Contains(_folderName)) || 
+                    (NowCategory.IsFolder && MyPathConfig.FolderToFolderListConfig[NowCategory.Name] == _folderName))
+                {
+                    MyImageArrangement.SortImg(0);
+                    MyImageArrangement.UpdateImgRect();
+
+                    foreach (var _item in LocalFolders[_folderName].ImageList)
+                    {
+                        bool isQueued = Window.DispatcherQueue.TryEnqueue(
+                        () =>
                         {
-                            bool isQueued = Window.DispatcherQueue.TryEnqueue(
-                            () =>
-                            {
-                                MyImageArrangement.ImgListForRepeater.Remove(_item);
-                            });
-                        }
-
+                            MyImageArrangement.ImgListForRepeater.Remove(_item);
+                        });
                     }
-                    
-
                 }
             }
 

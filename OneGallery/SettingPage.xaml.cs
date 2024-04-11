@@ -25,16 +25,19 @@ namespace OneGallery
     /// </summary>
     public sealed partial class SettingPage : Page
     {
+        private Category NowCategory { get; set; }
+
+        private MainWindow Window { get; set; }
         public SettingPage()
         {
             this.InitializeComponent();
-            var window = (MainWindow)(Application.Current as App).Main;
+            Window = (Application.Current as App).Main;
 
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-
+            NowCategory = Window._nowCategory = e.Parameter as Category;
             base.OnNavigatedTo(e);
         }
 
