@@ -39,25 +39,34 @@ using Windows.UI.StartScreen;
 namespace OneGallery
 {
 
-    internal sealed partial class ImageListPage : Page, INotifyPropertyChanged
+    public partial class ImageListPage : Page, INotifyPropertyChanged
     {
 
         private static PageParameters Parameters = new();
 
+        public static PictureClass SelectedImage {set; get; }
+
         private Category NowCategory {  get; set; }
 
-        private MainWindow Window {  get; set; } 
+        private MainWindow Window {  get; set; }
 
         public SortableObservableCollection<PictureClass> ImgList {  get; set; }
 
         public ActivityFeedLayout MyActivityFeedLayout { get; set; }
-
 
         public ImageListPage()
         {
             this.InitializeComponent();
             Window = (Application.Current as App).Main;
             NavigationCacheMode = NavigationCacheMode.Disabled;
+            this.Height = Window.Height - 176;
+        }
+
+        public void Close()
+        {
+            MyActivityFeedLayout = null;
+            ImgList = null;
+            this.UnloadObject(this);
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -66,8 +75,8 @@ namespace OneGallery
  
             if (e.Parameter is Category)
             {
-                //NowCategory = e.Parameter as Category;
                 Window._nowCategory = NowCategory = e.Parameter as Category;
+                Window.ChangeSelect(NowCategory);     
                 await LoadData();
             }
         }
@@ -77,20 +86,46 @@ namespace OneGallery
             Parameters.Width = ScrollViewer.ActualWidth;
             Parameters.Offset = ScrollViewer.VerticalOffset;
             Parameters.FirstShow = false;
-            NavigateHelper.StoreContent(Window.NaPage, NowCategory.Name, Parameters);
+            NavigateHelper.StoreContent(Window.NaPage, NowCategory, Parameters);
             base.OnNavigatingFrom(e);
+
+            Debug.Print("OnNavigatingFrom");
+
+
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
+
+            if (e.SourcePageType != typeof(ImagePage))
+            {
+                //foreach (var _image in ImgList)
+                //{
+                //    if (_image.IsSelected)
+                //    {
+                //        _image._checkBoxOpacity = 0;
+                //        _image._rectangleOpacity = 0;
+                //        _image._borderOpacity = 0;
+                //        _image._isSelected = false;
+                //    }
+                //}
+
+                //Window._selectedCount = 0;
+                Window.ClearAllSelect();
+            }
+
+
+            Debug.Print(e.SourcePageType + "");
+
+
             GC.Collect();
         }
 
         private async Task LoadData()
         {
             NavigateHelper.GetParameter(
-                NowCategory.Name,
+                NowCategory,
                 o =>
                 {
                     if (o is PageParameters p)
@@ -113,6 +148,13 @@ namespace OneGallery
                 MyActivityFeedLayout.LayoutImgArrangement = Window.FolderManager.MyImageArrangement;
                 Window.FolderManager.MyImageArrangement.ImgListForRepeater = ImgList;
                 Window.FolderManager.MyImageArrangement.ImgListChanged();
+
+                PocessingGrid.Opacity = 0;
+                await Task.Delay(300);
+                ScrollViewer.Opacity = 1;
+                await Task.Delay(200);
+
+                PocessingGrid.Visibility = Visibility.Collapsed;
             }
             else
             {
@@ -120,7 +162,7 @@ namespace OneGallery
                 NavigateHelper.GetContent(
                     Window,
                     Window.NaPage,
-                    NowCategory.Name
+                    NowCategory
                 );
             }
         }
@@ -178,12 +220,35 @@ namespace OneGallery
          */
         private void ItemContainer_Loaded(object sender, RoutedEventArgs e)
         {
-            var _temp = sender as ItemContainer;
-            _temp.ScaleTransition = new Vector3Transition()
+            //var _temp = sender as ItemContainer;
+            var _tempGrid = sender as Grid;
+            //_tempGrid.ScaleTransition = new Vector3Transition()
+            //{
+            //    Components = Vector3TransitionComponents.X | Vector3TransitionComponents.Y,
+            //    Duration = TimeSpan.FromMilliseconds(150)
+            //};
+
+            foreach (var _girdItem in _tempGrid.Children)
             {
-                Components = Vector3TransitionComponents.X | Vector3TransitionComponents.Y,
-                Duration = TimeSpan.FromMilliseconds(150)
-            };
+                if (_girdItem is CheckBox _checkBox)
+                {
+                    _checkBox.OpacityTransition = new ScalarTransition()
+                    {
+                        Duration = TimeSpan.FromMilliseconds(200)
+                    };
+                    continue;
+                }
+
+                if (_girdItem is Rectangle _rectangle)
+                {
+                    _rectangle.OpacityTransition = new ScalarTransition()
+                    {
+                        Duration = TimeSpan.FromMilliseconds(200)
+                    };
+                    continue;
+                }
+            }
+
         }
 
         /*
@@ -194,44 +259,34 @@ namespace OneGallery
             var _temp = GetItemContainer(sender as Grid);
             float _scaleX = (float)(_temp.ActualWidth / 2);
             float _scaleY = (float)(_temp.ActualHeight / 2); ;
-            var _grid = _temp.Child as Grid;
-            var _girdItems = _grid.Children;
 
             _temp.CenterPoint = new Vector3(_scaleX, _scaleY, 0);
-            _temp.Scale = new Vector3((float)1.02, (float)1.02, 1);
+            _temp.Scale = new Vector3((float)1.01, (float)1.01, 1);
 
-            var index = ImageRepeater.GetElementIndex(sender as Grid);
-            Debug.Print("" + index);
-            Debug.Print("" + ImgList[index].ImageLocation);
-
-            foreach (var _girdItem in _girdItems)
+            int _index = ImageRepeater.GetElementIndex((UIElement)sender);
+            if (_index != -1)
             {
-                if (_girdItem is CheckBox)
+                if (MainWindow.NowSelectMode != MainWindow.SelectMode.None)
                 {
-                    if ((_girdItem as CheckBox).IsChecked == false)
-                    {
-                        var res = _temp.Resources;
-                        var _borderIn = (Storyboard)res["BorderIn"];
-                        var _checkBoxIn = (Storyboard)res["CheckBoxIn"];
-                        var _rectangleIn = (Storyboard)res["RectangleIn"];
-
-                        _borderIn.Begin();
-                        _checkBoxIn.Begin();
-                        _rectangleIn.Begin();
-
-                        break;
-                    }
+                    ImgList[_index]._checkBoxOpacity = 1;
+                    ImgList[_index]._rectangleOpacity = 0.8;
                 }
+
+                ImgList[_index]._borderOpacity = 1;
             }
+            //Debug.Print("ItemGrid_PointerEntered " + _index);
+
+            Debug.Print("" + ImgList[_index].CreatDate);
+            //Debug.Print("" + ImgList[_index].LastEditDate);
+            //Debug.Print("" + ImgList[_index].ShootDate);
 
 
+            e.Handled = true;
         }
 
         private void ItemGrid_PointerExited(object sender, PointerRoutedEventArgs e)
         {
             var _temp = GetItemContainer(sender as Grid);
-            var _grid = _temp.Child as Grid;
-            var _girdItems = _grid.Children;
 
             float _scaleX = (float)(_temp.ActualWidth / 2);
             float _scaleY = (float)(_temp.ActualHeight / 2);
@@ -239,25 +294,20 @@ namespace OneGallery
             _temp.CenterPoint = new Vector3(_scaleX, _scaleY, 0);
             _temp.Scale = new Vector3(1, 1, 1);
 
-            foreach (var _girdItem in _girdItems)
+            int _index = ImageRepeater.GetElementIndex((UIElement)sender);
+            if (_index != -1)
             {
-                if (_girdItem is CheckBox)
+                if (!ImgList[_index].IsSelected)
                 {
-                    if ((_girdItem as CheckBox).IsChecked == false)
-                    {
-                        var res = _temp.Resources;
-                        var _borderOut = (Storyboard)res["BorderOut"];
-                        var _checkBoxOut = (Storyboard)res["CheckBoxOut"];
-                        var _rectangleOut = (Storyboard)res["RectangleOut"];
-
-                        _borderOut.Begin();
-                        _checkBoxOut.Begin();
-                        _rectangleOut.Begin();
-
-                        break;
-                    }
+                    ImgList[_index]._checkBoxOpacity = 0;
+                    ImgList[_index]._borderOpacity = 0;
+                    ImgList[_index]._rectangleOpacity = 0;
                 }
             }
+            Debug.Print("ItemGrid_PointerExited " + _index);
+
+
+            e.Handled = true;
         }
 
         private void ItemGrid_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -267,6 +317,7 @@ namespace OneGallery
             var _scaleY = (float)(_temp.ActualHeight / 2);
             _temp.CenterPoint = new Vector3(_scaleX, _scaleY, 0);
             _temp.Scale = new Vector3((float)0.98, (float)0.98, 1);
+            e.Handled = true;
         }
 
         private void ItemGrid_PointerReleased(object sender, PointerRoutedEventArgs e)
@@ -279,61 +330,81 @@ namespace OneGallery
                 var _index = ImageRepeater.GetElementIndex(sender as Grid);
                 var _image = ImgList[_index];
 
-                if ((int)_ptr.Properties.PointerUpdateKind == (int)Windows.UI.Input.PointerUpdateKind.LeftButtonReleased)
+                if ((int)_ptr.Properties.PointerUpdateKind == (int)Windows.UI.Input.PointerUpdateKind.RightButtonReleased)
                 {
-                    var _grid = _temp.Child as Grid;
-                    var _girdItems = _grid.Children;
-
-                    foreach (var _girdItem in _girdItems)
-                    {
-                        if (_girdItem is CheckBox)
-                        {
-                            //SwitchCheckBox(_girdItem as CheckBox);
-                            break;
-                        }
-                    }
-
                     Parameters.Image = _image;
 
                     var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("ForwardConnectedAnimation", (Grid)sender);
                     anim.Configuration = new DirectConnectedAnimationConfiguration();
-
-                    ItemGrid_PointerExited(sender, e);
                     Window.NaPage.Navigate(typeof(ImagePage), _image, new DrillInNavigationTransitionInfo());
+                    if (!_image.IsSelected)
+                    {
+                        _image._checkBoxOpacity = 0;
+                        _image._borderOpacity = 0;
+                        _image._rectangleOpacity = 0;
+                    }
                 }
-                else
+                else if ((int)_ptr.Properties.PointerUpdateKind == (int)Windows.UI.Input.PointerUpdateKind.LeftButtonReleased)
                 {
-                    Debug.Print(ImageRepeater.GetElementIndex(sender as Grid) + "");
-                    Window.FolderManager.DeleteImg(_image);
+                    if (MainWindow.NowSelectMode != MainWindow.SelectMode.None)
+                    {
+                        if (_image.IsSelected)
+                        {
+                            _image._isSelected = false;
+                            Window._selectedCount--;
+                            SelectedImage = null;
+                        }
+                            
+                        else
+                        {
+                            _image._isSelected = true;
+                            
+                            if (MainWindow.NowSelectMode == MainWindow.SelectMode.Single)
+                                UnSelectLastImage(_image);
+                            else
+                                Window._selectedCount++;
+                        }
+
+
+                    }
+
+                    ItemGrid_PointerEntered(sender, e);
                 }
             }
+            e.Handled = true;
         }
 
-        private void SwitchCheckBox(CheckBox _checkBox)
+        private Grid GetItemContainer(Grid _grid)
         {
-            if (_checkBox.IsChecked == false)
-            {
-                _checkBox.IsChecked = true;
-            }
-            else
-            {
-                _checkBox.IsChecked = false;
-            }
-        }
-
-        private ItemContainer GetItemContainer(Grid _grid)
-        {
-            ItemContainer _temp = null;
+            Grid _temp = null;
             foreach (var _ui in _grid.Children)
             {
-                if (_ui is ItemContainer)
+                if (_ui is Grid)
                 {
-                    _temp = _ui as ItemContainer;
+                    _temp = _ui as Grid;
                     break;
                 }
             }
 
             return _temp;
+        }
+
+        private async void UnSelectLastImage(PictureClass _image)
+        {
+            if (SelectedImage == null)
+            {
+                SelectedImage = _image;
+                Window._selectedCount++;
+            }
+            else
+            {
+                SelectedImage._checkBoxOpacity = 0; 
+                SelectedImage._rectangleOpacity = 0;
+                SelectedImage._borderOpacity = 0;
+                await Task.Delay(200);
+                SelectedImage._isSelected = false;
+                SelectedImage = _image;
+            }
         }
 
 
@@ -344,6 +415,7 @@ namespace OneGallery
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ImgList)));
         }
+
 
     }
 }

@@ -54,13 +54,10 @@ namespace OneGallery
 
         private Category NowCategory { get; set; }
 
-        readonly string SourcePageName;
-
         public ImagePage()
         {
             this.InitializeComponent();
             Window = (MainWindow)(Application.Current as App).Main;
-            SourcePageName = (Window.NaView.SelectedItem as Category).Name;
             NavigationCacheMode = NavigationCacheMode.Disabled;
             NowCategory = Window._nowCategory;
         }
@@ -86,24 +83,29 @@ namespace OneGallery
 
             NowImagePage = this;
             Window.TitleBorderUp.Begin();
-            //Window.TitleBorderUp.Begin();
         }
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
-            if (Window.NaView.SelectedItem is Category)
+            if (NowCategory == Window.NaView.SelectedItem)
             {
-
-                //if (SourcePageName == (Window.NaView.SelectedItem as Category).Name)
+                var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("BackwardConnectedAnimation", image);
+                anim.Configuration = new DirectConnectedAnimationConfiguration();
+            }
+            else
+            {
+                Window.ClearAllSelect();
+                //foreach (var _image in Window.FolderManager.MyImageArrangement.ImgList)
                 //{
-                //    var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("BackwardConnectedAnimation", image);
-                //    anim.Configuration = new DirectConnectedAnimationConfiguration();
+                //    if (_image.IsSelected)
+                //    {
+                //        _image._checkBoxOpacity = 0;
+                //        _image._rectangleOpacity = 0;
+                //        _image._borderOpacity = 0;
+                //        _image._isSelected = false;
+                //    }
                 //}
-                if (NowCategory == Window.NaView.SelectedItem as Category)
-                {
-                    var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("BackwardConnectedAnimation", image);
-                    anim.Configuration = new DirectConnectedAnimationConfiguration();
-                }
 
+                //Window._selectedCount = 0;
             }
             Window.TitleBorderDown.Begin();
             base.OnNavigatingFrom(e);
@@ -127,10 +129,6 @@ namespace OneGallery
 
             imageAnimation.Completed -= ImageAnimationCompleted;
             ToolsBarIn.Completed -= ToolBarInCompelete;
-
-
-
-
 
             GC.Collect();
         }
@@ -186,7 +184,7 @@ namespace OneGallery
             }
 
             ScrollBackHeight -= (Zoom - 1) * 80 + 50;
-            ScrollBackWidth -= (Zoom - 1) * 80 + 50;
+            ScrollBackWidth -= (Zoom - 1) * 80 + 150;
         }
 
         private void CalculateScrollViewer()
@@ -546,7 +544,7 @@ namespace OneGallery
             {
                 CalculateScrollViewer();
                 CalculateImage();
-                scrollViewer.CenterPoint = new((float)_tempLength / 2, (float)_tempLength / 2, 0);
+                scrollViewer.CenterPoint = new((float)_tempLength / 2, (float)_tempLength / 2 - 75, 0);
                 CorrectOffset(scrollViewer.HorizontalOffset, scrollViewer.VerticalOffset);
             }
 
@@ -691,7 +689,7 @@ namespace OneGallery
         {
             CalculateScrollViewer();
             scrollViewer.ChangeView(ScrollBackWidth, ScrollBackHeight, Zoom);
-            scrollViewer.CenterPoint = new((float)scrollViewer.Width / 2, (float)scrollViewer.Height / 2, 0);
+            scrollViewer.CenterPoint = new((float)scrollViewer.Width / 2, (float)scrollViewer.Height / 2 - 75, 0);
             scrollViewer.RegisterAnchorCandidate(image);
             scrollViewer.RotationTransition = new()
             {

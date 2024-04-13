@@ -17,7 +17,7 @@ namespace OneGallery
 
         public Dictionary<string, List<string>> GalleryToFolderListConfig { get; set; }
 
-        public Dictionary<string, string> FolderToFolderListConfig { get; set; }
+        //public Dictionary<string, string> FolderToFolderListConfig { get; set; }
 
         [JsonIgnore]
         public StorageFile ConfigFile { get; set; }

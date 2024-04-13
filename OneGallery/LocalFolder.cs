@@ -21,6 +21,10 @@ namespace OneGallery
     {
         public bool IsFolderFound = false;
 
+        private bool Stop = false;
+
+        private Task CheckFolderTask { get; set; }
+
         public string FolderPath { get; set; }
 
         public string FolderName { get; set; }
@@ -28,10 +32,6 @@ namespace OneGallery
         public StorageFolder Folder { get; set; }
 
         public FileSystemWatcher Watcher { get; set; }
-
-        public StorageLibraryChangeTracker FolderTracker { get; set; }
-
-        public StorageLibraryChangeReader FolderChangeReader { get; set; }
 
         public List<PictureClass> ImageList { get; set; }
 
@@ -110,15 +110,20 @@ namespace OneGallery
             {
                 StorageFile _image = await StorageFile.GetFileFromPathAsync(e.FullPath);
                 var imageProps = await _image.Properties.GetImagePropertiesAsync();
+                var basicProperties = await _image.GetBasicPropertiesAsync();
+
                 var _newImage = new PictureClass(
                     _image.Path,
                     _image.Name,
                     imageProps.Width,
                     imageProps.Height,
-                    FolderName
+                    FolderName,
+                    _image.DateCreated,
+                    basicProperties.DateModified,
+                    (empty == imageProps.DateTaken) ? basicProperties.DateModified : imageProps.DateTaken
                 );
 
-                ImageList.Add(_newImage);
+                //ImageList.Add(_newImage);
                 FileCreatedEvent(new(_newImage));
             }
         }
@@ -165,7 +170,7 @@ namespace OneGallery
                 }
                 else
                 {
-                    ImageList.Remove(_tempImage);
+                    //ImageList.Remove(_tempImage);
                     FileDeletedEvent(new(_tempImage));
                 }
             }
@@ -177,38 +182,46 @@ namespace OneGallery
             Watcher = null;
         }
 
-
-
-        private async void BackGroundFindFolder()
+        public async Task FirstInitFolder()
         {
-            while (true)
+            await GetFolder();
+            CheckFolderTask = BackGroundFindFolder();
+        }
+
+        private async Task BackGroundFindFolder()
+        {
+            while (!Stop)
             {
-                try
-                {
-                    Folder = await StorageFolder.GetFolderFromPathAsync(FolderPath);
+                await Task.Delay(4000);
+                await GetFolder();
+            }
+        }
 
-                    if (IsFolderFound == false)
-                    {
-                        await SearchImages();
-                        IsFolderFound = true;
-                        FolderExistEvent();
-                    }
+        private async Task GetFolder()
+        {
+            try
+            {
+                Folder = await StorageFolder.GetFolderFromPathAsync(FolderPath);
 
-                    if (Watcher is null)
-                        SetWatcher();
-                }
-                catch (FileNotFoundException)
+                if (IsFolderFound == false)
                 {
-                    if (IsFolderFound)
-                    {
-                        //ImageList.Clear();
-                        DeleteWatcher();
-                        IsFolderFound = false;
-                        FolderNotFoundEvent();
-                    }
+                    await SearchImages();
+                    IsFolderFound = true;
+                    FolderExistEvent();
                 }
 
-                await Task.Delay(2000);
+                if (Watcher is null)
+                    SetWatcher();
+            }
+            catch (FileNotFoundException)
+            {
+                if (IsFolderFound)
+                {
+                    //ImageList.Clear();
+                    DeleteWatcher();
+                    IsFolderFound = false;
+                    FolderNotFoundEvent();
+                }
             }
         }
         public LocalFolder(string _path, string _name) 
@@ -216,9 +229,11 @@ namespace OneGallery
             FolderPath = _path;
             FolderName = _name;
             ImageList = new();
-            BackGroundFindFolder();
+
         }
 
+        DateTimeOffset empty = new DateTimeOffset(1601, 1, 1, 8, 0, 0,
+                     new TimeSpan(8, 0, 0));
         public async Task SearchImages()
         {
             var _count = 0;
@@ -238,6 +253,8 @@ namespace OneGallery
                 _imgQuery.FileTypeFilter.Add(".png");
                 _imgQuery.FileTypeFilter.Add(".bmp");
                 _imgQuery.FileTypeFilter.Add(".gif");
+                _imgQuery.FileTypeFilter.Add(".ico");
+                _imgQuery.FileTypeFilter.Add(".tiff");
 
                 _imgQuery.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties | PropertyPrefetchOptions.ImageProperties, null);
 
@@ -255,7 +272,7 @@ namespace OneGallery
                     {
                         var imageProps = await _image.Properties.GetImagePropertiesAsync();
                         var basicProperties = await _image.GetBasicPropertiesAsync();
-
+                     
                         for (int j = 0; j < 1; j++)
                         {
                             ImageList.Add(new PictureClass(
@@ -263,16 +280,20 @@ namespace OneGallery
                                 _image.Name,
                                 imageProps.Width,
                                 imageProps.Height,
-                                FolderName
+                                FolderName,
+                                _image.DateCreated,
+                                basicProperties.DateModified,
+                                (empty == imageProps.DateTaken)? basicProperties.DateModified : imageProps.DateTaken
                             ));
                             i++;
                         }
-
-                        //Debug.Print(_image.Name);
+                        
                     }
                     _index += _step;
                     _images = await _queryResult.GetFilesAsync(_index, _step);
                 }
+
+                break;
 
                 if (ImageList.Count == _count)
                     break;
@@ -288,6 +309,14 @@ namespace OneGallery
                 return true;
 
             return false;
+        }
+
+        public async void Close()
+        {
+            Stop = true;
+            await CheckFolderTask;
+            Watcher.Dispose();
+            ImageList = null;
         }
     }
 

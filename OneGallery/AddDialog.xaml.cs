@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -10,7 +9,6 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -23,35 +21,13 @@ namespace OneGallery
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class SettingPage : Page
+    public sealed partial class AddDialog : Page
     {
-        private Category NowCategory { get; set; }
-
-        private MainWindow Window { get; set; }
-        public SettingPage()
+        MainWindow Window { get; set; }
+        public AddDialog()
         {
             this.InitializeComponent();
             Window = (Application.Current as App).Main;
-
-        }
-
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            NowCategory = Window._nowCategory = e.Parameter as Category;
-            Window.ChangeSelect(NowCategory);
-            base.OnNavigatedTo(e);
-        }
-
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
-        {
-            base.OnNavigatedFrom(e);
-            GC.Collect();
-        }
-
-        ~SettingPage()
-        {
-            Debug.Print("~" + GetType().Name);
-
         }
     }
 }

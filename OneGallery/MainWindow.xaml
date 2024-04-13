@@ -13,7 +13,6 @@
 
     <Grid x:Name="Grid" Background="Transparent">
         <Grid.Resources>
-            
             <ControlTemplate TargetType="Button" x:Key="MyButton">
                 <Grid x:Name="RootGrid" Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}"  BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}" BackgroundSizing="{TemplateBinding BackgroundSizing}">
                     <VisualStateManager.VisualStateGroups>
@@ -83,33 +82,32 @@
             </Style>
             
             <DataTemplate  x:Key="NavigationViewMenuItem" x:DataType="local:Category">
-                <NavigationViewItem Tag="{x:Bind Name}" Content="{x:Bind Name}" Icon="{x:Bind Icon}" MenuItemsSource="{x:Bind Children}" IsExpanded="True"/>
+                <NavigationViewItem Tag="{x:Bind _name}" Content="{x:Bind _name, Mode=OneWay}" Icon="{x:Bind Icon, Mode=OneWay}" MenuItemsSource="{x:Bind Children, Mode=OneWay}" IsExpanded="True"/>
             </DataTemplate>
                 
             <DataTemplate x:Key="NavigationViewItemSeparator">
                 <NavigationViewItemSeparator></NavigationViewItemSeparator>
             </DataTemplate>
+                
+            <DataTemplate x:Key="NULL" x:DataType="local:Category">
+                <NavigationViewItem Tag="{x:Bind Name}" Content="{x:Bind Name}" Visibility="Collapsed"/>
+            </DataTemplate>
 
             <local:MyTemplateSelector x:Key="MyTemplateSelector"
                              ItemTemplate="{StaticResource NavigationViewMenuItem}"
-                             SeparatorTemplate="{StaticResource NavigationViewItemSeparator}"/>
+                             SeparatorTemplate="{StaticResource NavigationViewItemSeparator}"
+                             NULLTemplate="{StaticResource NULL}"         />
 
             <Storyboard x:Name="BorderUpForImagePage">
                 <DoubleAnimationUsingKeyFrames Storyboard.TargetName="TitleBorder"
                     Storyboard.TargetProperty="Height"
                     EnableDependentAnimation="True">
-
+                    
                     <EasingDoubleKeyFrame Value="120" KeyTime="0:0:0.8">
                         <EasingDoubleKeyFrame.EasingFunction>
                             <QuinticEase EasingMode="EaseOut"/>
                         </EasingDoubleKeyFrame.EasingFunction>
                     </EasingDoubleKeyFrame>
-
-                    <!--<EasingDoubleKeyFrame Value="40" KeyTime="0:0:1">
-                        <EasingDoubleKeyFrame.EasingFunction>
-                            <QuinticEase EasingMode="EaseOut"/>
-                        </EasingDoubleKeyFrame.EasingFunction>
-                    </EasingDoubleKeyFrame>-->
 
                     <EasingDoubleKeyFrame Value="0" KeyTime="0:0:1.6">
                         <EasingDoubleKeyFrame.EasingFunction>
@@ -142,6 +140,7 @@
                     </EasingDoubleKeyFrame>
                 </DoubleAnimationUsingKeyFrames>
             </Storyboard>
+
         </Grid.Resources>
         
         <Grid.ColumnDefinitions>
@@ -179,16 +178,15 @@
                         Grid.RowSpan="2"
                         Grid.Column="0"
                         Canvas.ZIndex="0"
-                        OpenPaneLength="275"
-                        MenuItemsSource="{x:Bind Categories, Mode=TwoWay}"
+                        OpenPaneLength="280"
+                        MenuItemsSource="{x:Bind Categories, Mode=OneWay}"
                         MenuItemTemplateSelector="{StaticResource MyTemplateSelector}"                        
                         ItemInvoked="NavView_ItemInvoked"
                         BackRequested="Nv_BackRequested"
                         Loaded="Nv_Loaded"
                         PaneClosing="Nv_PaneClosing"
                         PaneOpening="Nv_PaneOpening"
-                        SizeChanged="Nv_SizeChanged"
->
+                        SizeChanged="Nv_SizeChanged"         >                       
             <NavigationView.Resources>
                 <!-- This top margin is the height of the custom titleBar -->
                 <Thickness x:Key="NavigationViewContentMargin">0,48,0,0</Thickness>
@@ -199,10 +197,12 @@
                 <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" Opacity="0"/>
             </NavigationView.Resources>
 
-            <Grid x:Name="Nv_grid"  
+            <Grid x:Name="Nv_grid"  Loaded="Nv_grid_Loaded"
                   BorderThickness="1"
                   BorderBrush="#E1E6EA"
-                  CornerRadius="8">
+                  CornerRadius="8"
+                  VerticalAlignment="Top"
+                  HorizontalAlignment="Left">
                 <Grid.RowDefinitions>
                     <!--<RowDefinition Height="{x:Bind _rowHeight, Mode=TwoWay}"/>-->
                     <RowDefinition Height="Auto"/>
@@ -215,14 +215,16 @@
                 </Grid.ColumnDefinitions>
                 <Border x:Name="TitleBorder" Grid.Row="0" Grid.Column="0" Height="120" CornerRadius="5">
                     <Grid>
-                        <FontIcon Glyph="&#xE8B9;" 
-                          Grid.Row="0"
-                          Grid.Column="0"
-                          VerticalAlignment="Top"
-                          HorizontalAlignment="Left"
-                          Margin="45, 45, 0, 0" />
+                        <FontIcon 
+                            x:Name="TitleFont"
+                            Grid.Row="0" 
+                            Grid.Column="0"
+                            VerticalAlignment="Top"
+                            HorizontalAlignment="Left"
+                            Margin="45, 45, 0, 0" />
 
-                        <TextBlock Text="{x:Bind _nowCategory.Name, Mode=TwoWay}" 
+
+                        <TextBlock Text="{x:Bind _nowCategory._name, Mode=OneWay}" 
                             FontSize="28" 
                             Foreground="Black" 
                             Grid.Row="0"
@@ -231,22 +233,45 @@
                             HorizontalAlignment="Left"
                             Margin="75, 35, 0, 0" />
 
-                        <TextBlock Text="666 张图片" 
+                        <TextBlock Text="{x:Bind _imageCount, Mode=OneWay}" Foreground="#808080" FontSize="14" VerticalAlignment="Center"
+                            HorizontalAlignment="Left" Margin="75, 45, 0, 0" 
+                            />
+
+                        <TextBlock x:Name="CountText" Text="  张图片" 
                             FontSize="14" 
                             Foreground="#808080" 
                             Grid.Row="0"
                             Grid.Column="0"
                             VerticalAlignment="Center"
                             HorizontalAlignment="Left"
-                            Margin="75, 45, 0, 0"  />
+                            Margin="80, 45, 0, 0"  />
+                        
+
+                        <Button Height="0" Width="0" Opacity="0" Click="SelectAll_Click">
+                            <Button.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control" Key="A" />
+                            </Button.KeyboardAccelerators>
+                        </Button>
+
+                        <Button Height="0" Width="0" Opacity="0" Click="UnSelectAll_Click">
+                            <Button.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control" Key="D" />
+                            </Button.KeyboardAccelerators>
+                        </Button>
 
                         <DropDownButton
-                            x:Name="More" Margin="0, 0, 50, 0"
-                            Grid.Row="0" Grid.Column="0" CornerRadius="5"
+                            x:Name="More" Margin="0, 0, 50, 0" 
+                            Grid.Row="0" Grid.Column="0" CornerRadius="5" ToolTipService.Placement="Mouse"
                             VerticalAlignment="Center" HorizontalAlignment="Right"
                             Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
+                            <ToolTipService.ToolTip>
+                                <Border>
+                                    <TextBlock Text="更多"/>
+                                </Border>
+                            </ToolTipService.ToolTip>
+                            
                             <DropDownButton.Flyout>
-                                <Flyout Placement="Bottom">
+                                <Flyout x:Name="MoreFlyout" Placement="Bottom">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="*" />
@@ -254,9 +279,8 @@
                                         </Grid.RowDefinitions>
 
                                         <Button Grid.Row="0" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
-                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5" Click="SelectAll_Click">
                                             <Grid Width="150">
-                                                <!--<FontIcon Glyph="&#xE8B3;" HorizontalAlignment="Left"/>-->
                                                 <Image Source="/Images/Select_all.svg" HorizontalAlignment="Left" VerticalAlignment="Center" Height="24"/>
                                                 <TextBlock Text="全选" HorizontalAlignment="Left" Margin="30, 0, 0, 5" />
                                                 <TextBlock Text="Ctrl+A" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0, 0, 0, 0" FontSize="12"/>
@@ -264,11 +288,11 @@
                                         </Button>
 
                                         <Button Grid.Row="1" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
-                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5" Click="UnSelectAll_Click">
                                             <Grid Width="150">
-                                                <!--<FontIcon Glyph="&#xE711;" HorizontalAlignment="Left"/>-->
                                                 <Image Source="/Images/Select_off.svg" HorizontalAlignment="Left" VerticalAlignment="Center" Height="24"/>
                                                 <TextBlock Text="全不选" HorizontalAlignment="Left" Margin="30, 0, 0, 5" />
+                                                <TextBlock Text="Ctrl+D" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0, 0, 0, 0" FontSize="12"/>
                                             </Grid>
                                         </Button>
                                     </Grid>
@@ -281,12 +305,19 @@
                         </DropDownButton>
 
                         <DropDownButton
-                            x:Name="ImageSize" Margin="0, 0, 120, 0" ToolTipService.ToolTip="Simple ToolTip" ToolTipService.Placement="Mouse"
+                            x:Name="ImageSize" Margin="0, 0, 120, 0" ToolTipService.Placement="Mouse"
                             Grid.Row="0" Grid.Column="0" CornerRadius="5"
                             VerticalAlignment="Center" HorizontalAlignment="Right"
                             Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
+
+                            <ToolTipService.ToolTip>
+                                <Border>
+                                    <TextBlock Text="图片大小"/>
+                                </Border>
+                            </ToolTipService.ToolTip>
+                            
                             <DropDownButton.Flyout>
-                                <Flyout Placement="Bottom">
+                                <Flyout x:Name="ImageSizeFlyout" Placement="Bottom">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="*" />
@@ -295,27 +326,39 @@
                                         </Grid.RowDefinitions>
 
                                         <Button Grid.Row="0" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
-                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5" Click="ImageSizeSmall_Click">
                                             <Grid Width="65">
-                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Ellipse x:Name="SmallSizeEllipse" Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left" >
+                                                    <Ellipse.OpacityTransition>
+                                                        <ScalarTransition Duration="0:0:0.3"/>
+                                                    </Ellipse.OpacityTransition>
+                                                </Ellipse>
                                                 <FontIcon Glyph="&#xF58B;" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
                                                 <TextBlock Text="小" HorizontalAlignment="Left" Margin="50, 0, 0, 5" />
                                             </Grid>
                                         </Button>
 
                                         <Button Grid.Row="1" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
-                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5" Click="ImageSizeMedium_Click">
                                             <Grid Width="65">
-                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Ellipse x:Name="MediumSizeEllipse" Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left">
+                                                    <Ellipse.OpacityTransition>
+                                                        <ScalarTransition Duration="0:0:0.3"/>
+                                                    </Ellipse.OpacityTransition>
+                                                </Ellipse>
                                                 <FontIcon Glyph="&#xF58C;" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
                                                 <TextBlock Text="中" HorizontalAlignment="Left" Margin="50, 0, 0, 5" />
                                             </Grid>
                                         </Button>
 
                                         <Button Grid.Row="2" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
-                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5" Click="ImageSizeBig_Click">
                                             <Grid Width="65">
-                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Ellipse x:Name="BigSizeEllipse" Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left">
+                                                    <Ellipse.OpacityTransition>
+                                                        <ScalarTransition Duration="0:0:0.3"/>
+                                                    </Ellipse.OpacityTransition>
+                                                </Ellipse>
                                                 <FontIcon Glyph="&#xF58A;" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
                                                 <TextBlock Text="大" HorizontalAlignment="Left" Margin="50, 0, 0, 5" />
                                             </Grid>
@@ -331,11 +374,18 @@
 
                         <DropDownButton
                             x:Name="Sort" Margin="0, 0, 190, 0"
-                            Grid.Row="0" Grid.Column="0"
+                            Grid.Row="0" Grid.Column="0" ToolTipService.Placement="Mouse"
                             VerticalAlignment="Center" HorizontalAlignment="Right" CornerRadius="5"
                             Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
+                            
+                            <ToolTipService.ToolTip>
+                                <Border Background="Transparent">
+                                    <TextBlock Text="排序"/>
+                                </Border>
+                            </ToolTipService.ToolTip>
+                            
                             <DropDownButton.Flyout>
-                                <Flyout Placement="Bottom">
+                                <Flyout x:Name="SortFlyout" Placement="Bottom">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="*" />
@@ -348,61 +398,85 @@
                                         </Grid.RowDefinitions>
 
                                         <Button Grid.Row="0" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
-                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5" Click="ShootDate_Click">
                                             <Grid Width="110">
-                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Ellipse x:Name="ShootDateEllipse" Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left">
+                                                    <Ellipse.OpacityTransition>
+                                                        <ScalarTransition Duration="0:0:0.3"/>
+                                                    </Ellipse.OpacityTransition>
+                                                </Ellipse>
+                                                
                                                 <Image Source="/Images/Calendar_add.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
                                                 <TextBlock Text="拍摄日期" HorizontalAlignment="Left" Margin="50, 0, 0, 5" />
                                             </Grid>
                                         </Button>
 
                                         <Button Grid.Row="1" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
-                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5" Click="CreateDate_Click">
                                             <Grid Width="110">
-                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Ellipse x:Name="CreateDateEllipse" Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left">
+                                                    <Ellipse.OpacityTransition>
+                                                        <ScalarTransition Duration="0:0:0.3"/>
+                                                    </Ellipse.OpacityTransition>
+                                                </Ellipse>
                                                 <Image Source="/Images/Image_add.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
-                                                <TextBlock Text="创建日期" HorizontalAlignment="Left" Margin="50, 0, 0, 5" />
+                                                <TextBlock Text="创建日期" HorizontalAlignment="Left" Margin="50, 0, 0, 5"/>
                                             </Grid>
                                         </Button>
 
                                         <Button Grid.Row="2" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
-                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5" Click="LastEditDate_Click">
                                             <Grid Width="110">
-                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Ellipse x:Name="LastEditDateEllipse" Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left">
+                                                    <Ellipse.OpacityTransition>
+                                                        <ScalarTransition Duration="0:0:0.3"/>
+                                                    </Ellipse.OpacityTransition>
+                                                </Ellipse>
                                                 <Image Source="/Images/Image_edit.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
                                                 <TextBlock Text="修改日期" HorizontalAlignment="Left" Margin="50, 0, 0, 0" />
                                             </Grid>
                                         </Button>
 
                                         <Button Grid.Row="3" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
-                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5" Click="Name_Click">
                                             <Grid Width="110">
-                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Ellipse x:Name="NameEllipse" Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left">
+                                                    <Ellipse.OpacityTransition>
+                                                        <ScalarTransition Duration="0:0:0.3"/>
+                                                    </Ellipse.OpacityTransition>
+                                                </Ellipse>
                                                 <Image Source="/Images/Text_t.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
-                                                <TextBlock Text="修改日期" HorizontalAlignment="Left" Margin="50, 0, 0, 0" />
+                                                <TextBlock Text="名称" HorizontalAlignment="Left" Margin="50, 0, 0, 0" />
                                             </Grid>
                                         </Button>
 
                                         <Line Grid.Row="4" Stroke="#808080" X1="0" Y1="2" X2="135" Y2="2" StrokeThickness="1"/>
 
                                         <Button Grid.Row="5" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
-                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5" Click="Ascending_Click">
                                             <Grid Width="110">
-                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Ellipse x:Name="AscendingEllipse" Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left">
+                                                    <Ellipse.OpacityTransition>
+                                                        <ScalarTransition Duration="0:0:0.3"/>
+                                                    </Ellipse.OpacityTransition>
+                                                </Ellipse>
                                                 <Image Source="/Images/Chevron_up.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
                                                 <TextBlock Text="升序" HorizontalAlignment="Left" Margin="50, 0, 0, 0" />
                                             </Grid>
                                         </Button>
 
                                         <Button Grid.Row="6" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
-                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5" Click="Descending_Click">
                                             <Grid Width="110">
-                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Ellipse x:Name="DescendingEllipse" Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left">
+                                                    <Ellipse.OpacityTransition>
+                                                        <ScalarTransition Duration="0:0:0.3"/>
+                                                    </Ellipse.OpacityTransition>
+                                                </Ellipse>
                                                 <Image Source="/Images/Chevron_down.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
                                                 <TextBlock Text="降序" HorizontalAlignment="Left" Margin="50, 0, 0, 0" />
                                             </Grid>
                                         </Button>
-
                                     </Grid>
                                 </Flyout>
                             </DropDownButton.Flyout>
@@ -413,12 +487,19 @@
                         </DropDownButton>
 
                         <DropDownButton
-                            x:Name="Chose" Margin="0, 0, 260, 0"
+                            x:Name="Chose" Margin="0, 0, 260, 0" ToolTipService.Placement="Mouse"
                             Grid.Row="0" Grid.Column="0" CornerRadius="5"
                             VerticalAlignment="Center" HorizontalAlignment="Right"
                             Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
+
+                            <ToolTipService.ToolTip>
+                                <Border Background="Transparent">
+                                    <TextBlock Text="选择"/>
+                                </Border>
+                            </ToolTipService.ToolTip>
+
                             <DropDownButton.Flyout>
-                                <Flyout Placement="Bottom">
+                                <Flyout x:Name="SelectFlyout" Placement="Bottom">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="*" />
@@ -427,27 +508,39 @@
                                         </Grid.RowDefinitions>
 
                                         <Button Grid.Row="0" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
-                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5" Click="Single_Click">
                                             <Grid Width="110">
-                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Ellipse x:Name="SingleEllipse" Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left">
+                                                    <Ellipse.OpacityTransition>
+                                                        <ScalarTransition Duration="0:0:0.3"/>
+                                                    </Ellipse.OpacityTransition>
+                                                </Ellipse>
                                                 <Image Source="/Images/Checkbox_1.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
                                                 <TextBlock Text="单选模式" HorizontalAlignment="Left" Margin="50, 0, 0, 0" />
                                             </Grid>
                                         </Button>
 
                                         <Button Grid.Row="1" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
-                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5" Click="Multiple_Click">
                                             <Grid Width="110">
-                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Ellipse x:Name="MultipleEllipse" Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left">
+                                                    <Ellipse.OpacityTransition>
+                                                        <ScalarTransition Duration="0:0:0.3"/>
+                                                    </Ellipse.OpacityTransition>
+                                                </Ellipse>
                                                 <Image Source="/Images/Checkbox_sync.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
                                                 <TextBlock Text="多选模式" HorizontalAlignment="Left" Margin="50, 0, 0, 0" />
                                             </Grid>
                                         </Button>
 
                                         <Button Grid.Row="2" Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
-                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5">
+                                                Height="35" Template="{StaticResource MyButton}" CornerRadius="5" Click="UnSelect_Click">
                                             <Grid Width="110">
-                                                <Ellipse Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left"/>
+                                                <Ellipse x:Name="UnSelectEllipse" Fill="#808080" Height="5" Width="5" HorizontalAlignment="Left">
+                                                    <Ellipse.OpacityTransition>
+                                                        <ScalarTransition Duration="0:0:0.3"/>
+                                                    </Ellipse.OpacityTransition>
+                                                </Ellipse>
                                                 <Image Source="/Images/Checkbox_warning.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0" Height="20"/>
                                                 <TextBlock Text="禁止选择" HorizontalAlignment="Left" Margin="50, 0, 0, 0" />
                                             </Grid>
@@ -462,36 +555,71 @@
                             </DropDownButton.Content>
                         </DropDownButton>
 
-                        <Button x:Name="Copy" Margin="0, 0, 330, 0" IsEnabled="True"
-                            Grid.Row="0" Grid.Column="0" CornerRadius="5" 
-                            VerticalAlignment="Center" HorizontalAlignment="Right"
+
+                        <FontIcon x:Name="CopySuccess" Glyph="&#xE8FB;" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0, 0, 341, 0" Opacity="0">
+                            <FontIcon.OpacityTransition>
+                                <ScalarTransition Duration="0:0:0.3"/>
+                            </FontIcon.OpacityTransition>
+                        </FontIcon>
+
+                        <Button x:Name="Copy" Margin="0, 0, 330, 0" IsEnabled="False" ToolTipService.Placement="Mouse"
+                            Grid.Row="0" Grid.Column="0" CornerRadius="5" Click="Copy_Click"
+                            VerticalAlignment="Center" HorizontalAlignment="Right" KeyboardAcceleratorPlacementMode="Hidden"
                             Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
                             <FontIcon Glyph="&#xE8C8;"/>
+                            <Button.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control" Key="C" />
+                            </Button.KeyboardAccelerators>
+                            <ToolTipService.ToolTip>
+                                <Border>
+                                    <TextBlock Text="复制"/>
+                                </Border>
+                            </ToolTipService.ToolTip>
                         </Button>
 
-                        <Button x:Name="Cut" Margin="0, 0, 400, 0" IsEnabled="True"
-                            Grid.Row="0" Grid.Column="0" CornerRadius="5" 
-                            VerticalAlignment="Center" HorizontalAlignment="Right"
+                        <FontIcon x:Name="CutSuccess" Glyph="&#xE8FB;" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0, 0, 411, 0" Opacity="0">
+                            <FontIcon.OpacityTransition>
+                                <ScalarTransition Duration="0:0:0.3"/>
+                            </FontIcon.OpacityTransition>
+                        </FontIcon>
+
+                        <Button x:Name="Cut" Margin="0, 0, 400, 0" IsEnabled="False"
+                            Grid.Row="0" Grid.Column="0" CornerRadius="5" Click="Cut_Click"
+                            VerticalAlignment="Center" HorizontalAlignment="Right" ToolTipService.Placement="Mouse"
                             Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
+                            <Button.KeyboardAccelerators>
+                                <KeyboardAccelerator Modifiers="Control" Key="X" />
+                            </Button.KeyboardAccelerators>
+                            <ToolTipService.ToolTip>
+                                <Border>
+                                    <TextBlock Text="剪切"/>
+                                </Border>
+                            </ToolTipService.ToolTip>
 
                             <FontIcon Glyph="&#xE8C6;"/>
                         </Button>
 
-                        <Button x:Name="Delete" Margin="0, 0, 470, 0" IsEnabled="True"
-                            Grid.Row="0" Grid.Column="0" CornerRadius="5" 
-                            VerticalAlignment="Center" HorizontalAlignment="Right"
+                        <Button x:Name="Delete" Margin="0, 0, 470, 0" IsEnabled="False"
+                            Grid.Row="0" Grid.Column="0" CornerRadius="5" Click="Delete_Click"
+                            VerticalAlignment="Center" HorizontalAlignment="Right" ToolTipService.Placement="Mouse"
                             Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
-
+                            <ToolTipService.ToolTip>
+                                <Border>
+                                    <TextBlock Text="删除"/>
+                                </Border>
+                            </ToolTipService.ToolTip>
                             <FontIcon Glyph="&#xE74D;"/>
                         </Button>
 
-                        <Button x:Name="Cancle" Margin="0, 0, 530, 0" IsEnabled="True"
-                            Grid.Row="0" Grid.Column="0" CornerRadius="5" 
+                        <Button x:Name="Cancle" Margin="0, 0, 530, 0" IsEnabled="False"
+                            Grid.Row="0" Grid.Column="0" CornerRadius="5" Click="Cancle_Click"
                             VerticalAlignment="Center" HorizontalAlignment="Right"
                             Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
-                            <Grid Width="80">
+                            <Grid x:Name="CancleGrid" Width="78" Background="Transparent">
                                 <FontIcon Glyph="&#xE711;" HorizontalAlignment="Left"/>
-                                <TextBlock Text="已选择 1" HorizontalAlignment="Right"/>
+                                <TextBlock Text="已选择" HorizontalAlignment="Left" Margin="24, 0, 0, 2"/>
+                                <TextBlock Text="{x:Bind _selectedCount, Mode=OneWay}" HorizontalAlignment="Left" Margin="71, 0, 0, 0"/>
+                                <!--<TextBlock Text="{x:Bind _selectedCount}" HorizontalAlignment="Right"/>-->
                             </Grid>
 
                         </Button>

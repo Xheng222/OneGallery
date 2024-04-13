@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="OneGallery.AddFolderOrGallery"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:OneGallery"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="Transparent">
+    <Grid>
+        <Grid.Resources>
+            <ControlTemplate x:Key="MyGridItem">
+                <Grid x:Name="ContentBorder"
+                      Control.IsTemplateFocusTarget="True"
+                      FocusVisualMargin="{TemplateBinding FocusVisualMargin}"
+                      Background="{TemplateBinding Background}"
+                      BorderBrush="{TemplateBinding BorderBrush}"
+                      BorderThickness="{TemplateBinding BorderThickness}"
+                      CornerRadius="{TemplateBinding CornerRadius}"
+                      RenderTransformOrigin="0.5,0.5"
+                      Margin="12, 12, 12, 12">
+
+                    <Grid.RenderTransform>
+                        <ScaleTransform x:Name="ContentBorderScale" />
+                    </Grid.RenderTransform>
+
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="FocusStates">
+                            <VisualState x:Name="Focused"/>
+                            <VisualState x:Name="Unfocused" />
+                        </VisualStateGroup>
+
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <Storyboard>
+                                    <FadeOutThemeAnimation TargetName="BorderRectangle" />
+
+                                    <DoubleAnimation Storyboard.TargetName="ContentBorderScale"
+                                        Storyboard.TargetProperty="ScaleX"
+                                        Duration="0:0:0.2"
+                                        To="1" />
+                                    <DoubleAnimation Storyboard.TargetName="ContentBorderScale"
+                                        Storyboard.TargetProperty="ScaleY"
+                                        Duration="0:0:0.2"
+                                        To="1" />
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="PointerOver">
+                                <Storyboard>
+                                    <FadeInThemeAnimation Storyboard.TargetName="BorderRectangle" />
+
+                                    <DoubleAnimation Storyboard.TargetName="ContentBorderScale"
+                                        Storyboard.TargetProperty="ScaleX"
+                                        Duration="0:0:0.1"
+                                        To="1.02" />
+                                    <DoubleAnimation Storyboard.TargetName="ContentBorderScale"
+                                        Storyboard.TargetProperty="ScaleY"
+                                        Duration="0:0:0.1"
+                                        To="1.02" />
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="Pressed">
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="ContentBorderScale"
+                                        Storyboard.TargetProperty="ScaleX"
+                                        Duration="0:0:0.1"
+                                        To="0.98" />
+                                    <DoubleAnimation Storyboard.TargetName="ContentBorderScale"
+                                        Storyboard.TargetProperty="ScaleY"
+                                        Duration="0:0:0.1"
+                                        To="0.98" />
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="Selected">
+                                <Storyboard>
+                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BorderRectangle" Storyboard.TargetProperty="Opacity">
+                                        <DiscreteObjectKeyFrame KeyTime="0" Value="1" />
+                                    </ObjectAnimationUsingKeyFrames>
+                                    <DoubleAnimation Storyboard.TargetName="ContentBorderScale"
+                                        Storyboard.TargetProperty="ScaleX"
+                                        Duration="0:0:0.1"
+                                        To="1" />
+                                    <DoubleAnimation Storyboard.TargetName="ContentBorderScale"
+                                        Storyboard.TargetProperty="ScaleY"
+                                        Duration="0:0:0.1"
+                                        To="1" />
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="PointerOverSelected">
+                                <Storyboard>
+                                    <FadeInThemeAnimation Storyboard.TargetName="BorderRectangle" />
+
+                                    <DoubleAnimation Storyboard.TargetName="ContentBorderScale"
+                                        Storyboard.TargetProperty="ScaleX"
+                                        Duration="0:0:0.1"
+                                        To="1.02" />
+                                    <DoubleAnimation Storyboard.TargetName="ContentBorderScale"
+                                        Storyboard.TargetProperty="ScaleY"
+                                        Duration="0:0:0.1"
+                                        To="1.02" />
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="PressedSelected">
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="ContentBorderScale"
+                                        Storyboard.TargetProperty="ScaleX"
+                                        Duration="0:0:0.1"
+                                        To="0.98" />
+                                    <DoubleAnimation Storyboard.TargetName="ContentBorderScale"
+                                        Storyboard.TargetProperty="ScaleY"
+                                        Duration="0:0:0.1"
+                                        To="0.98" />
+                                </Storyboard>
+                            </VisualState>
+                        </VisualStateGroup>
+
+                        <VisualStateGroup x:Name="DisabledStates">
+                            <VisualState x:Name="Enabled">
+                                <Storyboard>
+                                    <FadeInThemeAnimation TargetName="ContentPresenter" />
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="Disabled">
+                                <Storyboard>
+                                    <FadeOutThemeAnimation TargetName="ContentPresenter" />
+                                </Storyboard>
+                            </VisualState>
+                        </VisualStateGroup>
+
+                        <VisualStateGroup x:Name="MultiSelectStates">
+                            <VisualState x:Name="MultiSelectDisabled"/>
+                            <VisualState x:Name="MultiSelectEnabled"/>
+                        </VisualStateGroup>
+
+                        <VisualStateGroup x:Name="DataVirtualizationStates">
+                            <VisualState x:Name="DataAvailable" />
+                            <VisualState x:Name="DataPlaceholder">
+                                <Storyboard>
+                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PlaceholderTextBlock" Storyboard.TargetProperty="Visibility">
+                                        <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                                    </ObjectAnimationUsingKeyFrames>
+                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="PlaceholderRect" Storyboard.TargetProperty="Visibility">
+                                        <DiscreteObjectKeyFrame KeyTime="0" Value="Visible" />
+                                    </ObjectAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </VisualState>
+                        </VisualStateGroup>
+
+                        <VisualStateGroup x:Name="ReorderHintStates">
+                            <VisualState x:Name="NoReorderHint" />
+                            <VisualState x:Name="BottomReorderHint">
+                                <Storyboard>
+                                    <DragOverThemeAnimation TargetName="ContentBorder" ToOffset="{ThemeResource GridViewItemReorderHintThemeOffset}" Direction="Bottom" />
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="TopReorderHint">
+                                <Storyboard>
+                                    <DragOverThemeAnimation TargetName="ContentBorder" ToOffset="{ThemeResource GridViewItemReorderHintThemeOffset}" Direction="Top" />
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="RightReorderHint">
+                                <Storyboard>
+                                    <DragOverThemeAnimation TargetName="ContentBorder" ToOffset="{ThemeResource GridViewItemReorderHintThemeOffset}" Direction="Right" />
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="LeftReorderHint">
+                                <Storyboard>
+                                    <DragOverThemeAnimation TargetName="ContentBorder" ToOffset="{ThemeResource GridViewItemReorderHintThemeOffset}" Direction="Left" />
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualStateGroup.Transitions>
+                                <VisualTransition To="NoReorderHint" GeneratedDuration="0:0:0.2" />
+                            </VisualStateGroup.Transitions>
+                        </VisualStateGroup>
+
+                        <VisualStateGroup x:Name="DragStates">
+                            <VisualState x:Name="NotDragging" />
+                            <VisualState x:Name="Dragging">
+                                <Storyboard>
+                                    <!--<DoubleAnimation Storyboard.TargetName="ContentBorder"
+                                        Storyboard.TargetProperty="Opacity"
+                                        Duration="0"
+                                        To="1" />-->
+                                    <DragItemThemeAnimation TargetName="ContentBorder" />
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="DraggingTarget" />
+                            <VisualState x:Name="MultipleDraggingPrimary">
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="ContentBorder"
+                                        Storyboard.TargetProperty="Opacity"
+                                        Duration="0"
+                                        To="{ThemeResource ListViewItemDragThemeOpacity}" />
+                                    <DragItemThemeAnimation TargetName="ContentBorder" />
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="MultipleDraggingSecondary" />
+                            <VisualState x:Name="DraggedPlaceholder" />
+                            <VisualState x:Name="Reordering">
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="ContentBorder"
+                                        Storyboard.TargetProperty="Opacity"
+                                        Duration="0:0:0.240"
+                                        To="{ThemeResource ListViewItemReorderThemeOpacity}" />
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="ReorderingTarget">
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="ContentBorderScale"
+                                        Storyboard.TargetProperty="ScaleX"
+                                        Duration="0:0:0.240"
+                                        To="{ThemeResource ListViewItemReorderTargetThemeScale}" />
+                                    <DoubleAnimation Storyboard.TargetName="ContentBorderScale"
+                                        Storyboard.TargetProperty="ScaleY"
+                                        Duration="0:0:0.240"
+                                        To="{ThemeResource ListViewItemReorderTargetThemeScale}" />
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="MultipleReorderingPrimary">
+
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="ContentBorder"
+                                        Storyboard.TargetProperty="Opacity"
+                                        Duration="0:0:0.240"
+                                        To="{ThemeResource ListViewItemDragThemeOpacity}" />
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="ReorderedPlaceholder">
+
+                                <Storyboard>
+                                    <FadeOutThemeAnimation TargetName="ContentBorder" />
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="DragOver">
+                                <Storyboard>
+                                    <DropTargetItemThemeAnimation TargetName="ContentBorder" />
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualStateGroup.Transitions>
+                                <VisualTransition To="NotDragging" GeneratedDuration="0:0:0.2" />
+                            </VisualStateGroup.Transitions>
+
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+
+                    <ContentPresenter x:Name="ContentPresenter"
+                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                        Margin="{TemplateBinding Padding}" >
+
+                        <ContentPresenter.ContentTransitions>
+                            <TransitionCollection>
+                                <NavigationThemeTransition  />
+                            </TransitionCollection>
+                        </ContentPresenter.ContentTransitions>
+                    </ContentPresenter>
+                    <!-- The 'Xg' text simulates the amount of space one line of text will occupy.
+                             In the DataPlaceholder state, the Content is not loaded yet so we
+                             approximate the size of the item using placeholder text. -->
+                    <TextBlock x:Name="PlaceholderTextBlock"
+                        Visibility="Collapsed"
+                        Text="Xg"
+                        Foreground="{x:Null}"
+                        Margin="{TemplateBinding Padding}"
+                        IsHitTestVisible="False"
+                        AutomationProperties.AccessibilityView="Raw" />
+
+                    <Rectangle x:Name="PlaceholderRect" Visibility="Collapsed" Fill="Transparent" />
+
+
+                    <Rectangle x:Name="BorderRectangle"
+                            IsHitTestVisible="False"
+                            Fill="Transparent"
+                            Stroke="#0067C0"
+                            StrokeThickness="2"
+                            RadiusX="5"
+                            RadiusY="5"
+                            Opacity="1" />
+                </Grid>
+            </ControlTemplate>
+
+            <ControlTemplate TargetType="Button" x:Key="MyButton">
+                <Grid x:Name="RootGrid" Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}"  BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}" BackgroundSizing="{TemplateBinding BackgroundSizing}">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <Storyboard>
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="#363636" KeyTime="0:0:0.2"/>
+                                    </ColorAnimationUsingKeyFrames>
+
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="Transparent" KeyTime="0:0:0.2"/>
+                                    </ColorAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="PointerOver">
+                                <Storyboard>
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="#363636" KeyTime="0:0:0"/>
+                                    </ColorAnimationUsingKeyFrames>
+
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="#E5E4E2" KeyTime="0:0:0.2"/>
+                                    </ColorAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </VisualState>
+
+                            <VisualState x:Name="Pressed">
+                                <Storyboard>
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="#363636" KeyTime="0:0:0"/>
+                                    </ColorAnimationUsingKeyFrames>
+
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="#D3D3D3" KeyTime="0:0:0.1"/>
+                                    </ColorAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </VisualState>
+                            <VisualState x:Name="Disabled">
+                                <Storyboard>
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="Transparent" KeyTime="0:0:0.2"/>
+                                    </ColorAnimationUsingKeyFrames>
+
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="Transparent" KeyTime="0:0:0.2"/>
+                                    </ColorAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ContentPresenter x:Name="ContentPresenter" Content="{TemplateBinding Content}" ContentTransitions="{TemplateBinding ContentTransitions}" ContentTemplate="{TemplateBinding ContentTemplate}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" AutomationProperties.AccessibilityView="Raw" />
+                </Grid>
+            </ControlTemplate>
+
+            <Style TargetType="Button" >
+                <Setter Property="Template" Value="{StaticResource MyButton}" />
+            </Style>
+
+            <Style TargetType="GridViewItem" >
+                <Setter Property="Template" Value="{StaticResource MyGridItem}" />
+            </Style>
+
+            <DataTemplate x:Key='FolderTemplate' x:DataType='local:Category'>
+                <Grid Width="200" Height="200" CornerRadius="8" Name="{x:Bind _name, Mode=OneWay}"
+                      PointerEntered="Grid_PointerEntered"
+                      PointerExited="Grid_PointerExited"
+                      PointerReleased="Grid_PointerReleased">
+                    <Rectangle Fill="Transparent"/>
+                    <!--不知道为什么要一个长方形去占位。。。。-->
+                    <Image x:Name="Normal" Stretch = 'UniformToFill' Source = "/Images/Folder_image.svg"  Width = '75' Height = '75' VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0, 0, 0, 30"/>
+                    <Image x:Name="Open" Stretch = 'UniformToFill' Source = "/Images/Folder_open.svg"  Width = '75' Height = '75' VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0, 0, 0, 30" Opacity="0"/>
+                    <TextBlock Text="{x:Bind _name, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" Margin="0, 120, 0, 0"/>
+
+                    <Grid.Resources>
+                        <Storyboard x:Key="Open" >
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Normal" Storyboard.TargetProperty="Opacity">
+                                <LinearDoubleKeyFrame Value="0" KeyTime="0:0:0.15"/>
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Open" Storyboard.TargetProperty="Opacity">
+                                <LinearDoubleKeyFrame Value="1" KeyTime="0:0:0.15"/>
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                        <Storyboard x:Key="Close" >
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Normal" Storyboard.TargetProperty="Opacity">
+                                <LinearDoubleKeyFrame Value="1" KeyTime="0:0:0.15"/>
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Open" Storyboard.TargetProperty="Opacity">
+                                <LinearDoubleKeyFrame Value="0" KeyTime="0:0:0.15"/>
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+
+                        <Flyout x:Key="Flyout" Placement="Right">
+                            <Grid Height="80">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="40"/>
+                                    <RowDefinition Height="40"/>
+                                </Grid.RowDefinitions>
+
+                                <Button Template="{StaticResource MyButton}" Grid.Row="0" Click="Property_Click_Folder"
+                                        Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                        VerticalAlignment="Top">
+                                    <Grid Width="80" >
+                                        <!--<FontIcon Glyph="&#xE74D;" HorizontalAlignment="Left"/>-->
+                                        <Image Source="/Images/Document_question.svg" HorizontalAlignment="Left"  Stretch="UniformToFill" Height="24" Width="24"/>
+                                        <TextBlock Text="属性" HorizontalAlignment="Left" Margin="35, 2, 0, 0"/>
+                                    </Grid>
+                                </Button>
+
+                                <Button Template="{StaticResource MyButton}" Grid.Row="1" Click="Delete_Click_Folder"
+                                        Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                        VerticalAlignment="Center">
+                                    <Grid Width="80">
+                                        <FontIcon Glyph="&#xE74D;" Foreground="Red" HorizontalAlignment="Left" Margin="2, 0, 0, 0"/>
+                                        <TextBlock Text="删除" Foreground="Red" HorizontalAlignment="Left" Margin="35, 0, 0, 0"/>
+                                    </Grid>
+                                </Button>
+                            </Grid>
+                        </Flyout>
+                    </Grid.Resources>
+                </Grid>
+            </DataTemplate>
+
+            <DataTemplate x:Key="FolderAddTemplate" x:DataType='local:Category'>
+                <Grid Width="200" Height="200" CornerRadius="8" CanDrag="False">
+                    <Rectangle Fill="Transparent"/>
+                    <!--不知道为什么要一个长方形去占位。。。。-->
+                    <Image x:Name="Normal" Stretch = 'UniformToFill' Source = "/Images/Folder_add.svg"  Width = '75' Height = '75' VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0, 0, 0, 30"/>
+                    <TextBlock Text="{x:Bind _name, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" Margin="0, 120, 0, 0"/>
+                </Grid>
+            </DataTemplate>
+
+
+            <DataTemplate x:Key="GalleryTemplate" x:DataType="local:Category">
+                <Grid Width="200" Height="200" CornerRadius="8" Name="{x:Bind _name, Mode=OneWay}"
+                      PointerEntered="Grid_PointerEntered"
+                      PointerExited="Grid_PointerExited"
+                      PointerReleased="Grid_PointerReleased">
+                    <Rectangle Fill="Transparent"/>
+                    <!--不知道为什么要一个长方形去占位。。。。-->
+                    <Image x:Name="Normal" Stretch = 'UniformToFill' Source = "/Images/Tag.svg"  Width = '75' Height = '75' VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0, 0, 0, 30"/>
+                    <Image x:Name="Open" Stretch = 'UniformToFill' Source = "/Images/Tag_search.svg"  Width = '75' Height = '75' VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0, 0, 0, 30" Opacity="0"/>
+                    <TextBlock Text="{x:Bind _name, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" Margin="0, 120, 0, 0"/>
+
+                    <Grid.Resources>
+                        <Storyboard x:Key="Open" >
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Normal" Storyboard.TargetProperty="Opacity">
+                                <LinearDoubleKeyFrame Value="0" KeyTime="0:0:0.15"/>
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Open" Storyboard.TargetProperty="Opacity">
+                                <LinearDoubleKeyFrame Value="1" KeyTime="0:0:0.15"/>
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                        <Storyboard x:Key="Close" >
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Normal" Storyboard.TargetProperty="Opacity">
+                                <LinearDoubleKeyFrame Value="1" KeyTime="0:0:0.15"/>
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Open" Storyboard.TargetProperty="Opacity">
+                                <LinearDoubleKeyFrame Value="0" KeyTime="0:0:0.15"/>
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+
+                        <Flyout x:Key="Flyout" Placement="Right">
+                            <Grid Height="80">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="40"/>
+                                    <RowDefinition Height="40"/>
+                                </Grid.RowDefinitions>
+
+                                <Button Template="{StaticResource MyButton}" Grid.Row="0" Click="Property_Click_Folder"
+                                        Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                        VerticalAlignment="Top">
+                                    <Grid Width="80" >
+                                        <!--<FontIcon Glyph="&#xE74D;" HorizontalAlignment="Left"/>-->
+                                        <Image Source="/Images/Tag_question.svg" HorizontalAlignment="Left"  Stretch="UniformToFill" Height="24" Width="24"/>
+                                        <TextBlock Text="属性" HorizontalAlignment="Left" Margin="35, 2, 0, 0"/>
+                                    </Grid>
+                                </Button>
+
+                                <Button Template="{StaticResource MyButton}" Grid.Row="1" Click="Delete_Click_Folder"
+                                        Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
+                                        VerticalAlignment="Center">
+                                    <Grid Width="80">
+                                        <FontIcon Glyph="&#xE74D;" Foreground="Red" HorizontalAlignment="Left" Margin="2, 0, 0, 0"/>
+                                        <TextBlock Text="删除" Foreground="Red" HorizontalAlignment="Left" Margin="35, 0, 0, 0"/>
+                                    </Grid>
+                                </Button>
+                            </Grid>
+                        </Flyout>
+                    </Grid.Resources>
+                </Grid>
+            </DataTemplate>
+
+            <DataTemplate x:Key="GalleryAddTemplate" x:DataType='local:Category'>
+                <Grid Width="200" Height="200" CornerRadius="8" CanDrag="False">
+                    <Rectangle Fill="Transparent"/>
+                    <Image x:Name="Normal" Stretch = 'UniformToFill' Source = "/Images/Bookmark_add.svg"  Width = '75' Height = '75' VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0, 0, 0, 30"/>
+                    <TextBlock Text="{x:Bind _name, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" Margin="0, 120, 0, 0"/>
+                </Grid>
+            </DataTemplate>
+
+            <local:MyAddFolderOrGallerySelector x:Key="AddFolderOrGallerySelector"
+                             FolderTemplate="{StaticResource FolderTemplate}"
+                             FolderAddTemplate="{StaticResource FolderAddTemplate}"
+                             GalleryTemplate="{StaticResource GalleryTemplate}"
+                             GalleryAddTemplate="{StaticResource GalleryAddTemplate}"/>
+        </Grid.Resources>
+
+        <!--ItemTemplate="{StaticResource FolderTemplate}"-->
+        <GridView
+            x:Name="ItemGridView"
+            ItemTemplateSelector="{StaticResource AddFolderOrGallerySelector}"
+            ItemsSource="{x:Bind Items, Mode=OneWay}"
+            SelectionMode="Single"
+            CanReorderItems="True"
+            CanDragItems="True"
+            AllowDrop="True"
+            
+            SelectionChanged="ItemGridView_SelectionChanged"
+            DragItemsCompleted="ItemGridView_DragItemsCompleted">
+        </GridView>
+
+        <ContentDialog x:Name="AddFolder" >
+
+        </ContentDialog>
+    </Grid>
+</Page>

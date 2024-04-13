@@ -50,7 +50,7 @@
                     CanBeScrollAnchor="False"
                     Stretch="Uniform"        
                     Loaded="image_Loaded" 
-                    Source="{x:Bind ChooseImage._ImageLocation, Mode=TwoWay}">
+                    Source="{x:Bind ChooseImage._imageLocation, Mode=OneWay}">
                     <!--<Image.Source>
                         <BitmapImage DecodePixelHeight="{x:Bind ChooseImage.Height, Mode=OneTime}" UriSource="{x:Bind ChooseImage.ImageLocation, Mode=OneTime}" />
                     </Image.Source>-->
