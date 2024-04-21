@@ -14,7 +14,7 @@ namespace OneGallery
     {
         public List<PictureClass> ImgList { get; set; }
 
-        public SortableObservableCollection<PictureClass> ImgListForRepeater { get; set; }
+        public ObservableCollection<PictureClass> ImgListForRepeater { get; set; }
 
         public List<Rect> ImageRect { get; set; }
 
@@ -245,11 +245,7 @@ namespace OneGallery
                 {
                     ImgList[i].Index = i;
                 }
-
-                Debug.Print("sort");
             }
-
-           
         }
 
         private List<double> TryPutImg(int Index, double RemainingWidth)
@@ -267,6 +263,10 @@ namespace OneGallery
             {
                 _acutualWidth = ImageHeight * 2.5;
             }
+
+            if (_acutualWidth > NowWidth)
+                _acutualWidth = NowWidth;
+            
 
             List<double> list;
 
@@ -298,8 +298,6 @@ namespace OneGallery
 
             if (ImgList.Count == 0)
                 return;
-
-
 
             _imgIndex = 0;
             _nowY = 0;
@@ -343,7 +341,6 @@ namespace OneGallery
 
                     _nowX += Wigthlist[i] * zoom + ColSpacing;
                     ImageRect_Default.Add(_rect);
-
                 }
 
                 RowFirstIndex_Default.Add(_imgIndex);
@@ -353,11 +350,13 @@ namespace OneGallery
             }
 
             int _count;
+
             for (int i = 1; i < RowFirstIndex_Default.Count; i++)
             {
                 _count = RowFirstIndex_Default[i] - RowFirstIndex_Default[i-1];
                 RowImgCount_Default.Add(_count);
             }
+
             RowImgCount_Default.Add(ImgList.Count - RowFirstIndex_Default.Last());
         }
 

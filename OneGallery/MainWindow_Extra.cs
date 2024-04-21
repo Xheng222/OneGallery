@@ -16,28 +16,59 @@ namespace OneGallery
 {
     public partial class MainWindow : WindowEx, INotifyPropertyChanged
     {
-
-        private void InitConfigs()
+        public void InitConfigs()
         {
-            NowSelectMode = SelectMode.Single;
-            NowImageSizeMode = ImageSizeMode.Medium;
+            NowSelectMode = MySettingsConfig.ChooseMode switch
+            {
+                0 => SelectMode.Single,
+                1 => SelectMode.Multiple,
+                2 => SelectMode.None,
+                _ => SelectMode.Single,
+            };
+
+            NowSortMode = MySettingsConfig.SortMode switch
+            {
+                0 => SortMode.ShootDate,
+                1 => SortMode.CreateDate,
+                2 => SortMode.LastEditDate,
+                3 => SortMode.Name,
+                _ => SortMode.ShootDate
+            };
+
+            IsAscending = MySettingsConfig.IsAscending;
+
+            NowImageSizeMode = MySettingsConfig.ImageSizeMode switch
+            {
+                0 => ImageSizeMode.Small,
+                1 => ImageSizeMode.Medium,
+                2 => ImageSizeMode.Big,
+                _ => ImageSizeMode.Medium
+            };
+
+
+            FolderManager.SetStretch();
 
             FolderManager.MyImageArrangement.SetImgSize(
-                250,
+                GetImageHeight(),
                 Width,
                 12, 12
             );
-
-            NowSortMode = SortMode.ShootDate;
-            IsAscending = false;
-
-
-
 
             SwitchImageSizeMode();
             SwitchSortMode();
             SwitchAscending();
             SwitchSelectMode();
+        }
+
+        private int GetImageHeight()
+        {
+            return NowImageSizeMode switch
+            { 
+                ImageSizeMode.Small => SettingPage.Height_Small[MySettingsConfig.ImageHeight_Small],
+                ImageSizeMode.Medium => SettingPage.Height_Meduim[MySettingsConfig.ImageHeight_Medium],
+                ImageSizeMode.Big => SettingPage.Height_Large[MySettingsConfig.ImageHeight_Large],
+                _ => SettingPage.Height_Meduim[MySettingsConfig.ImageHeight_Medium]
+            };
         }
 
         /*
@@ -55,9 +86,6 @@ namespace OneGallery
 
         private async void SelectAll_Click(object sender, RoutedEventArgs e)
         {
-            Debug.Print("SelectAll_Click");
-
-
             if (NowCategory.IsGallery || NowCategory.IsFolder)
             {
                 NowSelectMode = SelectMode.Multiple;
@@ -85,8 +113,6 @@ namespace OneGallery
 
         private async void UnSelectAll_Click(object sender, RoutedEventArgs e)
         {
-            Debug.Print("UnSelectAll_Click");
-
             if (NowCategory.IsGallery || NowCategory.IsFolder)
             {
                 ClearAllSelect();
@@ -115,7 +141,7 @@ namespace OneGallery
             {
                 NowImageSizeMode = ImageSizeMode.Small;
                 SwitchImageSizeMode();
-                FolderManager.MyImageArrangement.SetImgSize(125, Width);
+                FolderManager.MyImageArrangement.SetImgSize(GetImageHeight(), Width);
                 ((ImageListPage)Nv_page.Content).MyActivityFeedLayout.MyInvalidateMeasure();
                 
                 await Task.Delay(400);
@@ -133,7 +159,7 @@ namespace OneGallery
             {
                 NowImageSizeMode = ImageSizeMode.Medium;
                 SwitchImageSizeMode();
-                FolderManager.MyImageArrangement.SetImgSize(250, Width);
+                FolderManager.MyImageArrangement.SetImgSize(GetImageHeight(), Width);
                 ((ImageListPage)Nv_page.Content).MyActivityFeedLayout.MyInvalidateMeasure();
 
                 await Task.Delay(400);
@@ -149,7 +175,7 @@ namespace OneGallery
             if (NowImageSizeMode != ImageSizeMode.Big)
             {
                 NowImageSizeMode = ImageSizeMode.Big;
-                FolderManager.MyImageArrangement.SetImgSize(400, Width);
+                FolderManager.MyImageArrangement.SetImgSize(GetImageHeight(), Width);
                 SwitchImageSizeMode();
 
                 ((ImageListPage)Nv_page.Content).MyActivityFeedLayout.MyInvalidateMeasure();
@@ -410,19 +436,28 @@ namespace OneGallery
         {
             _selectedCount = 0;
             ImageListPage.SelectedImage = null;
-            foreach (var _image in FolderManager.MyImageArrangement.ImgList)
+            if (NowCategory.IsFolder || NowCategory.IsGallery)
             {
-                if (_image.IsSelected)
+                if (FolderManager.MyImageArrangement.ImgList is not null)
                 {
-                    _image._checkBoxOpacity = 0;
-                    _image._borderOpacity = 0;
-                    _image._rectangleOpacity = 0;
-                    UnSelect(_image);
+                    foreach (var _image in FolderManager.MyImageArrangement.ImgList)
+                    {
+                        if (_image.IsSelected)
+                        {
+                            _image._checkBoxOpacity = 0;
+                            _image._borderOpacity = 0;
+                            _image._rectangleOpacity = 0;
+                            UnSelect(_image);
+                        }
+                    }
                 }
             }
+
+
+
         }
 
-        private async void UnSelect(PictureClass _image)
+        private static async void UnSelect(PictureClass _image)
         {
             await Task.Delay(200);
             _image._isSelected = false;
@@ -458,7 +493,7 @@ namespace OneGallery
 
         public static List<StorageFile> _selectImages = new();
 
-        private async Task GetImageFile(string _path)
+        private static async Task GetImageFile(string _path)
         {
             _selectImages.Add(await StorageFile.GetFileFromPathAsync(_path));
         }
@@ -581,20 +616,7 @@ namespace OneGallery
                 OnPropertyChanged(nameof(_selectedCount));
             }
 
-            if (SelectedCount == 0 && Cancle.IsEnabled)
-            {
-                Cancle.IsEnabled = false;
-                Delete.IsEnabled = false;
-                Cut.IsEnabled = false;
-                Copy.IsEnabled = false;
-            }
-            else if (SelectedCount > 0 && !Cancle.IsEnabled)
-            {
-                Cancle.IsEnabled = true;
-                Delete.IsEnabled = true;
-                Cut.IsEnabled = true;
-                Copy.IsEnabled = true;
-            }
+            CheckTitleBorder(TitleBorder.ActualWidth);
         }
 
         public void Cancle_Click(object sender, RoutedEventArgs e)
@@ -610,7 +632,6 @@ namespace OneGallery
             set
             {
                 ImageCountChanged(value);
-
             }
         }
 
@@ -627,7 +648,194 @@ namespace OneGallery
 
         }
 
+        private void TitleBorder_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (e.PreviousSize.Width != e.NewSize.Width)
+                CheckTitleBorder(e.NewSize.Width);
+        }
 
+        public void CheckTitleBorder(double _width)
+        {
+            if (NowCategory is not null && (NowCategory.IsFolder || NowCategory.IsGallery))
+            {
+                var _remain = _width - TitleName.ActualWidth - 120;
+
+                if (_remain < Cancle.Margin.Right + Cancle.ActualWidth)
+                {
+                    Cancle.IsEnabled = false;
+                }
+                else
+                {
+                    if (SelectedCount > 0)
+                        Cancle.IsEnabled = true;
+                    else
+                        Cancle.IsEnabled = false;
+                }
+
+                if (_remain < Delete.Margin.Right + Delete.ActualWidth)
+                {
+                    Delete.IsEnabled = false;
+                }
+                else
+                {
+                    if (SelectedCount > 0)
+                        Delete.IsEnabled = true;
+                    else
+                        Delete.IsEnabled = false;
+                }
+
+                if (_remain < Cut.Margin.Right + Cut.ActualWidth)
+                {
+                    Cut.IsEnabled = false;
+                }
+                else
+                {
+                    if (SelectedCount > 0)
+                        Cut.IsEnabled = true;
+                    else
+                        Cut.IsEnabled = false;
+                }
+
+                if (_remain < Copy.Margin.Right + Copy.ActualWidth)
+                {
+                    Copy.IsEnabled = false;
+                }
+                else
+                {
+                    if (SelectedCount > 0)
+                        Copy.IsEnabled = true;
+                    else
+                        Copy.IsEnabled = false;
+                }
+
+                if (_remain < Chose.Margin.Right + Chose.ActualWidth)
+                {
+                    Chose.IsEnabled = false;
+                }
+                else
+                {
+                    Chose.IsEnabled = true;
+                }
+
+                if (_remain < Sort.Margin.Right + Sort.ActualWidth)
+                {
+                    Sort.IsEnabled = false;
+                }
+                else
+                {
+                    Sort.IsEnabled = true;
+                }
+
+                if (_remain < ImageSize.Margin.Right + ImageSize.ActualWidth)
+                {
+                    ImageSize.IsEnabled = false;
+                }
+                else
+                {
+                    ImageSize.IsEnabled = true;
+
+                }
+
+                if (_remain < More.Margin.Right + More.ActualWidth)
+                {
+                    More.IsEnabled=false;
+                }
+                else
+                {
+                    More.IsEnabled = true;
+                }
+            }
+
+        }
+
+        public void SwitchTitleButton(Category _newCategory)
+        {
+            if (NowCategory.IsGallery || NowCategory.IsFolder)
+            {
+                ClearAllSelect();
+
+                if (!_newCategory.IsGallery && !_newCategory.IsFolder)
+                {
+                    Chose.IsEnabled = false;
+                    Sort.IsEnabled = false;
+                    ImageSize.IsEnabled = false;
+                    More.IsEnabled = false;
+                    if (_newCategory != SettingCategory)
+                    {
+                        Add.IsEnabled = true;
+                    }
+
+                }
+            }
+            else if (NowCategory != SettingCategory)
+            {
+                if (_newCategory.IsGallery || _newCategory.IsFolder || _newCategory == SettingCategory)
+                {
+                    Add.IsEnabled = false;
+                }
+            }
+            else
+            {
+                if (!_newCategory.IsGallery && !_newCategory.IsFolder)
+                {
+                    Add.IsEnabled = true;
+                }
+            }
+
+
+        }
+
+        public async void Add_Click(object sender, RoutedEventArgs e)
+        {
+            var _mode = NowCategory.IsFolderInfo ? AddContentDialog.Mode.AddFolderMode : AddContentDialog.Mode.AddGalleryMode;
+            AddContentDialog signInDialog = new(_mode)
+            {
+                XamlRoot = Grid.XamlRoot
+            };
+            await signInDialog.ShowAsync();
+        }
+
+        public async void ChangeTitle(Category _category)
+        {
+            if (NowCategory != _category)
+            {
+                if (NowCategory is not null)
+                    SwitchTitleButton(_category);
+
+                NowCategory = _category;
+                ChangeSelect(_category);
+
+                TitleName.Opacity = 0;
+                TitleFont.Opacity = 0;
+                CountText.Opacity = 0;
+                CountNum.Opacity = 0;
+
+
+                await Task.Delay(250);
+                TitleFont.Glyph = _category.Icon.Glyph;
+                OnPropertyChanged(nameof(_nowCategory));
+
+                TitleName.Opacity = 1;
+                TitleFont.Opacity = 1;
+
+                await ImageListPage.InitPageTask;
+                _imageCount = FolderManager.MyImageArrangement.ImgList.Count;
+
+                if (_category.IsGallery || _category.IsFolder)
+                {
+                    CountText.Opacity = 1;
+                    CountNum.Opacity = 1;
+                    await Task.Delay(100);
+                    CheckTitleBorder(TitleBorder.ActualWidth);
+                }
+                else
+                {
+                    CountText.Opacity = 0;
+                    CountNum.Opacity = 0;
+
+                }
+            }
+        }
 
     }
 }

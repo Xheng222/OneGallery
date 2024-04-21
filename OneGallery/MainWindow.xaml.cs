@@ -50,7 +50,7 @@ namespace OneGallery
         public PathConfig MyPathConfig { get; set; }
 
         // expand 用
-        Dictionary<string, NavigationViewItem> PageDictionary = new();
+        readonly Dictionary<string, NavigationViewItem> PageDictionary = new();
 
         // Folder
         public LocalFolderManager FolderManager { get; set; }
@@ -59,7 +59,7 @@ namespace OneGallery
 
         public Category SettingCategory = new()
         {
-            Name = "Settings",
+            Name = "设置",
         };
         public Category NowCategory {  get; set; }
 
@@ -68,9 +68,7 @@ namespace OneGallery
             get => NowCategory;
             set
             {
-                NowCategory = value;
-                TitleFont.Glyph = value.Icon.Glyph;
-                OnPropertyChanged();
+                ChangeTitle(value);
             }
         }
 
@@ -115,9 +113,9 @@ namespace OneGallery
             InitWindowTask = InitWindow();
         }
 
-        public async Task InitFolder()
+        public async Task InitFolder(Category _category)
         {
-            await FolderManager.InitImageListPage(NowCategory);
+            await FolderManager.InitImageListPage(_category);
         }
 
         SystemBackdropConfiguration m_configurationSource;
@@ -127,19 +125,35 @@ namespace OneGallery
         {
             await FolderManager.InitConfigs();
             this.SetWindowSize(MySettingsConfig.LastWidth, MySettingsConfig.LastHeight);
+            if (MySettingsConfig.LastWidth < 850)
+            {
+                if (Nv.PaneDisplayMode != NavigationViewPaneDisplayMode.LeftCompact)
+                    Nv.PaneDisplayMode = NavigationViewPaneDisplayMode.LeftCompact;
+            }
+            else
+            {
+                if (Nv.PaneDisplayMode != NavigationViewPaneDisplayMode.Left)
+                    Nv.PaneDisplayMode = NavigationViewPaneDisplayMode.Left;
+            }
+
+
             Task InitCategory = InitCategories();
 
             if (DesktopAcrylicController.IsSupported())
-            {          
-                m_configurationSource = new SystemBackdropConfiguration();
-                m_configurationSource.IsInputActive = true;
-                m_configurationSource.Theme = SystemBackdropTheme.Default;
+            {
+                m_configurationSource = new SystemBackdropConfiguration
+                {
+                    IsInputActive = true,
+                    Theme = SystemBackdropTheme.Default
+                };
 
-                m_backdropController = new DesktopAcrylicController();
-                m_backdropController.Kind = DesktopAcrylicKind.Default;
+                m_backdropController = new DesktopAcrylicController
+                {
+                    Kind = DesktopAcrylicKind.Default,
+                    TintColor = Color.FromArgb(255, 255, 255, 255),
+                    TintOpacity = 0.5f
+                };
 
-                m_backdropController.TintColor = Color.FromArgb(255, 255, 255, 255);
-                m_backdropController.TintOpacity = 0.5f;
                 m_backdropController.AddSystemBackdropTarget(this.As<Microsoft.UI.Composition.ICompositionSupportsSystemBackdrop>());
                 m_backdropController.SetSystemBackdropConfiguration(m_configurationSource);
 
@@ -154,9 +168,9 @@ namespace OneGallery
         private async Task InitCategories()
         {
             Categories.Add(new NavigationViewItemSeparator());
-            Category _temp = new Category()
+            Category _temp = new()
             {
-                _name = "所有照片",
+                _name = "所有图片",
                 PageType = "ImageListPage",
                 IsGallery = true,
                 IsHomePage = true,
@@ -166,14 +180,14 @@ namespace OneGallery
             Categories.Add(_temp);
             Categories.Add(new NavigationViewItemSeparator());
 
-            _temp = new Category()
+            _temp = new()
             {
                 _name = "画廊",
                 PageType = "AddFolderOrGallery",
+                IsGalleryInfo = true,
             };
             _temp.SetFontIcon("\uE8B9");
-            //var _tempList = MyPathConfig.GalleryToFolderListConfig.Keys.ToList();
-            //_tempList.RemoveAt(0);
+
             InitAddCategories(_temp, MyPathConfig.GalleryToFolderListConfig.Keys.ToList(), false);
             Categories.Add(_temp);
             Categories.Add(new NavigationViewItemSeparator());
@@ -192,11 +206,11 @@ namespace OneGallery
             await Task.Delay(100);
         }
 
-        private void InitAddCategories(Category _parent, List<string> _children, bool _isFolder)
+        private static void InitAddCategories(Category _parent, List<string> _children, bool _isFolder)
         {
             foreach (var _child in _children)
             {
-                Category _temp = new Category()
+                Category _temp = new()
                 {
                     _name = _child,
                     PageType = "ImageListPage",
@@ -213,8 +227,7 @@ namespace OneGallery
                     _temp.IsGallery = true;
                     _temp.SetFontIcon("\uE8EC");
                 }
-                    
-                
+                          
                 _parent.Children.Add(_temp);
             }
         }
@@ -231,7 +244,12 @@ namespace OneGallery
                 m_configurationSource = null;
             }
 
-            FolderManager.SaveConfig((int)Width, (int)Height);
+            SaveConfigs();
+        }
+
+        public void SaveConfigs()
+        {
+            FolderManager.SaveConfig((int)Width, (int)Height, (Category)Categories[3], (Category)Categories[5]);
         }
 
 
@@ -267,7 +285,7 @@ namespace OneGallery
             {
                 if (args.IsSettingsInvoked == true)
                 {
-                    if (!string.Equals(CurrentPage.Name, "Settings"))
+                    if (!string.Equals(CurrentPage.Name, "设置"))
                     {
                         NavView_Navigate(typeof(SettingPage));
                     }
@@ -305,48 +323,6 @@ namespace OneGallery
 
         private async void Nv_Page_Navigated(object sender, NavigationEventArgs e)
         {
-            if (e.NavigationMode == NavigationMode.Back)
-            {
-                //Debug.Print(_nowCategory.Name);
-                //ChangeSelect(LastCategory);
-                //if (LastCategory == SettingCategory)
-                //    Nv.SelectedItem = PageDictionary["Settings"];
-                //else
-                //{
-                //    if (LastCategory.IsHomePage)
-                //    {
-                //        Nv.SelectedItem = LastCategory;
-                //    }
-                //    else if (LastCategory.IsFolder)
-                //    {
-                //        DispatcherQueue.TryEnqueue(() =>
-                //        {
-                //            Nv.Expand(PageDictionary["文件夹"]);
-                //        });
-
-                //        SelectPage();
-                //    }
-                //    else if (LastCategory.IsGallery)
-                //    {
-                //        DispatcherQueue.TryEnqueue(() =>
-                //        {
-                //            Nv.Expand(PageDictionary["画廊"]);
-                //        });
-
-                //        SelectPage();
-                //    } 
-                //    else
-                //    {
-                //        Nv.SelectedItem = LastCategory;
-                //    }
-                //}
-            }
-            //else if (e.NavigationMode == NavigationMode.New && NowCategory is not null)
-            //{
-            //    Debug.Print(_nowCategory.Name);                    
-            //}
-
-
             if (Nv_page.CanGoBack)
             {
                 await Task.Delay(250);
@@ -427,30 +403,24 @@ namespace OneGallery
          * NavigationView
          */
 
-        private async void Nv_Loaded(object sender, RoutedEventArgs e)
+        private void Nv_Loaded(object sender, RoutedEventArgs e)
         {
-            Debug.Print("Nv_Loaded");
-            //Nv_page.CacheSize = 0;
-
-            //FolderManager.InitFolder();
-            //var rootGrid = VisualTreeHelper.GetChild(sender as NavigationView, 0);
-
-            //await InitWindowTask;
-            //Nv.SelectedItem = Categories[1];
-            //NavView_Navigate(typeof(ImageListPage), (Category)Categories[1]);
-            //FindNaView(rootGrid);
+            if (Width < 800)
+                Nv.PaneDisplayMode = NavigationViewPaneDisplayMode.LeftCompact;
+            else
+                Nv.PaneDisplayMode = NavigationViewPaneDisplayMode.Left;
         }
 
         private void Nv_PaneClosing(NavigationView sender, object args)
         {
-            Nv_grid.Width = Nv.ActualWidth - Nv.CompactPaneLength + 8;
+            if (Nv.PaneDisplayMode == NavigationViewPaneDisplayMode.Left)
+                Nv_grid.Width = Nv.ActualWidth - Nv.CompactPaneLength + 8;
         }
 
         private void Nv_PaneOpening(NavigationView sender, object args)
         {
-            Nv_grid.Width = Nv.ActualWidth - Nv.OpenPaneLength + 8;
-
-            
+            if (Nv.PaneDisplayMode == NavigationViewPaneDisplayMode.Left)
+                Nv_grid.Width = Nv.ActualWidth - Nv.OpenPaneLength + 8;
         }
 
         /*
@@ -459,21 +429,27 @@ namespace OneGallery
 
         private void Nv_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (Nv.IsPaneOpen)
-                Nv_grid.Width = Nv.ActualWidth - Nv.OpenPaneLength + 8;
+            if (Nv.PaneDisplayMode == NavigationViewPaneDisplayMode.Left)
+            {
+                if (Nv.IsPaneOpen)
+                    Nv_grid.Width = Nv.ActualWidth - Nv.OpenPaneLength + 8;
+                else
+                    Nv_grid.Width = Nv.ActualWidth - Nv.CompactPaneLength + 8;
+            }
+                
             else
                 Nv_grid.Width = Nv.ActualWidth - Nv.CompactPaneLength + 8;
 
             Nv_grid.Height = Nv.ActualHeight - 40;
 
-            if (this.Width < 800)
+            if (this.Width < 850)
             {
-                if (Nv.IsPaneOpen)
-                    Nv.IsPaneOpen = false;
+                if (Nv.PaneDisplayMode != NavigationViewPaneDisplayMode.LeftCompact)
+                    Nv.PaneDisplayMode = NavigationViewPaneDisplayMode.LeftCompact;
             }
             else
-                if (!Nv.IsPaneOpen)
-                    Nv.IsPaneOpen = true;
+                if (Nv.PaneDisplayMode != NavigationViewPaneDisplayMode.Left)
+                    Nv.PaneDisplayMode = NavigationViewPaneDisplayMode.Left;
         }
 
 
@@ -481,8 +457,7 @@ namespace OneGallery
         {
             Debug.Print("Nv_grid_Loaded");
             Nv_page.CacheSize = 0;
-
-            //FolderManager.InitFolder();
+            
             var rootGrid = VisualTreeHelper.GetChild(Nv, 0);
 
             await InitWindowTask;
@@ -497,15 +472,16 @@ namespace OneGallery
             var ChildNum = VisualTreeHelper.GetChildrenCount(Item);
             if (ChildNum >= 0)
             {
-                if (Item.GetType() == typeof(NavigationViewItem))
+                if (Item is NavigationViewItem NaView)
                 {
-                    var NaView = (NavigationViewItem)Item;
+                    //var NaView = (NavigationViewItem)Item;
                     var PageName = NaView.Tag.ToString();
-                    Debug.Print("FIND " +  PageName);   
+                    
                     if (!PageDictionary.ContainsKey(PageName))
-                    {
                         PageDictionary.Add(PageName, NaView);
-                    }
+
+                    if (PageName == "Settings")
+                        NaView.Content = " 设置";
 
                     return;
                 }
@@ -518,28 +494,6 @@ namespace OneGallery
             return;
         }
 
-        private async void FindItem()
-        {
-            //await Task.Delay(5000);
-            //while (true)
-            //{
-            //    Category category = (Category)Categories[1];
-            //    if (category.Icon.Glyph == "\uE701")
-            //    {
-            //        category.SetFontIcon("\uE80F");
-            //        //category.Name = "555";
-            //        _nowCategory = (Category)Categories[1];
-            //    }
-            //    else
-            //    {
-            //        category.SetFontIcon("\uE701");
-            //        //category.Name = "HomePage";
-            //        _nowCategory = (Category)Categories[3];
-            //    }
-            //    await Task.Delay(1500);
-            //    Debug.Print("111");
-            //}
-        }
 
         /*
          * Check 
@@ -900,7 +854,6 @@ namespace OneGallery
 
         protected override DataTemplate SelectTemplateCore(object item)
         {
-            // Return the correct data template based on the item's type.
             if (item.GetType() == typeof(Category))
             {
                 if (!(item as Category).IsAddSelection)

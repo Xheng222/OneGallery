@@ -62,14 +62,6 @@ namespace OneGallery
             NowCategory = Window._nowCategory;
         }
 
-
-
-        ~ImagePage()
-        {
-            Debug.Print("~" + GetType().Name);
-          
-        }
-
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
 
@@ -91,22 +83,7 @@ namespace OneGallery
                 var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("BackwardConnectedAnimation", image);
                 anim.Configuration = new DirectConnectedAnimationConfiguration();
             }
-            else
-            {
-                Window.ClearAllSelect();
-                //foreach (var _image in Window.FolderManager.MyImageArrangement.ImgList)
-                //{
-                //    if (_image.IsSelected)
-                //    {
-                //        _image._checkBoxOpacity = 0;
-                //        _image._rectangleOpacity = 0;
-                //        _image._borderOpacity = 0;
-                //        _image._isSelected = false;
-                //    }
-                //}
 
-                //Window._selectedCount = 0;
-            }
             Window.TitleBorderDown.Begin();
             base.OnNavigatingFrom(e);
         }
@@ -122,13 +99,38 @@ namespace OneGallery
 
             NowImagePage = null;
 
+            imageAnimation.Completed -= ImageAnimationCompleted;
+            ToolsBarIn.Completed -= ToolBarInCompelete;
+
             PageGrid.PointerMoved -= Grid_PointerMoved;
             PageGrid.PointerPressed -= Grid_PointerPressed;
             PageGrid.PointerReleased -= Grid_PointerReleased;
             PageGrid.PointerWheelChanged -= Grid_PointerWheelChanged;
 
-            imageAnimation.Completed -= ImageAnimationCompleted;
-            ToolsBarIn.Completed -= ToolBarInCompelete;
+            ToolsBar.PointerEntered -= ToolsBar_PointerEntered;
+            ToolsBar.PointerExited -= ToolsBar_PointerExited;
+
+            LeftFontIcon.PointerEntered -= LeftFontIcon_PointerEntered;
+            LeftFontIcon.PointerExited -= LeftFontIcon_PointerExited;
+            LeftFontIcon.PointerPressed -= LeftFontIcon_PointerPressed;
+            LeftFontIcon.PointerReleased -= LeftFontIcon_PointerReleased;
+            LeftFontIcon.PointerMoved -= LeftFontIcon_PointerMoved;
+
+            RightFontIcon.PointerEntered -= RightFontIcon_PointerEntered;
+            RightFontIcon.PointerExited -= RightFontIcon_PointerExited;
+            RightFontIcon.PointerPressed -= RightFontIcon_PointerPressed;
+            RightFontIcon.PointerReleased -= RightFontIcon_PointerReleased;
+            RightFontIcon.PointerMoved -= RightFontIcon_PointerMoved;
+
+            CenterFontIcon.PointerEntered -= CenterFontIcon_PointerEntered;
+            CenterFontIcon.PointerExited -= CenterFontIcon_PointerExited;
+            CenterFontIcon.PointerPressed -= CenterFontIcon_PointerPressed;
+            CenterFontIcon.PointerReleased -= CenterFontIcon_PointerReleased;
+
+            DeleteFontIcon.PointerEntered -= DeleteFontIcon_PointerEntered;
+            DeleteFontIcon.PointerExited -= DeleteFontIcon_PointerExited;
+            DeleteFontIcon.PointerPressed -= DeleteFontIcon_PointerPressed;
+            DeleteFontIcon.PointerReleased -= DeleteFontIcon_PointerReleased;
 
             GC.Collect();
         }
@@ -143,6 +145,31 @@ namespace OneGallery
             PageGrid.PointerPressed += Grid_PointerPressed;
             PageGrid.PointerReleased += Grid_PointerReleased;
             PageGrid.PointerWheelChanged += Grid_PointerWheelChanged;
+
+            ToolsBar.PointerEntered += ToolsBar_PointerEntered;
+            ToolsBar.PointerExited += ToolsBar_PointerExited;
+
+            LeftFontIcon.PointerEntered += LeftFontIcon_PointerEntered;
+            LeftFontIcon.PointerExited += LeftFontIcon_PointerExited;
+            LeftFontIcon.PointerPressed += LeftFontIcon_PointerPressed;
+            LeftFontIcon.PointerReleased += LeftFontIcon_PointerReleased;
+            LeftFontIcon.PointerMoved += LeftFontIcon_PointerMoved;
+
+            RightFontIcon.PointerEntered += RightFontIcon_PointerEntered;
+            RightFontIcon.PointerExited += RightFontIcon_PointerExited;
+            RightFontIcon.PointerPressed += RightFontIcon_PointerPressed;
+            RightFontIcon.PointerReleased += RightFontIcon_PointerReleased;
+            RightFontIcon.PointerMoved += RightFontIcon_PointerMoved;
+
+            CenterFontIcon.PointerEntered += CenterFontIcon_PointerEntered;
+            CenterFontIcon.PointerExited += CenterFontIcon_PointerExited;
+            CenterFontIcon.PointerPressed += CenterFontIcon_PointerPressed;
+            CenterFontIcon.PointerReleased += CenterFontIcon_PointerReleased;
+
+            DeleteFontIcon.PointerEntered += DeleteFontIcon_PointerEntered;
+            DeleteFontIcon.PointerExited += DeleteFontIcon_PointerExited;
+            DeleteFontIcon.PointerPressed += DeleteFontIcon_PointerPressed;
+            DeleteFontIcon.PointerReleased += DeleteFontIcon_PointerReleased;
 
             var tempTimeSpan = TimeSpan.FromMilliseconds(200);
 
@@ -312,21 +339,25 @@ namespace OneGallery
                     {
                         var deltaX = e.GetCurrentPoint(LeftFontIcon).Position.X - RotateMousePoint.Position.X;
                         deltaX = Math.Min(ToolsBar.Width - 50, Math.Max(deltaX, 0));
-
-                        if (RotationState == 0)
+                        if (deltaX > 1)
                         {
-                            RotationState = 1;
-                            scrollViewer.RotationTransition = null;
-                            StartRotate = scrollViewer.Rotation;
+                            if (RotationState == 0)
+                            {
+                                RotationState = 1;
+                                scrollViewer.RotationTransition = null;
+                                StartRotate = scrollViewer.Rotation;
 
-                            LeftOut.Begin();
-                            CenterOut.Begin();
-                            RightOut.Begin();
-                            LeftFontIconForRotateIn.Begin();
+                                LeftOut.Begin();
+                                CenterOut.Begin();
+                                RightOut.Begin();
+                                LeftFontIconForRotateIn.Begin();
+                            }
+
+                            scrollViewer.Rotation = (float)(StartRotate - deltaX * 360 / (ToolsBar.Width - 50));
+                            LeftEllipseBorder.Width = deltaX + 50;
                         }
 
-                        scrollViewer.Rotation = (float)(StartRotate - deltaX * 360 / (ToolsBar.Width - 50));
-                        LeftEllipseBorder.Width = deltaX + 50;
+
                         break;
 
                     }
@@ -336,22 +367,25 @@ namespace OneGallery
                         var deltaX = RotateMousePoint.Position.X - e.GetCurrentPoint(RightFontIcon).Position.X;
                         deltaX = Math.Min(ToolsBar.Width - 50, Math.Max(deltaX, 0));
 
-                        if (RotationState == 0)
+                        if (deltaX > 1)
                         {
-                            RotationState = -1;
-                            scrollViewer.RotationTransition = null;
-                            StartRotate = scrollViewer.Rotation;
+                            if (RotationState == 0)
+                            {
+                                RotationState = -1;
+                                scrollViewer.RotationTransition = null;
+                                StartRotate = scrollViewer.Rotation;
 
-                            LeftOut.Begin();
-                            CenterOut.Begin();
-                            RightOut.Begin();
-                            DeleteOut.Begin();
+                                LeftOut.Begin();
+                                CenterOut.Begin();
+                                RightOut.Begin();
 
-                            RightFontIconForRotateIn.Begin();
+                                RightFontIconForRotateIn.Begin();
+                            }
+
+                            scrollViewer.Rotation = (float)(StartRotate + deltaX * 360 / (ToolsBar.Width - 50));
+                            RightEllipseBorder.Width = deltaX + 50;
                         }
 
-                        scrollViewer.Rotation = (float)(StartRotate + deltaX * 360 / (ToolsBar.Width - 50));
-                        RightEllipseBorder.Width = deltaX + 50;
                         break;
                     }
 
@@ -410,17 +444,7 @@ namespace OneGallery
                     return;
                 }
 
-                if (ViewChanged)
-                {
-                    if (_tempX > ResetEllipse.Margin.Left && _tempX < ResetEllipse.Margin.Left + 50)
-                    {
-                        ResetFontIcon_PointerEntered(null, e);
-                        return;
-                    }
-                }
-
-
-                if (_tempX > DeleteEllipse.Margin.Right - 50 && _tempX < DeleteEllipse.Margin.Left)
+                if (_tempX > LeftEllipse.Margin.Left + ToolsBar.Width + 50 && _tempX < LeftEllipse.Margin.Left + ToolsBar.Width + 100)
                 {
                     DeleteFontIcon_PointerEntered(null, e);
                     return;
@@ -430,6 +454,15 @@ namespace OneGallery
                 {
                     CenterFontIcon_PointerEntered(null, e);
                     return;
+                }
+
+                if (ViewChanged)
+                {
+                    if (_tempX > ResetEllipse.Margin.Left && _tempX < ResetEllipse.Margin.Left + 50)
+                    {
+                        ResetFontIcon_PointerEntered(null, e);
+                        return;
+                    }
                 }
             }
 
@@ -720,23 +753,76 @@ namespace OneGallery
         {
             e.Handled = true;
             isPointInToolBar = true;
+
+            if (ToolsBar.Opacity == 0)
+                ShowToolsBar();
+
+            DeleteEllipseBorderIn.Begin();
+            DeleteEllipse.Scale = new Vector3((float)1.06, (float)1.06, 1);
+            DeleteEllipseBorder.Scale = new Vector3((float)1.06, (float)1.06, 1);
+            DeleteFontIcon.Scale = new Vector3((float)1.06, (float)1.06, 1);
         }
 
         private void DeleteFontIcon_PointerExited(object sender, PointerRoutedEventArgs e)
         {
             e.Handled = true;
-            isPointInToolBar = false;
+
+            DeleteEllipse.Scale = new Vector3(1, 1, 1);
+            DeleteEllipseBorder.Scale = new Vector3(1, 1, 1);
+            DeleteFontIcon.Scale = new Vector3(1, 1, 1);
+
+            if (DeleteFontIcon.PointerCaptures == null || DeleteFontIcon.PointerCaptures.Count == 0)
+            {
+                isPointInToolBar = false;
+                DeleteEllipseBorderOut.Begin();
+            }
         }
 
         private void DeleteFontIcon_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
+            e.Handled = true;
 
+            DeleteFontIcon.CapturePointer(e.Pointer);
+            RotateMousePoint = e.GetCurrentPoint(DeleteFontIcon);
+            DeleteEllipse.Scale = new Vector3((float)0.94, (float)0.94, 1);
+            DeleteEllipseBorder.Scale = new Vector3((float)0.94, (float)0.94, 1);
+            DeleteFontIcon.Scale = new Vector3((float)0.94, (float)0.94, 1);
         }
 
-        private void DeleteFontIcon_PointerReleased(object sender, PointerRoutedEventArgs e)
+        private async void DeleteFontIcon_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
+            e.Handled = true;
+            DeleteFontIcon.ReleasePointerCaptures();
 
+            if (DeleteFontIcon.Scale.X == (float)0.94)
+            {
+                AddContentDialog _deleteDialog = new(AddContentDialog.Mode.DeleteImageMode)
+                {
+                    XamlRoot = this.XamlRoot
+                };
+                await _deleteDialog.ShowAsync();
+
+                if (_deleteDialog.Result == AddContentDialog.ContentDialogResult.ConfirmDelete)
+                {
+                    Window.Nv_BackRequested(null, null);
+                    await Task.Delay(1000);
+                    Window.FolderManager.DeleteImg(ChooseImage);
+                }
+
+                return;
+            }
+
+            EnterToolBar(e);
+
+            if (DeleteFontIcon.Scale.X == 1)
+            {
+                isPointInToolBar = false;
+                DeleteEllipseBorderOut.Begin();
+                return;
+            }
         }
+
+
 
         /*
          * CenterFontIcon
@@ -794,13 +880,16 @@ namespace OneGallery
                 return;
             }
 
-            EnterToolBar(e);
 
-            if (RightFontIcon.Scale.X == 1)
+
+            if (CenterFontIcon.Scale.X == 1)
             {
                 isPointInToolBar = false;
                 CenterEllipseBorderOut.Begin();
+                return;
             }
+
+            EnterToolBar(e);
         }
 
         /*
@@ -867,24 +956,25 @@ namespace OneGallery
         private void RightFontIcon_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             e.Handled = true;
-
             RightFontIcon.ReleasePointerCaptures();
             RightEllipseBorderReset.Begin();
-            EnterToolBar(e);
 
             if (RotationState == -1)
             {
                 ResetBorder();
+            }
+            else
+            {
+                scrollViewer.Rotation += 90;
             }
 
             if (RightFontIcon.Scale.X == 1)
             {
                 isPointInToolBar = false;
                 RightEllipseBorderOut.Begin();
-                return;
             }
 
-            scrollViewer.Rotation += 90;
+            EnterToolBar(e);
             SwitchResetBtn(1);
         }
 
@@ -952,21 +1042,24 @@ namespace OneGallery
 
             LeftFontIcon.ReleasePointerCaptures();
             LeftEllipseBorderReset.Begin();
-            EnterToolBar(e);
+
 
             if (RotationState == 1)
             {
                 ResetBorder();
+            }
+            else
+            {
+                scrollViewer.Rotation -= 90;
             }
             
             if (LeftFontIcon.Scale.X == 1)
             {
                 LeftEllipseBorderOut.Begin();
                 isPointInToolBar = false;
-                return;
             }
             
-            scrollViewer.Rotation -= 90;
+            EnterToolBar(e);
             SwitchResetBtn(1);
         }
 
@@ -1044,13 +1137,13 @@ namespace OneGallery
                 return;
             }
 
-            EnterToolBar(e);
-
             if (ResetFontIcon.Scale.X == 1)
             {
                 isPointInToolBar = false;
                 ResetEllipseBorderOut.Begin();
             }
+
+            EnterToolBar(e);
         }
 
     }

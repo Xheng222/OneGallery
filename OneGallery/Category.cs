@@ -25,8 +25,9 @@ namespace OneGallery
 
         public bool IsFolderInfo = false;
 
+        public bool IsGalleryInfo = false;
+       
         public bool IsAddSelection = false;
-
 
         public string Name { get; set; }
 
@@ -42,33 +43,11 @@ namespace OneGallery
 
         public FontIcon Icon = new();
 
-        public string Glyph { set; get; }
+
 
         public void SetFontIcon(string _glyph)
         {
             Icon.Glyph = _glyph;
-            //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Icon)));
-            if (IsHomePage)
-            {
-                Glyph = "&#xE80F;";
-            }
-            else if (IsGallery)
-            {
-                Glyph = "&#xE8EC;";
-            }
-            else if (IsFolder)
-            {
-                Glyph = "&#xE8B7;";
-                
-            }
-            else if (IsFolderInfo)
-            {
-                Glyph = "&#xEC50;";
-            }
-            else
-            {
-                Glyph = "&#xE8B9;";
-            }
         }
 
         public ObservableCollection<object> Children = new();
@@ -78,7 +57,7 @@ namespace OneGallery
 
         public Category()
         {
-            Icon.Glyph = "\uE80F";
+            Icon.Glyph = "\uE713";
         }
 
 

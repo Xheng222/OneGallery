@@ -94,10 +94,6 @@ namespace OneGallery
 
         public ActivityFeedLayout() { Debug.Print("Create null " + GetType().Name); }
 
-        ~ActivityFeedLayout()
-        {
-            Debug.Print("~" + GetType().Name);
-        }
 
         #endregion
 
@@ -128,6 +124,7 @@ namespace OneGallery
 
             if (context.ItemCount > 0 && context.ItemCount <= LayoutImgArrangement.ImgList.Count)
             {
+                //Debug.Print("111 " + availableSize.Width);
                 var state = context.LayoutState as ActivityFeedLayoutState;
 
                 if (!UpdateImgRect(availableSize.Width))
@@ -172,24 +169,21 @@ namespace OneGallery
                             state.LayoutRects.Add(_size);
                             state.IndexToElementMap.Add(_index, container);
                             _newX += _size.Width + _colSpacing;
-
                         }
                     }
 
                     i++;
+                    
                     _newTop += zoomImg * LayoutImgArrangement.ImageRect[_item].Height + _rowSpacing;
                 }
             }
 
             return new Size(availableSize.Width, _newTop);
-
         }
 
 
         protected override Size ArrangeOverride(VirtualizingLayoutContext context, Size finalSize)
         {
-            // walk through the cache of containers and arrange
-
             if (context.ItemCount == 0)
             {
                 return finalSize;
@@ -212,7 +206,6 @@ namespace OneGallery
         {
             if (args.Action == NotifyCollectionChangedAction.Move)
             {
-                Debug.Print("Move");
                 var _indexToElementMap = (context.LayoutState as ActivityFeedLayoutState).IndexToElementMap;
                 var _tempIndex = args.OldStartingIndex;
 
@@ -234,32 +227,7 @@ namespace OneGallery
             else if (args.Action == NotifyCollectionChangedAction.Remove)
             {
                 Debug.Print("Remove");
-                //var _state = context.LayoutState as ActivityFeedLayoutState;
-                //var _tempIndex = args.OldStartingIndex;
-                //if (_state.IndexToElementMap.ContainsKey(_tempIndex))
-                //{
-                //    context.RecycleElement(_state.IndexToElementMap[_tempIndex]);
-                //    _state.IndexToElementMap.Remove(_tempIndex);
-                //}
-                //_tempIndex = args.NewStartingIndex;
-                //if (_state.IndexToElementMap.ContainsKey(_tempIndex))
-                //{
-                //    context.RecycleElement(_state.IndexToElementMap[_tempIndex]);
-                //    _state.IndexToElementMap.Remove(_tempIndex);
-                //}
-                //var _indexToElementMap = (context.LayoutState as ActivityFeedLayoutState).IndexToElementMap;
-                //int _start = args.OldStartingIndex;
-
-                //foreach (var _item in _indexToElementMap)
-                //{
-                //    if (_item.Key >= _start)
-                //    {
-                //        context.RecycleElement(_item.Value);
-                //        _indexToElementMap.Remove(_item.Key);
-                //    }
-                //}
                 base.OnItemsChangedCore(context, source, args);
-                //this.InvalidateMeasure();
 
             }
             else if (args.Action == NotifyCollectionChangedAction.Reset)
@@ -283,7 +251,6 @@ namespace OneGallery
                     }                
                 }
                 this.InvalidateMeasure();
-                //base.OnItemsChangedCore(context, source, args);
             }
             else
                 base.OnItemsChangedCore(context, source, args);
@@ -307,8 +274,7 @@ namespace OneGallery
         }
         #endregion
 
-        }
-
+    }
 
 
     internal class ActivityFeedLayoutState

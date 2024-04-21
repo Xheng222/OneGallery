@@ -9,7 +9,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    MinHeight="400" MinWidth="600">
+    MinHeight="400" MinWidth="650">
 
     <Grid x:Name="Grid" Background="Transparent">
         <Grid.Resources>
@@ -80,15 +80,15 @@
             <Style TargetType="DropDownButton">
                 <Setter Property="Template" Value="{StaticResource MyButton}"/>
             </Style>
-            
+
             <DataTemplate  x:Key="NavigationViewMenuItem" x:DataType="local:Category">
                 <NavigationViewItem Tag="{x:Bind _name}" Content="{x:Bind _name, Mode=OneWay}" Icon="{x:Bind Icon, Mode=OneWay}" MenuItemsSource="{x:Bind Children, Mode=OneWay}" IsExpanded="True"/>
             </DataTemplate>
-                
+
             <DataTemplate x:Key="NavigationViewItemSeparator">
                 <NavigationViewItemSeparator></NavigationViewItemSeparator>
             </DataTemplate>
-                
+
             <DataTemplate x:Key="NULL" x:DataType="local:Category">
                 <NavigationViewItem Tag="{x:Bind Name}" Content="{x:Bind Name}" Visibility="Collapsed"/>
             </DataTemplate>
@@ -102,7 +102,7 @@
                 <DoubleAnimationUsingKeyFrames Storyboard.TargetName="TitleBorder"
                     Storyboard.TargetProperty="Height"
                     EnableDependentAnimation="True">
-                    
+
                     <EasingDoubleKeyFrame Value="120" KeyTime="0:0:0.8">
                         <EasingDoubleKeyFrame.EasingFunction>
                             <QuinticEase EasingMode="EaseOut"/>
@@ -121,19 +121,19 @@
                 <DoubleAnimationUsingKeyFrames Storyboard.TargetName="TitleBorder"
                     Storyboard.TargetProperty="Height"
                     EnableDependentAnimation="True">
-                    <EasingDoubleKeyFrame Value="0" KeyTime="0:0:0.8">
+                    <EasingDoubleKeyFrame Value="0" KeyTime="0:0:1">
                         <EasingDoubleKeyFrame.EasingFunction>
                             <QuinticEase EasingMode="EaseOut"/>
                         </EasingDoubleKeyFrame.EasingFunction>
                     </EasingDoubleKeyFrame>
 
-                    <EasingDoubleKeyFrame Value="130" KeyTime="0:0:1.4">
+                    <EasingDoubleKeyFrame Value="130" KeyTime="0:0:1.6">
                         <EasingDoubleKeyFrame.EasingFunction>
                             <QuinticEase EasingMode="EaseOut"/>
                         </EasingDoubleKeyFrame.EasingFunction>
                     </EasingDoubleKeyFrame>
 
-                    <EasingDoubleKeyFrame Value="120" KeyTime="0:0:1.8">
+                    <EasingDoubleKeyFrame Value="120" KeyTime="0:0:2">
                         <EasingDoubleKeyFrame.EasingFunction>
                             <QuinticEase EasingMode="EaseOut"/>
                         </EasingDoubleKeyFrame.EasingFunction>
@@ -142,7 +142,7 @@
             </Storyboard>
 
         </Grid.Resources>
-        
+
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -171,10 +171,8 @@
         </Border>
 
         <NavigationView x:Name="Nv" 
-                        PaneDisplayMode="Left"
                         IsTabStop="False"
                         IsBackButtonVisible="Visible"
-                        PaneTitle=""
                         Grid.RowSpan="2"
                         Grid.Column="0"
                         Canvas.ZIndex="0"
@@ -186,7 +184,7 @@
                         Loaded="Nv_Loaded"
                         PaneClosing="Nv_PaneClosing"
                         PaneOpening="Nv_PaneOpening"
-                        SizeChanged="Nv_SizeChanged"         >                       
+                        SizeChanged="Nv_SizeChanged"         >
             <NavigationView.Resources>
                 <!-- This top margin is the height of the custom titleBar -->
                 <Thickness x:Key="NavigationViewContentMargin">0,48,0,0</Thickness>
@@ -213,7 +211,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="8" />
                 </Grid.ColumnDefinitions>
-                <Border x:Name="TitleBorder" Grid.Row="0" Grid.Column="0" Height="120" CornerRadius="5">
+                <Border x:Name="TitleBorder" x:FieldModifier="public" Grid.Row="0" Grid.Column="0" Height="120" CornerRadius="5" SizeChanged="TitleBorder_SizeChanged">
                     <Grid>
                         <FontIcon 
                             x:Name="TitleFont"
@@ -221,31 +219,47 @@
                             Grid.Column="0"
                             VerticalAlignment="Top"
                             HorizontalAlignment="Left"
-                            Margin="45, 45, 0, 0" />
+                            Margin="45, 45, 0, 0" >
+                            <FontIcon.OpacityTransition>
+                                <ScalarTransition Duration="0:0:0.2" />
+                            </FontIcon.OpacityTransition>
+                        </FontIcon>
 
 
-                        <TextBlock Text="{x:Bind _nowCategory._name, Mode=OneWay}" 
+                        <TextBlock x:Name="TitleName"
+                            Text="{x:Bind _nowCategory._name, Mode=OneWay}" 
                             FontSize="28" 
                             Foreground="Black" 
                             Grid.Row="0"
                             Grid.Column="0"
                             VerticalAlignment="Top"
                             HorizontalAlignment="Left"
-                            Margin="75, 35, 0, 0" />
+                            Margin="75, 35, 0, 0">
+                            <TextBlock.OpacityTransition>
+                                <ScalarTransition Duration="0:0:0.2" />
+                            </TextBlock.OpacityTransition>
+                        </TextBlock>
 
-                        <TextBlock Text="{x:Bind _imageCount, Mode=OneWay}" Foreground="#808080" FontSize="14" VerticalAlignment="Center"
-                            HorizontalAlignment="Left" Margin="75, 45, 0, 0" 
-                            />
+                        <TextBlock x:Name="CountNum" Text="{x:Bind _imageCount, Mode=OneWay}" Foreground="#808080" FontSize="14" VerticalAlignment="Center"
+                            HorizontalAlignment="Left" Margin="75, 45, 0, 0" Opacity="0">
+                            <TextBlock.OpacityTransition>
+                                <ScalarTransition Duration="0:0:0.2" />
+                            </TextBlock.OpacityTransition>
+                        </TextBlock>
 
                         <TextBlock x:Name="CountText" Text="  张图片" 
-                            FontSize="14" 
+                            FontSize="14" Opacity="0"
                             Foreground="#808080" 
                             Grid.Row="0"
                             Grid.Column="0"
                             VerticalAlignment="Center"
                             HorizontalAlignment="Left"
-                            Margin="80, 45, 0, 0"  />
-                        
+                            Margin="80, 45, 0, 0"  >
+                            <TextBlock.OpacityTransition>
+                                <ScalarTransition Duration="0:0:0.2" />
+                            </TextBlock.OpacityTransition>
+                        </TextBlock>
+
 
                         <Button Height="0" Width="0" Opacity="0" Click="SelectAll_Click">
                             <Button.KeyboardAccelerators>
@@ -259,8 +273,20 @@
                             </Button.KeyboardAccelerators>
                         </Button>
 
+                        <Button x:Name="Add" Margin="0, 0, 50, 5" IsEnabled="False"
+                                Grid.Row="0" Grid.Column="0" CornerRadius="5" ToolTipService.Placement="Mouse"
+                                VerticalAlignment="Center" HorizontalAlignment="Right" Click="Add_Click"
+                                Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
+                            <FontIcon Glyph="&#xE710;"/>
+                            <ToolTipService.ToolTip>
+                                <Border>
+                                    <TextBlock Text="添加"/>
+                                </Border>
+                            </ToolTipService.ToolTip>
+                        </Button>
+
                         <DropDownButton
-                            x:Name="More" Margin="0, 0, 50, 0" 
+                            x:Name="More" Margin="0, 0, 50, 5" 
                             Grid.Row="0" Grid.Column="0" CornerRadius="5" ToolTipService.Placement="Mouse"
                             VerticalAlignment="Center" HorizontalAlignment="Right"
                             Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
@@ -269,7 +295,7 @@
                                     <TextBlock Text="更多"/>
                                 </Border>
                             </ToolTipService.ToolTip>
-                            
+
                             <DropDownButton.Flyout>
                                 <Flyout x:Name="MoreFlyout" Placement="Bottom">
                                     <Grid>
@@ -305,7 +331,7 @@
                         </DropDownButton>
 
                         <DropDownButton
-                            x:Name="ImageSize" Margin="0, 0, 120, 0" ToolTipService.Placement="Mouse"
+                            x:Name="ImageSize" Margin="0, 0, 120, 5" ToolTipService.Placement="Mouse"
                             Grid.Row="0" Grid.Column="0" CornerRadius="5"
                             VerticalAlignment="Center" HorizontalAlignment="Right"
                             Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
@@ -315,7 +341,7 @@
                                     <TextBlock Text="图片大小"/>
                                 </Border>
                             </ToolTipService.ToolTip>
-                            
+
                             <DropDownButton.Flyout>
                                 <Flyout x:Name="ImageSizeFlyout" Placement="Bottom">
                                     <Grid>
@@ -372,20 +398,20 @@
                             </DropDownButton.Content>
                         </DropDownButton>
 
-                        <DropDownButton
-                            x:Name="Sort" Margin="0, 0, 190, 0"
+                        <DropDownButton 
+                            x:Name="Sort" Margin="0, 0, 190, 5"
                             Grid.Row="0" Grid.Column="0" ToolTipService.Placement="Mouse"
                             VerticalAlignment="Center" HorizontalAlignment="Right" CornerRadius="5"
                             Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
-                            
+
                             <ToolTipService.ToolTip>
                                 <Border Background="Transparent">
                                     <TextBlock Text="排序"/>
                                 </Border>
                             </ToolTipService.ToolTip>
-                            
+
                             <DropDownButton.Flyout>
-                                <Flyout x:Name="SortFlyout" Placement="Bottom">
+                                <Flyout x:Name="SortFlyout" Placement="Bottom" >
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="*" />
@@ -405,7 +431,7 @@
                                                         <ScalarTransition Duration="0:0:0.3"/>
                                                     </Ellipse.OpacityTransition>
                                                 </Ellipse>
-                                                
+
                                                 <Image Source="/Images/Calendar_add.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
                                                 <TextBlock Text="拍摄日期" HorizontalAlignment="Left" Margin="50, 0, 0, 5" />
                                             </Grid>
@@ -487,7 +513,7 @@
                         </DropDownButton>
 
                         <DropDownButton
-                            x:Name="Chose" Margin="0, 0, 260, 0" ToolTipService.Placement="Mouse"
+                            x:Name="Chose" Margin="0, 0, 260, 5" ToolTipService.Placement="Mouse"
                             Grid.Row="0" Grid.Column="0" CornerRadius="5"
                             VerticalAlignment="Center" HorizontalAlignment="Right"
                             Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
@@ -515,7 +541,7 @@
                                                         <ScalarTransition Duration="0:0:0.3"/>
                                                     </Ellipse.OpacityTransition>
                                                 </Ellipse>
-                                                <Image Source="/Images/Checkbox_1.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0"/>
+                                                <Image Source="/Images/Checkbox_1.svg" HorizontalAlignment="Left" Margin="19, 0, 0, 0"/>
                                                 <TextBlock Text="单选模式" HorizontalAlignment="Left" Margin="50, 0, 0, 0" />
                                             </Grid>
                                         </Button>
@@ -541,7 +567,7 @@
                                                         <ScalarTransition Duration="0:0:0.3"/>
                                                     </Ellipse.OpacityTransition>
                                                 </Ellipse>
-                                                <Image Source="/Images/Checkbox_warning.svg" HorizontalAlignment="Left" Margin="20, 0, 0, 0" Height="20"/>
+                                                <Image Source="/Images/Checkbox_warning.svg" HorizontalAlignment="Left" Margin="19, 0, 0, 0"/>
                                                 <TextBlock Text="禁止选择" HorizontalAlignment="Left" Margin="50, 0, 0, 0" />
                                             </Grid>
                                         </Button>
@@ -562,7 +588,7 @@
                             </FontIcon.OpacityTransition>
                         </FontIcon>
 
-                        <Button x:Name="Copy" Margin="0, 0, 330, 0" IsEnabled="False" ToolTipService.Placement="Mouse"
+                        <Button x:Name="Copy" Margin="0, 0, 330, 5" IsEnabled="False" ToolTipService.Placement="Mouse"
                             Grid.Row="0" Grid.Column="0" CornerRadius="5" Click="Copy_Click"
                             VerticalAlignment="Center" HorizontalAlignment="Right" KeyboardAcceleratorPlacementMode="Hidden"
                             Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
@@ -583,7 +609,7 @@
                             </FontIcon.OpacityTransition>
                         </FontIcon>
 
-                        <Button x:Name="Cut" Margin="0, 0, 400, 0" IsEnabled="False"
+                        <Button x:Name="Cut" Margin="0, 0, 400, 5" IsEnabled="False"
                             Grid.Row="0" Grid.Column="0" CornerRadius="5" Click="Cut_Click"
                             VerticalAlignment="Center" HorizontalAlignment="Right" ToolTipService.Placement="Mouse"
                             Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
@@ -599,7 +625,7 @@
                             <FontIcon Glyph="&#xE8C6;"/>
                         </Button>
 
-                        <Button x:Name="Delete" Margin="0, 0, 470, 0" IsEnabled="False"
+                        <Button x:Name="Delete" Margin="0, 0, 470, 5" IsEnabled="False"
                             Grid.Row="0" Grid.Column="0" CornerRadius="5" Click="Delete_Click"
                             VerticalAlignment="Center" HorizontalAlignment="Right" ToolTipService.Placement="Mouse"
                             Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
@@ -611,7 +637,7 @@
                             <FontIcon Glyph="&#xE74D;"/>
                         </Button>
 
-                        <Button x:Name="Cancle" Margin="0, 0, 530, 0" IsEnabled="False"
+                        <Button x:Name="Cancle" Margin="0, 0, 530, 5" IsEnabled="False"
                             Grid.Row="0" Grid.Column="0" CornerRadius="5" Click="Cancle_Click"
                             VerticalAlignment="Center" HorizontalAlignment="Right"
                             Background="Transparent" Foreground="Transparent" BorderBrush="Transparent">
@@ -625,28 +651,22 @@
                         </Button>
                     </Grid>
                 </Border>
-                
+
                 <Frame x:Name="Nv_page" 
                        Grid.Row="1" Grid.Column="0"
                        Navigated="Nv_Page_Navigated" 
                        Background="Transparent" 
                        CornerRadius="8">
 
-                
+
                     <Frame.ContentTransitions>
                         <TransitionCollection>
                             <NavigationThemeTransition  />
                         </TransitionCollection>
                     </Frame.ContentTransitions>
 
-                </Frame>                
+                </Frame>
             </Grid>
-
-        </NavigationView>        
-        
+        </NavigationView>
     </Grid>
-        
-
-
-
 </winex:WindowEx>

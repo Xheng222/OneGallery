@@ -6,29 +6,313 @@
     xmlns:local="using:OneGallery"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    Background="Transparent">
 
-    <ScrollViewer>
-        <Grid Background="Transparent">
-            <Grid.Resources>
-                <x:Double x:Key="TileHeight">150</x:Double>
-            </Grid.Resources>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="ComboBoxBorderBrushPointerOver" Color="Transparent" />
+                    <SolidColorBrush x:Key="ComboBoxBorderBrushPressed" Color="Transparent" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+                
+        </ResourceDictionary>        
+    </Page.Resources>
 
-            <Grid x:Name="DestinationElement" Grid.Row="1" Grid.Column="0" MinHeight="{StaticResource TileHeight}" Background="{ThemeResource SystemAccentColor}" Margin="12" Width="150" Height="200" VerticalAlignment="Top" />
+    <Grid>
+        <Grid.Resources>
+            <ControlTemplate TargetType="Button" x:Key="MyButton">
+                <Grid x:Name="RootGrid" Padding="{TemplateBinding Padding}" Background="Transparent"  BorderBrush="Transparent" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" BackgroundSizing="{TemplateBinding BackgroundSizing}" Width="{TemplateBinding Width}">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <Storyboard>
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="Transparent" KeyTime="0:0:0.2"/>
+                                    </ColorAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </VisualState>
 
-            <StackPanel x:Name="ContentPanel" Grid.Row="1" Grid.Column="1" MinHeight="200" Margin="12">
-                <TextBlock Style="{ThemeResource TitleTextBlockStyle}" TextWrapping="WrapWholeWords" Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit" Margin="0,0,0,12"/>
-                <TextBlock TextWrapping="WrapWholeWords" Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." />
-            </StackPanel>
+                            <VisualState x:Name="PointerOver">
+                                <Storyboard>
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="#E5E4E2" KeyTime="0:0:0.2"/>
+                                    </ColorAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </VisualState>
 
-        </Grid>
-    </ScrollViewer>
+                            <VisualState x:Name="Pressed">
+                                <Storyboard>
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="#D3D3D3" KeyTime="0:0:0.1"/>
+                                    </ColorAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </VisualState>
+                            <VisualState x:Name="Disabled">
+                                <Storyboard>
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="Transparent" KeyTime="0:0:0.2"/>
+                                    </ColorAnimationUsingKeyFrames>
+
+                                    <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
+                                        <LinearColorKeyFrame Value="Transparent" KeyTime="0:0:0.2"/>
+                                    </ColorAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ContentPresenter x:Name="ContentPresenter" Content="{TemplateBinding Content}" ContentTransitions="{TemplateBinding ContentTransitions}" ContentTemplate="{TemplateBinding ContentTemplate}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" Foreground="{TemplateBinding Foreground}" AutomationProperties.AccessibilityView="Raw" />
+                </Grid>
+            </ControlTemplate>
+
+            <Style x:Key="StyleButton" TargetType="Button">
+                <Setter Property="Template"  Value="{StaticResource MyButton}"  />
+                <Setter Property="Foreground"  Value="Black"  />
+            </Style>
+
+            <Style x:Key="StyleButtonAccept" TargetType="Button">
+                <Setter Property="Template"  Value="{StaticResource MyButton}"  />
+                <Setter Property="Foreground" Value="#0067C0" />
+            </Style>
+        </Grid.Resources>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="80"/>
+        </Grid.RowDefinitions>
+        
+        
+        <ScrollViewer Grid.Row="0">
+            <Grid>
+                <TextBlock Text="启动默认选项" FontSize="18" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="40, 0, 0, 0"/>
+
+                <Grid Height="60" VerticalAlignment="Top" Margin="30, 50, 30, 0" Background="#FDFEFE" CornerRadius="8">
+                    <FontIcon Glyph="&#xE71C;" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20, 0, 0, 0"/>
+                    <TextBlock Text="选择模式" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="50, 0, 0, 0"/>
+                    <ComboBox x:Name="ChooseComboBox" HorizontalAlignment="Right" VerticalAlignment="Center" BorderBrush="Transparent" Width="140">
+                        <ComboBoxItem>
+                            <Grid>
+                                <Image Source="/Images/Checkbox_1.svg" Height="20" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                <TextBlock Text="单选模式" HorizontalAlignment="Left" Margin="30, 0, 0, 0" />
+                            </Grid>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Grid HorizontalAlignment="Left">
+                                <Image Source="/Images/Checkbox_sync.svg" Height="20" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="1, 0, 0, 0"/>
+                                <TextBlock Text="多选模式" HorizontalAlignment="Left" Margin="30, 0, 0, 0" />
+                            </Grid>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Grid>
+                                <Image Source="/Images/Checkbox_warning.svg" Height="20" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                <TextBlock Text="禁止选择" HorizontalAlignment="Left" Margin="30, 0, 0, 0" />
+                            </Grid>
+                        </ComboBoxItem>
+                    </ComboBox>
+                </Grid>
+
+                <Grid Height="60" VerticalAlignment="Top" Margin="30, 120, 30, 0" Background="#FDFEFE" CornerRadius="8">
+                    <FontIcon Glyph="&#xE8CB;" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20, 0, 0, 0"/>
+                    <TextBlock Text="排序模式" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="50, 0, 0, 0"/>
+                    <ComboBox x:Name="SortComboBox" HorizontalAlignment="Right" VerticalAlignment="Center" BorderBrush="Transparent" Width="140" Margin="0, 0, 110, 0">
+                        <ComboBoxItem>
+                            <Grid>
+                                <Image Source="/Images/Calendar_add.svg" Height="20" HorizontalAlignment="Left" />
+                                <TextBlock Text="拍摄日期" HorizontalAlignment="Left" Margin="30, 0, 0, 0" />
+                            </Grid>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Grid HorizontalAlignment="Left">
+                                <Image Source="/Images/Image_add.svg" HorizontalAlignment="Left" Height="20"/>
+                                <TextBlock Text="创建日期" HorizontalAlignment="Left" Margin="30, 0, 0, 0"/>
+                            </Grid>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Grid>
+                                <Image Source="/Images/Image_edit.svg" HorizontalAlignment="Left" Height="20"/>
+                                <TextBlock Text="修改日期" HorizontalAlignment="Left" Margin="30, 0, 0, 0"/>
+                            </Grid>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Grid>
+                                <Image Source="/Images/Text_t.svg" HorizontalAlignment="Left" Height="20"/>
+                                <TextBlock Text="名称" HorizontalAlignment="Left" Margin="30, 0, 0, 0"/>
+                            </Grid>
+                        </ComboBoxItem>
+                    </ComboBox>
+
+                    <Line Stroke="#808080" X1="0" X2="0" Y1="0" Y2="60" HorizontalAlignment="Right" Margin="0, 0, 110, 0"/>
+
+                    <ComboBox x:Name="UpOrDownComboBox" HorizontalAlignment="Right" VerticalAlignment="Center" BorderBrush="Transparent" Width="110">
+                        <ComboBoxItem>
+                            <Grid>
+                                <Image Source="/Images/Chevron_up.svg" Height="20" HorizontalAlignment="Left" />
+                                <TextBlock Text="升序" HorizontalAlignment="Left" Margin="30, 0, 0, 0" />
+                            </Grid>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Grid HorizontalAlignment="Left">
+                                <Image Source="/Images/Chevron_down.svg" HorizontalAlignment="Left" Height="20"/>
+                                <TextBlock Text="降序" HorizontalAlignment="Left" Margin="30, 0, 0, 0"/>
+                            </Grid>
+                        </ComboBoxItem>
+                    </ComboBox>
+                </Grid>
+
+                <Grid Height="60" VerticalAlignment="Top" Margin="30, 190, 30, 0" Background="#FDFEFE" CornerRadius="8">
+                    <FontIcon Glyph="&#xECA5;" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20, 0, 0, 0"/>
+                    <TextBlock Text="图片大小" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="50, 0, 0, 0"/>
+                    <ComboBox x:Name="ImageSizeComboBox" HorizontalAlignment="Right" VerticalAlignment="Center" BorderBrush="Transparent" Width="95">
+                        <ComboBoxItem>
+                            <Grid>
+                                <FontIcon Glyph="&#xF58B;" HorizontalAlignment="Left" />
+                                <TextBlock Text="小" HorizontalAlignment="Left" Margin="30, 0, 0, 3" />
+                            </Grid>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Grid HorizontalAlignment="Left">
+                                <FontIcon Glyph="&#xF58C;" HorizontalAlignment="Left" />
+                                <TextBlock Text="中" HorizontalAlignment="Left" Margin="30, 0, 0, 3" />
+                            </Grid>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Grid HorizontalAlignment="Left">
+                                <FontIcon Glyph="&#xF58A;" HorizontalAlignment="Left"/>
+                                <TextBlock Text="大" HorizontalAlignment="Left" Margin="30, 0, 0, 3" />
+                            </Grid>
+                        </ComboBoxItem>
+                    </ComboBox>
+                </Grid>
+
+
+
+                <TextBlock Text="个性化" FontSize="18" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="40, 275, 0, 0"/>
+
+                <Grid Height="60" VerticalAlignment="Top" Margin="30, 320, 30, 0" Background="#FDFEFE" CornerRadius="8">
+                    <Image Source="/Images/Resize_image.svg" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20, 0, 0, 0" Height="20"/>
+                    <TextBlock Text="图片缩放模式" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="50, 0, 0, 0"/>
+                    <ComboBox x:Name="ImageZoomComboBox" HorizontalAlignment="Right" VerticalAlignment="Center" BorderBrush="Transparent" Width="150">
+                        <ComboBoxItem>
+                            <Grid>
+                                <Image Source="/Images/Resize_large.svg" HorizontalAlignment="Left" Height="20"/>
+                                <TextBlock Text="调整以填充" HorizontalAlignment="Left" Margin="30, 0, 0, 0" />
+                            </Grid>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Grid HorizontalAlignment="Left">
+                                <Image Source="/Images/Resize_small.svg" HorizontalAlignment="Left" Height="20"/>
+                                <TextBlock Text="保持纵横比" HorizontalAlignment="Left" Margin="30, 0, 0, 0" />
+                            </Grid>
+                        </ComboBoxItem>
+                    </ComboBox>
+                </Grid>
+
+                <Grid Height="60" VerticalAlignment="Top" Margin="30, 390, 30, 0" Background="#FDFEFE" CornerRadius="8">
+                    <Image Source="/Images/Height_dotted.svg" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20, 0, 0, 0" Height="20"/>
+                    <TextBlock Text="图片缩放目标高度" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="50, 0, 0, 0"/>
+
+                    <TextBlock Text="小"  HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0, 0, 312, 0"/>
+
+                    <ComboBox x:Name="HeightSmallComboBox" HorizontalAlignment="Right" VerticalAlignment="Center" BorderBrush="Transparent" Width="92" Margin="0, 0, 220, 0">
+                        <x:String>100 px</x:String>
+                        <x:String>125 px</x:String>
+                        <x:String>150 px</x:String>
+                        <x:String>175 px</x:String>
+                        <x:String>200 px</x:String>
+                    </ComboBox>
+
+                    <Line Stroke="#808080" X1="0" X2="0" Y1="0" Y2="60" HorizontalAlignment="Right" Margin="0, 0, 225, 0"/>
+
+                    <TextBlock Text="中"  HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0, 0, 202, 3"/>
+
+                    <ComboBox x:Name="HeightMeduimComboBox" HorizontalAlignment="Right" VerticalAlignment="Center" BorderBrush="Transparent" Width="92" Margin="0, 0, 110, 0" >
+                        <x:String>225px</x:String>
+                        <x:String>250 px</x:String>
+                        <x:String>275px</x:String>
+                        <x:String>300px</x:String>
+                        <x:String>350px</x:String>
+                    </ComboBox>
+
+
+                    <Line Stroke="#808080" X1="0" X2="0" Y1="0" Y2="60" HorizontalAlignment="Right" Margin="0, 0, 115, 0"/>
+
+                    <TextBlock Text="大"  HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0, 0, 92, 3"/>
+
+                    <ComboBox x:Name="HeightLargeComboBox" HorizontalAlignment="Right" VerticalAlignment="Center" BorderBrush="Transparent" Width="92" Margin="0, 0, 0, 0" >
+                        <x:String>375 px</x:String>
+                        <x:String>400 px</x:String>
+                        <x:String>425 px</x:String>
+                        <x:String>450 px</x:String>
+                        <x:String>500 px</x:String>
+                    </ComboBox>
+                </Grid>
+
+                <Grid Height="60" VerticalAlignment="Top" Margin="30, 460, 30, 0" Background="#FDFEFE" CornerRadius="8">
+                    <FontIcon Glyph="&#xE74D;" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20, 0, 0, 0" Height="20"/>
+                    <TextBlock Text="图片删除选项" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="50, 0, 0, 0"/>
+
+                    <ComboBox x:Name="DeleteComboBox" HorizontalAlignment="Right" VerticalAlignment="Center" BorderBrush="Transparent" Width="150" Margin="0, 0, 0, 0" >
+                        <ComboBoxItem>
+                            <Grid>
+                                <Image Source="/Images/Delete_back.svg" HorizontalAlignment="Left" Height="20"/>
+                                <TextBlock Text="移至回收站" HorizontalAlignment="Left" Margin="30, 0, 0, 0" />
+                            </Grid>
+                        </ComboBoxItem>
+                        <ComboBoxItem>
+                            <Grid>
+                                <Image Source="/Images/Delete_dismiss.svg" HorizontalAlignment="Left" Height="20"/>
+                                <TextBlock Text="直接删除" HorizontalAlignment="Left" Margin="30, 0, 0, 0" />
+                            </Grid>
+                        </ComboBoxItem>
+                    </ComboBox>
+                </Grid>
+            
+                <Grid Height="60" Margin="30, 550, 30, 0" CornerRadius="8">
+                    <Image Source="/Images/github-mark.svg" HorizontalAlignment="Right" VerticalAlignment="Center"  Height="24"/>
+                    <HyperlinkButton NavigateUri="https://github.com/Xheng222/OneGallery" Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Center"  />
+
+                    <TextBlock Text="V 1.0.0" FontSize="12.4" Foreground="#696969" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0, 10, 35, 0"/>
+                </Grid>            
+            
+            </Grid>
+
+
+
+        </ScrollViewer>
+
+
+        <Button Style="{StaticResource StyleButtonAccept}" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Right"
+                Margin="0, 0, 150, 0" Width="100" x:Name="AcceptButton" Opacity="0" Click="AcceptButton_Click">
+            <Grid Width="60">
+                <FontIcon Glyph="&#xE8FB;" HorizontalAlignment="Left" />
+                <TextBlock Text="应用" HorizontalAlignment="Right" FontSize="16" Margin="0, 0, 0, 3"/>
+            </Grid>
+            <Button.OpacityTransition>
+                <ScalarTransition Duration="0:0:0.2"/>
+            </Button.OpacityTransition>
+        </Button>
+
+        <Button Style="{StaticResource StyleButton}" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Right"
+                Margin="0, 0, 30, 0" Width="100" x:Name="CancleButton" Opacity="0" Click="CancleButton_Click">
+            <Grid Width="60">
+                <FontIcon Glyph="&#xE711;" HorizontalAlignment="Left"/>
+                <TextBlock Text="取消" HorizontalAlignment="Right" FontSize="16" Margin="0, 0, 0, 3"/>
+            </Grid>
+            <Button.OpacityTransition>
+                <ScalarTransition Duration="0:0:0.2"/>
+            </Button.OpacityTransition>
+        </Button>
+
+
+    </Grid>
+    
+    
+    
+    
 </Page>

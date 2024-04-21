@@ -8,6 +8,11 @@
     <Platforms>x86;x64;ARM64</Platforms>
     <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
     <UseWinUI>true</UseWinUI>
+	<EnableMsixTooling>true</EnableMsixTooling>
+	<PublishProfile>Properties\PublishProfiles\win10-$(Platform).pubxml</PublishProfile>
+	<PackageCertificateThumbprint>E780A17E6C07859E59ADCE09117BD92E96E60B2E</PackageCertificateThumbprint>
+	<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+	<DefaultLanguage>zh-CN</DefaultLanguage>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="新文件夹1\**" />
@@ -32,11 +37,102 @@
     <None Remove="AddFolderOrGallery.xaml" />
     <None Remove="ImageListPage.xaml" />
     <None Remove="ImagePage.xaml" />
-    <None Remove="SamplePage2.xaml" />
+    <None Remove="Images\Bookmark_add.svg" />
+    <None Remove="Images\Calendar_add.svg" />
+    <None Remove="Images\Cancel.svg" />
+    <None Remove="Images\Checkbox_1 - 复制.svg" />
+    <None Remove="Images\Checkbox_1.svg" />
+    <None Remove="Images\Checkbox_sync.svg" />
+    <None Remove="Images\Checkbox_warning.svg" />
+    <None Remove="Images\Chevron_down.svg" />
+    <None Remove="Images\Chevron_up.svg" />
+    <None Remove="Images\Delete_back.svg" />
+    <None Remove="Images\Delete_dismiss.svg" />
+    <None Remove="Images\Document_error.svg" />
+    <None Remove="Images\Document_question.svg" />
+    <None Remove="Images\Folder_add.svg" />
+    <None Remove="Images\Folder_delete.svg" />
+    <None Remove="Images\Folder_image.svg" />
+    <None Remove="Images\Folder_open.svg" />
+    <None Remove="Images\github-mark.svg" />
+    <None Remove="Images\Height_dotted.svg" />
+    <None Remove="Images\Image_add.svg" />
+    <None Remove="Images\Image_edit.svg" />
+    <None Remove="Images\Image_multiple_off.svg" />
+    <None Remove="Images\Image_off.svg" />
+    <None Remove="Images\LockScreenLogo.scale-200.png" />
+    <None Remove="Images\Resize_image.svg" />
+    <None Remove="Images\Resize_large.svg" />
+    <None Remove="Images\Resize_small.svg" />
+    <None Remove="Images\Select_all.svg" />
+    <None Remove="Images\Select_off.svg" />
+    <None Remove="Images\SplashScreen.scale-200.png" />
+    <None Remove="Images\Square150x150Logo.scale-200.png" />
+    <None Remove="Images\Square44x44Logo.scale-200.png" />
+    <None Remove="Images\Square44x44Logo.targetsize-24_altform-unplated.png" />
+    <None Remove="Images\StoreLogo.png" />
+    <None Remove="Images\Tag.svg" />
+    <None Remove="Images\Tag_off.svg" />
+    <None Remove="Images\Tag_question.svg" />
+    <None Remove="Images\Tag_search.svg" />
+    <None Remove="Images\Text_t.svg" />
+    <None Remove="Images\Wide310x150Logo.scale-200.png" />
+    <None Remove="Package.appxmanifest" />
+    <None Remove="Res\Path.json" />
+    <None Remove="Res\Settings.json" />
     <None Remove="SettingPage.xaml" />
   </ItemGroup>
   <ItemGroup>
     <Page Remove="AddDialog.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest">
+      <SubType>Designer</SubType>
+    </AppxManifest>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\Bookmark_add.svg" />
+    <Content Include="Images\Calendar_add.svg" />
+    <Content Include="Images\Cancel.svg" />
+    <Content Include="Images\Checkbox_1 - 复制.svg" />
+    <Content Include="Images\Checkbox_1.svg" />
+    <Content Include="Images\Checkbox_sync.svg" />
+    <Content Include="Images\Checkbox_warning.svg" />
+    <Content Include="Images\Chevron_down.svg" />
+    <Content Include="Images\Chevron_up.svg" />
+    <Content Include="Images\Delete_back.svg" />
+    <Content Include="Images\Delete_dismiss.svg" />
+    <Content Include="Images\Document_error.svg" />
+    <Content Include="Images\Document_question.svg" />
+    <Content Include="Images\Folder_add.svg" />
+    <Content Include="Images\Folder_delete.svg" />
+    <Content Include="Images\Folder_image.svg" />
+    <Content Include="Images\Folder_open.svg" />
+    <Content Include="Images\github-mark.svg" />
+    <Content Include="Images\Height_dotted.svg" />
+    <Content Include="Images\Image_add.svg" />
+    <Content Include="Images\Image_edit.svg" />
+    <Content Include="Images\Image_multiple_off.svg" />
+    <Content Include="Images\Image_off.svg" />
+    <Content Include="Images\LockScreenLogo.scale-200.png" />
+    <Content Include="Images\Resize_image.svg" />
+    <Content Include="Images\Resize_large.svg" />
+    <Content Include="Images\Resize_small.svg" />
+    <Content Include="Images\Select_all.svg" />
+    <Content Include="Images\Select_off.svg" />
+    <Content Include="Images\SplashScreen.scale-200.png" />
+    <Content Include="Images\Square150x150Logo.scale-200.png" />
+    <Content Include="Images\Square44x44Logo.scale-200.png" />
+    <Content Include="Images\Square44x44Logo.targetsize-24_altform-unplated.png" />
+    <Content Include="Images\StoreLogo.png" />
+    <Content Include="Images\Tag.svg" />
+    <Content Include="Images\Tag_off.svg" />
+    <Content Include="Images\Tag_question.svg" />
+    <Content Include="Images\Tag_search.svg" />
+    <Content Include="Images\Text_t.svg" />
+    <Content Include="Images\Wide310x150Logo.scale-200.png" />
+    <Content Include="Res\Path.json" />
+    <Content Include="Res\Settings.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -83,12 +179,6 @@
 
   <ItemGroup>
     <Page Update="ImagePage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="SamplePage2.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

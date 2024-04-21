@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
 using Windows.Foundation;
 using Windows.Storage;
 
@@ -18,8 +19,6 @@ namespace OneGallery
         private Dictionary<string, List<PictureClass>> GallerySelectionToImgList = new();
 
         public List<PictureClass> HomPageImgList = new();
-
-        private bool FolderInitSuccess = false;
 
         private MainWindow Window { get; set; }
 
@@ -38,9 +37,9 @@ namespace OneGallery
             MyImageArrangement = new();
         }
 
-        public void SaveConfig(int _lastWidth, int _lastHeight)
+        public void SaveConfig(int _lastWidth, int _lastHeight, Category _galleries, Category _folders)
         {
-            MyPathConfig.StorePathConfig();
+            MyPathConfig.StorePathConfig(_galleries, _folders);
             MySettingsConfig.StoreSettingsConfig(_lastWidth, _lastHeight);
         }
 
@@ -63,25 +62,15 @@ namespace OneGallery
             Window.MyPathConfig = MyPathConfig;
 
             InitFolderTask = InitFolder();
-            
         }
 
         public async Task InitFolder()
         {
-            //while (MyPathConfig is null)
-            //{
-            //    await Task.Delay(500);
-            //}
-
             foreach (var _selectItemName in MyPathConfig.GalleryToFolderListConfig.Keys)
                 GallerySelectionToImgList.Add(_selectItemName, new());
 
             foreach (var _foldPath in MyPathConfig.FolderPathConfig)
-            {
                 await AddNewFolder(_foldPath.Key, _foldPath.Value);
-            }
-
-            FolderInitSuccess = true;
         }
 
         public async Task InitImageListPage(Category _category)
@@ -97,10 +86,8 @@ namespace OneGallery
             else if (NowCategory.IsFolder)
                 MyImageArrangement.ImgList = LocalFolders[NowCategory.Name].ImageList;
             
-            Window._imageCount = MyImageArrangement.ImgList.Count;
             MyImageArrangement.SortImg();
             MyImageArrangement.UpdateImgRect();
-
             return;
         }
 
@@ -115,6 +102,9 @@ namespace OneGallery
             Debug.Print("OnFileCreatedEvent");
             string _folderName = sender as string;
             PictureClass _tempImg = (e as FileChangeEvent).File;
+
+            _tempImg.NowStretch = (MySettingsConfig.ImageZoomMode == 0) ? Stretch.UniformToFill : Stretch.Uniform;
+
             foreach (var _selectedItem in MyPathConfig.GalleryToFolderListConfig)
             {
                 if (_selectedItem.Value.Contains(_folderName))
@@ -131,7 +121,6 @@ namespace OneGallery
 
             if (NowCategory != null)
             {
-
                 if (NowCategory.IsHomePage || (NowCategory.IsFolder && NowCategory.Name == _folderName) ||
                     (NowCategory.IsGallery && MyPathConfig.GalleryToFolderListConfig[NowCategory.Name].Contains(_folderName)))
                 {
@@ -141,7 +130,6 @@ namespace OneGallery
                     bool isQueued = Window.DispatcherQueue.TryEnqueue(
                     () =>
                     {
-                        //Debug.Print(AddCount + " Add Count");
                         AddCount--;
 
                         if (AddCount == 0)
@@ -166,7 +154,6 @@ namespace OneGallery
                                         _tempImgListForRepeater.Add(_tempImgList[i]);
                                 }
                             }
-
                         }
 
                     });
@@ -188,7 +175,7 @@ namespace OneGallery
             string _folderName = sender as string;
             RenamedEventArgs e = _e as RenamedEventArgs;
 
-            if (LocalFolders[_folderName].IsImageChanged(e.Name))
+            if (LocalFolder.IsImageChanged(e.Name))
             {
                 var _tempImage = LocalFolders[_folderName].ImageList.Find(x => x.ImageLocation == e.OldFullPath);
                 
@@ -329,8 +316,12 @@ namespace OneGallery
 
             lock (HomPageImgList)
             {
+                Stretch _temp = (MySettingsConfig.ImageZoomMode == 0) ? Stretch.UniformToFill : Stretch.Uniform;
                 foreach (var _item in LocalFolders[_folderName].ImageList)
+                {
+                    _item.NowStretch = _temp;
                     HomPageImgList.Add(_item);
+                }          
             }
 
             if (NowCategory != null)
@@ -502,26 +493,36 @@ namespace OneGallery
             AddNewGallery(_name);
         }
 
+        public async void SetStretch()
+        {
+            await InitFolderTask;
 
+            Stretch _temp = (MySettingsConfig.ImageZoomMode == 0) ? Stretch.UniformToFill : Stretch.Uniform;
+
+            foreach (var _folder in LocalFolders.Values)
+            {
+                lock (_folder.ImageList)
+                {
+                    foreach (var _image in _folder.ImageList)
+                    {
+                        _image._nowStretch = _temp;
+                    }
+                }
+            }
+        }
 
         public async void DeleteImg(PictureClass _img)
         {
-            //MyImageArrangement.ImgList.Remove(_img);
-
-            //MyImageArrangement.UpdateImgRect();
-
-            //MyImageArrangement.ImgListForRepeater.Remove(_img);
-
-            //for (int _index = _img.Index; _index < MyImageArrangement.ImgList.Count; _index++)
-            //    MyImageArrangement.ImgList[_index].Index = _index;
-
-            //LocalFolders[_img.SourceName].ImageList.Remove(_img);
-
-            //Debug.Print("Delete " + _img.ImageLocation);
-
             var _tempImg = await StorageFile.GetFileFromPathAsync(_img.ImageLocation);
 
-            await _tempImg.DeleteAsync(StorageDeleteOption.Default);
+            if (MySettingsConfig.DeleteToTrashcan)
+            {
+                await _tempImg.DeleteAsync(StorageDeleteOption.Default);
+            }
+            else
+            {
+                await _tempImg.DeleteAsync(StorageDeleteOption.PermanentDelete);
+            }
 
         }
 

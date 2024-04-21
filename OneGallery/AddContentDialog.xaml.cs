@@ -288,14 +288,12 @@ namespace OneGallery
                     break;
             }
 
-            this.Opened += SignInContentDialog_Opened;
-            this.Closing += SignInContentDialog_Closing;
-            AcrylicBrush myBrush = new();
-            myBrush.TintColor = Color.FromArgb(255, 255, 255, 255);
-            myBrush.FallbackColor = Color.FromArgb(255, 255, 255, 255);
+            AcrylicBrush myBrush = new()
+            {
+                TintColor = Color.FromArgb(255, 255, 255, 255),
+                FallbackColor = Color.FromArgb(255, 255, 255, 255)
+            };
             this.Background = myBrush;
-
-
         }
 
         private void ChangeHeight(int __delta)
@@ -566,16 +564,6 @@ namespace OneGallery
             this.Result = ContentDialogResult.AddCancel;
         }
 
-        void SignInContentDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
-        {
-            this.Result = ContentDialogResult.Nothing;
-        }
-
-        void SignInContentDialog_Closing(ContentDialog sender, ContentDialogClosingEventArgs args)
-        {
-            return;
-        }
-
         private void FolderNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             // Clear the error if the user name field isn't empty.
@@ -589,8 +577,7 @@ namespace OneGallery
                     {
                         GalleryWrongInfo.IsOpen = false;
                         ChangeHeight(0);
-                    }
-                        
+                    }       
             }
         }
 

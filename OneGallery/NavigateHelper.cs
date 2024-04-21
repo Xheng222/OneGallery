@@ -163,7 +163,6 @@ namespace OneGallery
 
         public object PageContent { get; set; }
         public PageParameters PageParameter { get; set; }
-
     }
 
     class PageParameters 

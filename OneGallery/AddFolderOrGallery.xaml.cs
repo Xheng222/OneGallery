@@ -48,8 +48,8 @@ namespace OneGallery
 
             if (e.Parameter is Category)
             {
-                Window._nowCategory = NowCategory = e.Parameter as Category;
-                Window.ChangeSelect(NowCategory);
+                NowCategory = e.Parameter as Category;
+                Window._nowCategory = NowCategory;
                 Window.FolderManager.NowCategory = null;
                 LoadData();
             }
@@ -68,9 +68,8 @@ namespace OneGallery
 
         private void LoadData()
         {
-            //Items = Window.GetDataTemplateForFolder();
             Items = NowCategory.Children;
-            if (!(Items.Last() as Category).IsAddSelection)
+            if (Items.Count == 0 || !(Items.Last() as Category).IsAddSelection)
             {
                 if (NowCategory.IsFolderInfo)
                 {
@@ -91,38 +90,8 @@ namespace OneGallery
                     });
                 }
             }
-
-
-            //Atask();
         }
 
-
-        bool a = true;
-        private async void Atask()
-        {
-            while (true)
-            {
-                if (Items != null)
-                {
-                    //foreach (var item in Items)
-                    //{
-                    //    Debug.Print(item.Name);
-                    //}
-                    if (a)
-                    {
-                        ItemGridView.SelectedIndex = 1;
-                    }
-                    else
-                    {
-                        ItemGridView.SelectedIndex = 0;
-                    }
-                    a = !a;
-                }
-
-                await Task.Delay(3000);
-            }
-
-        }
 
         /*
          * Grid_PointerEntered
@@ -141,20 +110,17 @@ namespace OneGallery
 
         private void Grid_PointerExited(object sender, PointerRoutedEventArgs e)
         {
-            Debug.Print("Grid_PointerExited");
             var _temp = sender as Grid;
             if (_temp != null)
             {
                 var _closeAni = _temp.Resources["Close"] as Storyboard;
                 _closeAni.Begin();
             }
-            Debug.Print(_temp.Name);
         }
 
         private void Grid_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
             var _temp = sender as Grid;
-            Debug.Print("Grid_PointerReleased");
             if (_temp != null)
             {
                 var _ptr = e.GetCurrentPoint(_temp);
@@ -217,7 +183,6 @@ namespace OneGallery
                 NowFlyout.Hide();
                 NowFlyout = null;
             }
-                
         }
 
         private void Delete_Click_Folder(object sender, RoutedEventArgs e)
@@ -275,6 +240,8 @@ namespace OneGallery
             }
             e.AddedItems.Clear();
             ItemGridView.SelectedItem = null;
+
+
         }
 
 

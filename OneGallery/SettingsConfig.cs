@@ -16,7 +16,23 @@ namespace OneGallery
 
         public int LastHeight { get; set; }
 
+        public int ChooseMode { get; set; }
 
+        public int SortMode {  get; set; }
+
+        public bool IsAscending {  get; set; }
+        
+        public int ImageSizeMode {  get; set; }
+
+        public int ImageZoomMode { get; set; }
+
+        public int ImageHeight_Small { get; set; }
+
+        public int ImageHeight_Medium { get; set; }
+
+        public int ImageHeight_Large { get; set; }
+
+        public bool DeleteToTrashcan { get; set; }
 
         [JsonIgnore]
         public StorageFile ConfigFile { get; set; }
@@ -28,7 +44,6 @@ namespace OneGallery
 
             var options = new JsonSerializerOptions { WriteIndented = true };
             var jsonString = JsonSerializer.Serialize(this, options);
-
             await FileIO.WriteTextAsync(ConfigFile, jsonString);
         }
 

@@ -17,10 +17,6 @@
                     <VisualStateGroup x:Name="CommonStates">
                         <VisualState x:Name="Normal">
                             <Storyboard>
-                                <!--<ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
-                                    <LinearColorKeyFrame Value="#363636" KeyTime="0:0:0.2"/>
-                                </ColorAnimationUsingKeyFrames>-->
-
                                 <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
                                     <LinearColorKeyFrame Value="Transparent" KeyTime="0:0:0.2"/>
                                 </ColorAnimationUsingKeyFrames>
@@ -29,10 +25,6 @@
 
                         <VisualState x:Name="PointerOver">
                             <Storyboard>
-                                <!--<ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
-                                    <LinearColorKeyFrame Value="#363636" KeyTime="0:0:0"/>
-                                </ColorAnimationUsingKeyFrames>-->
-
                                 <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
                                     <LinearColorKeyFrame Value="#E5E4E2" KeyTime="0:0:0.2"/>
                                 </ColorAnimationUsingKeyFrames>
@@ -41,10 +33,6 @@
 
                         <VisualState x:Name="Pressed">
                             <Storyboard>
-                                <!--<ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
-                                    <LinearColorKeyFrame Value="#363636" KeyTime="0:0:0"/>
-                                </ColorAnimationUsingKeyFrames>-->
-
                                 <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
                                     <LinearColorKeyFrame Value="#D3D3D3" KeyTime="0:0:0.1"/>
                                 </ColorAnimationUsingKeyFrames>

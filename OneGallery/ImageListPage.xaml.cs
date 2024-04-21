@@ -41,18 +41,20 @@ namespace OneGallery
 
     public partial class ImageListPage : Page, INotifyPropertyChanged
     {
-
         private static PageParameters Parameters = new();
 
         public static PictureClass SelectedImage {set; get; }
+
+        public static Task InitPageTask { set; get; }
 
         private Category NowCategory {  get; set; }
 
         private MainWindow Window {  get; set; }
 
-        public SortableObservableCollection<PictureClass> ImgList {  get; set; }
+        public ObservableCollection<PictureClass> ImgList {  get; set; }
 
         public ActivityFeedLayout MyActivityFeedLayout { get; set; }
+
 
         public ImageListPage()
         {
@@ -69,15 +71,15 @@ namespace OneGallery
             this.UnloadObject(this);
         }
 
-        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
  
             if (e.Parameter is Category)
             {
-                Window._nowCategory = NowCategory = e.Parameter as Category;
-                Window.ChangeSelect(NowCategory);     
-                await LoadData();
+                NowCategory = e.Parameter as Category;
+                InitPageTask = LoadData();
+                Window._nowCategory = NowCategory;
             }
         }
 
@@ -88,37 +90,11 @@ namespace OneGallery
             Parameters.FirstShow = false;
             NavigateHelper.StoreContent(Window.NaPage, NowCategory, Parameters);
             base.OnNavigatingFrom(e);
-
-            Debug.Print("OnNavigatingFrom");
-
-
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
-
-            if (e.SourcePageType != typeof(ImagePage))
-            {
-                //foreach (var _image in ImgList)
-                //{
-                //    if (_image.IsSelected)
-                //    {
-                //        _image._checkBoxOpacity = 0;
-                //        _image._rectangleOpacity = 0;
-                //        _image._borderOpacity = 0;
-                //        _image._isSelected = false;
-                //    }
-                //}
-
-                //Window._selectedCount = 0;
-                Window.ClearAllSelect();
-            }
-
-
-            Debug.Print(e.SourcePageType + "");
-
-
             GC.Collect();
         }
 
@@ -144,7 +120,7 @@ namespace OneGallery
                 ImgList = new();
                 MyActivityFeedLayout = new();
 
-                await Window.InitFolder();
+                await Window.InitFolder(NowCategory);
                 MyActivityFeedLayout.LayoutImgArrangement = Window.FolderManager.MyImageArrangement;
                 Window.FolderManager.MyImageArrangement.ImgListForRepeater = ImgList;
                 Window.FolderManager.MyImageArrangement.ImgListChanged();
@@ -158,7 +134,7 @@ namespace OneGallery
             }
             else
             {
-                await Window.InitFolder();
+                await Window.InitFolder(NowCategory);
                 NavigateHelper.GetContent(
                     Window,
                     Window.NaPage,
@@ -220,13 +196,7 @@ namespace OneGallery
          */
         private void ItemContainer_Loaded(object sender, RoutedEventArgs e)
         {
-            //var _temp = sender as ItemContainer;
             var _tempGrid = sender as Grid;
-            //_tempGrid.ScaleTransition = new Vector3Transition()
-            //{
-            //    Components = Vector3TransitionComponents.X | Vector3TransitionComponents.Y,
-            //    Duration = TimeSpan.FromMilliseconds(150)
-            //};
 
             foreach (var _girdItem in _tempGrid.Children)
             {
@@ -261,7 +231,7 @@ namespace OneGallery
             float _scaleY = (float)(_temp.ActualHeight / 2); ;
 
             _temp.CenterPoint = new Vector3(_scaleX, _scaleY, 0);
-            _temp.Scale = new Vector3((float)1.01, (float)1.01, 1);
+            _temp.Scale = new Vector3((float)1.02, (float)1.02, 1);
 
             int _index = ImageRepeater.GetElementIndex((UIElement)sender);
             if (_index != -1)
@@ -274,12 +244,6 @@ namespace OneGallery
 
                 ImgList[_index]._borderOpacity = 1;
             }
-            //Debug.Print("ItemGrid_PointerEntered " + _index);
-
-            Debug.Print("" + ImgList[_index].CreatDate);
-            //Debug.Print("" + ImgList[_index].LastEditDate);
-            //Debug.Print("" + ImgList[_index].ShootDate);
-
 
             e.Handled = true;
         }
@@ -304,8 +268,6 @@ namespace OneGallery
                     ImgList[_index]._rectangleOpacity = 0;
                 }
             }
-            Debug.Print("ItemGrid_PointerExited " + _index);
-
 
             e.Handled = true;
         }
@@ -324,7 +286,7 @@ namespace OneGallery
         {
             var _temp = GetItemContainer(sender as Grid);
             var _ptr = e.GetCurrentPoint(_temp);
-            Debug.Print("" + _ptr.Properties.PointerUpdateKind);
+
             if (_ptr != null)
             {
                 var _index = ImageRepeater.GetElementIndex(sender as Grid);
@@ -374,7 +336,7 @@ namespace OneGallery
             e.Handled = true;
         }
 
-        private Grid GetItemContainer(Grid _grid)
+        private static Grid GetItemContainer(Grid _grid)
         {
             Grid _temp = null;
             foreach (var _ui in _grid.Children)
@@ -406,8 +368,6 @@ namespace OneGallery
                 SelectedImage = _image;
             }
         }
-
-
 
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -18,8 +18,7 @@
                   PointerPressed="ItemGrid_PointerPressed"
                   PointerReleased="ItemGrid_PointerReleased" >
 
-                <Grid 
-                      CornerRadius="5"
+                <Grid CornerRadius="5"
                       CanBeScrollAnchor="False"
                       Loaded="ItemContainer_Loaded">
                     <Grid.ScaleTransition>
@@ -33,9 +32,6 @@
                         RadiusX="5"
                         RadiusY="5"
                         Opacity="{x:Bind _borderOpacity, Mode=OneWay}">
-                        <!--<Rectangle.OpacityTransition>
-                            <ScalarTransition Duration="0:0:0.2"/>
-                        </Rectangle.OpacityTransition>-->
                     </Rectangle>
 
                     <Rectangle 
@@ -48,9 +44,6 @@
                         RadiusX="5"
                         RadiusY="5"
                         Opacity="{x:Bind _rectangleOpacity, Mode=OneWay}" >
-                        <!--<Rectangle.OpacityTransition>
-                            <ScalarTransition Duration="0:0:0.2"/>
-                        </Rectangle.OpacityTransition>-->
                     </Rectangle>
 
                     <CheckBox
@@ -61,14 +54,11 @@
                         Margin="0, -1, -95, 0"
                         CornerRadius="5"
                         Opacity="{x:Bind _checkBoxOpacity, Mode=OneWay}" >
-                        <!--<CheckBox.OpacityTransition>
-                            <ScalarTransition Duration="0:0:0.2"/>
-                        </CheckBox.OpacityTransition>-->
                     </CheckBox>
 
                     <Image 
                         Canvas.ZIndex="0" VerticalAlignment="Center" HorizontalAlignment="Center"
-                        Stretch="UniformToFill">
+                        Stretch="{x:Bind _nowStretch}">
                         <Image.Source>
                             <BitmapImage DecodePixelHeight="350" UriSource="{x:Bind _imageLocation, Mode=OneWay}" />
                         </Image.Source>
@@ -84,75 +74,6 @@
                 </Rectangle>
             </Grid>
         </DataTemplate>
-
-
-        <ControlTemplate TargetType="Button" x:Key="MyButton">
-            <Grid x:Name="RootGrid" Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}"  BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}" BackgroundSizing="{TemplateBinding BackgroundSizing}">
-                <VisualStateManager.VisualStateGroups>
-                    <VisualStateGroup x:Name="CommonStates">
-                        <VisualState x:Name="Normal">
-                            <Storyboard>
-                                <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
-                                    <LinearColorKeyFrame Value="#363636" KeyTime="0:0:0.2"/>
-                                </ColorAnimationUsingKeyFrames>
-
-                                <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
-                                    <LinearColorKeyFrame Value="Transparent" KeyTime="0:0:0.2"/>
-                                </ColorAnimationUsingKeyFrames>
-                            </Storyboard>
-                        </VisualState>
-
-                        <VisualState x:Name="PointerOver">
-                            <Storyboard>
-                                <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
-                                    <LinearColorKeyFrame Value="#363636" KeyTime="0:0:0"/>
-                                </ColorAnimationUsingKeyFrames>
-
-                                <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
-                                    <LinearColorKeyFrame Value="#E5E4E2" KeyTime="0:0:0.2"/>
-                                </ColorAnimationUsingKeyFrames>
-                            </Storyboard>
-                        </VisualState>
-
-                        <VisualState x:Name="Pressed">
-                            <Storyboard>
-                                <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
-                                    <LinearColorKeyFrame Value="#363636" KeyTime="0:0:0"/>
-                                </ColorAnimationUsingKeyFrames>
-
-                                <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
-                                    <LinearColorKeyFrame Value="#D3D3D3" KeyTime="0:0:0.2"/>
-                                </ColorAnimationUsingKeyFrames>
-                            </Storyboard>
-                        </VisualState>
-                        <VisualState x:Name="Disabled">
-                            <Storyboard>
-                                <ColorAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="(RootGrid.Background).(SolidColorBrush.Color)">
-                                    <LinearColorKeyFrame Value="Transparent" KeyTime="0:0:0.2"/>
-                                </ColorAnimationUsingKeyFrames>
-
-                                <ColorAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="(ContentPresenter.Foreground).(SolidColorBrush.Color)">
-                                    <LinearColorKeyFrame Value="Transparent" KeyTime="0:0:0.2"/>
-                                </ColorAnimationUsingKeyFrames>
-                            </Storyboard>
-                        </VisualState>
-                    </VisualStateGroup>
-                </VisualStateManager.VisualStateGroups>
-
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <ContentPresenter x:Name="ContentPresenter" Content="{TemplateBinding Content}" ContentTransitions="{TemplateBinding ContentTransitions}" ContentTemplate="{TemplateBinding ContentTemplate}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" AutomationProperties.AccessibilityView="Raw" />
-            </Grid>
-        </ControlTemplate>
-
-        <Style TargetType="Button" >
-            <Setter Property="Template" Value="{StaticResource MyButton}" />
-        </Style>
-
-        <Style TargetType="DropDownButton">
-            <Setter Property="Template" Value="{StaticResource MyButton}"/>
-        </Style>
     </Page.Resources>
 
 
@@ -174,18 +95,18 @@
             <ScrollViewer.OpacityTransition>
                 <ScalarTransition Duration="0:0:0.5"/>
             </ScrollViewer.OpacityTransition>
+
+               
         </ScrollViewer>
-        
-        
+
+
         <Grid x:Name="PocessingGrid">
             <Rectangle Fill="Transparent"/>
-            <ProgressRing IsActive="True"  Height="60" Width="60" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0, 0, 0, 100"/>
-            <TextBlock Text="Now Loading..."   VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" Foreground="#808080" Margin="0, 50, 0, 0"/>
+            <ProgressRing IsActive="True"  Height="50" Width="50" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0, 0, 0, 100"/>
+            <TextBlock Text="加载中..."   VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" Foreground="#808080" Margin="0, 10, 0, 0"/>
             <Grid.OpacityTransition>
                 <ScalarTransition Duration="0:0:0.5"/>
             </Grid.OpacityTransition>
         </Grid>
-
-
     </Grid>
 </Page>

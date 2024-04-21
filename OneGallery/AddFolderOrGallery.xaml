@@ -188,10 +188,6 @@
                             <VisualState x:Name="NotDragging" />
                             <VisualState x:Name="Dragging">
                                 <Storyboard>
-                                    <!--<DoubleAnimation Storyboard.TargetName="ContentBorder"
-                                        Storyboard.TargetProperty="Opacity"
-                                        Duration="0"
-                                        To="1" />-->
                                     <DragItemThemeAnimation TargetName="ContentBorder" />
                                 </Storyboard>
                             </VisualState>
@@ -272,9 +268,7 @@
                             </TransitionCollection>
                         </ContentPresenter.ContentTransitions>
                     </ContentPresenter>
-                    <!-- The 'Xg' text simulates the amount of space one line of text will occupy.
-                             In the DataPlaceholder state, the Content is not loaded yet so we
-                             approximate the size of the item using placeholder text. -->
+
                     <TextBlock x:Name="PlaceholderTextBlock"
                         Visibility="Collapsed"
                         Text="Xg"
@@ -405,7 +399,6 @@
                                         Background="Transparent" Foreground="Transparent" BorderBrush="Transparent"
                                         VerticalAlignment="Top">
                                     <Grid Width="80" >
-                                        <!--<FontIcon Glyph="&#xE74D;" HorizontalAlignment="Left"/>-->
                                         <Image Source="/Images/Document_question.svg" HorizontalAlignment="Left"  Stretch="UniformToFill" Height="24" Width="24"/>
                                         <TextBlock Text="属性" HorizontalAlignment="Left" Margin="35, 2, 0, 0"/>
                                     </Grid>
@@ -510,7 +503,6 @@
                              GalleryAddTemplate="{StaticResource GalleryAddTemplate}"/>
         </Grid.Resources>
 
-        <!--ItemTemplate="{StaticResource FolderTemplate}"-->
         <GridView
             x:Name="ItemGridView"
             ItemTemplateSelector="{StaticResource AddFolderOrGallerySelector}"

@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Windows.Storage.FileProperties;
 
 namespace OneGallery
@@ -112,6 +113,18 @@ namespace OneGallery
             set
             {
                 BorderOpacity = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Stretch NowStretch { get; set; } = Stretch.UniformToFill;
+
+        public Stretch _nowStretch 
+        {
+            get => NowStretch; 
+            set
+            {
+                NowStretch = value;
                 OnPropertyChanged();
             }
         }
