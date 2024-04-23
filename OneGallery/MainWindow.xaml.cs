@@ -111,6 +111,7 @@ namespace OneGallery
             SetTitleBar(AppTitleBar);
             FolderManager = new();
             InitWindowTask = InitWindow();
+            Title = appTitleText;
         }
 
         public async Task InitFolder(Category _category)
@@ -285,7 +286,7 @@ namespace OneGallery
             {
                 if (args.IsSettingsInvoked == true)
                 {
-                    if (!string.Equals(CurrentPage.Name, "…Ë÷√"))
+                    if (!string.Equals(CurrentPage.Name, "SettingsPage"))
                     {
                         NavView_Navigate(typeof(SettingPage));
                     }
@@ -461,9 +462,13 @@ namespace OneGallery
             var rootGrid = VisualTreeHelper.GetChild(Nv, 0);
 
             await InitWindowTask;
-            FindNaView(rootGrid);
+
             Nv.SelectedItem = Categories[1];
             NavView_Navigate(typeof(ImageListPage), (Category)Categories[1]);
+
+            FindNaView(rootGrid);
+            await Task.Delay(1000);
+            FindNaView(rootGrid);
         }
 
 

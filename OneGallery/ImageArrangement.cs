@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.UI.Xaml;
 using Windows.Foundation;
 
 namespace OneGallery
@@ -28,19 +29,38 @@ namespace OneGallery
 
         private List<int> RowImgCount_Default = new();
 
-        private double ImageHeight = 0;
-
         private double RowSpacing = 0;
 
         private double ColSpacing = 0;
 
-        public double NowWidth;
+        public double NowWidth = 0;
+
+        public double ImageHeight = 0;
 
         public void ImgListChanged()
         {
-            ImgListForRepeater.Clear();
-            foreach (var _image in ImgList)
-                ImgListForRepeater.Add(_image);
+            int _count = ImgListForRepeater.Count;
+
+            for (int i = 0;  i < ImgList.Count; i++)
+            {
+                if (i < _count)
+                {
+                    if (ImgList[i] != ImgListForRepeater[i])
+                        ImgListForRepeater[i] = ImgList[i];
+                }
+                else
+                {
+                    ImgListForRepeater.Add(ImgList[i]);
+                }
+            }
+
+            _count = ImgListForRepeater.Count;
+            int _totalCount = ImgList.Count;
+
+            for (int i = _count - 1; i >= _totalCount; i--)
+            {
+                ImgListForRepeater.RemoveAt(i);
+            }
         }
 
         public ImageArrangement() { }

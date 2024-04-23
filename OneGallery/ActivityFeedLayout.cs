@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Collections.Specialized;
+using Microsoft.UI.Xaml.Documents;
 
 
 namespace OneGallery
@@ -70,8 +71,6 @@ namespace OneGallery
         {
             var layout = obj as ActivityFeedLayout;
 
-            
-
             if (args.Property == RowSpacingProperty)
             {
                 layout._rowSpacing = (double)args.NewValue;
@@ -120,11 +119,10 @@ namespace OneGallery
             double _newTop = RowSpacing;
 
             if (LayoutImgArrangement == null)
-                return new Size(availableSize.Width, RowSpacing);
+                return new Size(context.VisibleRect.Width, context.VisibleRect.Height);
 
-            if (context.ItemCount > 0 && context.ItemCount <= LayoutImgArrangement.ImgList.Count)
+            if (context.ItemCount > 0)
             {
-                //Debug.Print("111 " + availableSize.Width);
                 var state = context.LayoutState as ActivityFeedLayoutState;
 
                 if (!UpdateImgRect(availableSize.Width))
@@ -139,15 +137,14 @@ namespace OneGallery
                 {
                     double zoomImg = (availableSize.Width - LayoutImgArrangement.RowImgCount[i] * _colSpacing) / (LayoutImgArrangement.NowWidth - (LayoutImgArrangement.RowImgCount[i] - 1) * _colSpacing);
 
-                    if (_newTop >= context.VisibleRect.Top - 500 && _newTop <= context.VisibleRect.Bottom + 500)
+                    if (_newTop >= context.VisibleRect.Top - LayoutImgArrangement.ImageHeight * 2 && _newTop <= context.VisibleRect.Bottom + LayoutImgArrangement.ImageHeight * 2)
                     {
+                        int RowImgCount = LayoutImgArrangement.RowImgCount[i];
 
                         if (state.FirstRealizedIndex == -1)
                         {
                             state.FirstRealizedIndex = _item;
                         }
-
-                        int RowImgCount = LayoutImgArrangement.RowImgCount[i];
 
                         double _newX = _colSpacing;
 
@@ -156,6 +153,7 @@ namespace OneGallery
                             var _index = _item + j;
                             if (_index >= context.ItemCount)
                                 break;
+
                             var container = context.GetOrCreateElementAt(_index);
                             var _rect = LayoutImgArrangement.ImageRect[_index];
                             Rect _size = new()
@@ -172,15 +170,13 @@ namespace OneGallery
                         }
                     }
 
-                    i++;
-                    
                     _newTop += zoomImg * LayoutImgArrangement.ImageRect[_item].Height + _rowSpacing;
+                    i++;
                 }
             }
 
             return new Size(availableSize.Width, _newTop);
         }
-
 
         protected override Size ArrangeOverride(VirtualizingLayoutContext context, Size finalSize)
         {
@@ -226,16 +222,30 @@ namespace OneGallery
             }
             else if (args.Action == NotifyCollectionChangedAction.Remove)
             {
-                Debug.Print("Remove");
-                base.OnItemsChangedCore(context, source, args);
+                var _indexToElementMap = (context.LayoutState as ActivityFeedLayoutState).IndexToElementMap;
+                int _old = args.OldStartingIndex;
 
+                if (_indexToElementMap.ContainsKey(_old))
+                {
+                    context.RecycleElement(_indexToElementMap[_old]);
+                    _indexToElementMap.Remove(_old);
+                }
+
+                if (LayoutImgArrangement.ImgList.Count == LayoutImgArrangement.ImgListForRepeater.Count)
+                    this.InvalidateMeasure();
             }
             else if (args.Action == NotifyCollectionChangedAction.Reset)
             {
                 var _indexToElementMap = (context.LayoutState as ActivityFeedLayoutState).IndexToElementMap;
-                Debug.Print("Reset");
+
+                foreach (var item in _indexToElementMap.Values)
+                {
+                    context.RecycleElement(item);
+                }
+
                 _indexToElementMap.Clear();
-                this.InvalidateMeasure();
+
+                base.OnItemsChangedCore(context, source, args);
             }
             else if (args.Action == NotifyCollectionChangedAction.Add)
             {
@@ -250,10 +260,28 @@ namespace OneGallery
                         _indexToElementMap.Remove(_item.Key);
                     }                
                 }
-                this.InvalidateMeasure();
+
+                if (LayoutImgArrangement.ImgList.Count == LayoutImgArrangement.ImgListForRepeater.Count)
+                    this.InvalidateMeasure();
             }
+            else if (args.Action == NotifyCollectionChangedAction.Replace)
+            {
+                var _indexToElementMap = (context.LayoutState as ActivityFeedLayoutState).IndexToElementMap;
+                int _old = args.OldStartingIndex;
+
+                if (_indexToElementMap.ContainsKey(_old))
+                {
+                    context.RecycleElement(_indexToElementMap[_old]);
+                    _indexToElementMap.Remove(_old);
+                }
+
+                base.OnItemsChangedCore(context, source, args);
+            }
+
             else
                 base.OnItemsChangedCore(context, source, args);
+
+
         }
 
         private bool UpdateImgRect(double _width)

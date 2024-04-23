@@ -103,13 +103,13 @@
                     Storyboard.TargetProperty="Height"
                     EnableDependentAnimation="True">
 
-                    <EasingDoubleKeyFrame Value="120" KeyTime="0:0:0.8">
+                    <EasingDoubleKeyFrame Value="120" KeyTime="0:0:0.5">
                         <EasingDoubleKeyFrame.EasingFunction>
                             <QuinticEase EasingMode="EaseOut"/>
                         </EasingDoubleKeyFrame.EasingFunction>
                     </EasingDoubleKeyFrame>
 
-                    <EasingDoubleKeyFrame Value="0" KeyTime="0:0:1.6">
+                    <EasingDoubleKeyFrame Value="0" KeyTime="0:0:1">
                         <EasingDoubleKeyFrame.EasingFunction>
                             <QuinticEase EasingMode="EaseOut"/>
                         </EasingDoubleKeyFrame.EasingFunction>
@@ -121,19 +121,19 @@
                 <DoubleAnimationUsingKeyFrames Storyboard.TargetName="TitleBorder"
                     Storyboard.TargetProperty="Height"
                     EnableDependentAnimation="True">
-                    <EasingDoubleKeyFrame Value="0" KeyTime="0:0:1">
+                    <EasingDoubleKeyFrame Value="0" KeyTime="0:0:0.5">
                         <EasingDoubleKeyFrame.EasingFunction>
                             <QuinticEase EasingMode="EaseOut"/>
                         </EasingDoubleKeyFrame.EasingFunction>
                     </EasingDoubleKeyFrame>
 
-                    <EasingDoubleKeyFrame Value="130" KeyTime="0:0:1.6">
+                    <EasingDoubleKeyFrame Value="130" KeyTime="0:0:0.8">
                         <EasingDoubleKeyFrame.EasingFunction>
                             <QuinticEase EasingMode="EaseOut"/>
                         </EasingDoubleKeyFrame.EasingFunction>
                     </EasingDoubleKeyFrame>
 
-                    <EasingDoubleKeyFrame Value="120" KeyTime="0:0:2">
+                    <EasingDoubleKeyFrame Value="120" KeyTime="0:0:1">
                         <EasingDoubleKeyFrame.EasingFunction>
                             <QuinticEase EasingMode="EaseOut"/>
                         </EasingDoubleKeyFrame.EasingFunction>

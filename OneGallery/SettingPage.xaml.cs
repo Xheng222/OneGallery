@@ -126,8 +126,5 @@ namespace OneGallery
             Window.InitConfigs();
             Window.SaveConfigs();
         }
-
-
-
     }
 }

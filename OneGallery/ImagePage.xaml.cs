@@ -1147,10 +1147,4 @@ namespace OneGallery
         }
 
     }
-
-
-
-
-
-
 }

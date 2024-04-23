@@ -8,15 +8,15 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="Transparent" 
-    VerticalAlignment="Top"
-    HorizontalAlignment="Left">
+    VerticalAlignment="Stretch"
+    HorizontalAlignment="Stretch">
+
+
 
     <Page.Resources>
         <DataTemplate  x:Key="LinedFlowLayoutItemTemplate" x:DataType="local:PictureClass">
-            <Grid PointerEntered="ItemGrid_PointerEntered"
-                  PointerExited="ItemGrid_PointerExited"
-                  PointerPressed="ItemGrid_PointerPressed"
-                  PointerReleased="ItemGrid_PointerReleased" >
+            <Grid  Loaded="Grid_Loaded"
+                   Unloaded="Grid_Unloaded">
 
                 <Grid CornerRadius="5"
                       CanBeScrollAnchor="False"
@@ -58,9 +58,9 @@
 
                     <Image 
                         Canvas.ZIndex="0" VerticalAlignment="Center" HorizontalAlignment="Center"
-                        Stretch="{x:Bind _nowStretch}">
+                        Stretch="{x:Bind _nowStretch, Mode=OneWay}">
                         <Image.Source>
-                            <BitmapImage DecodePixelHeight="350" UriSource="{x:Bind _imageLocation, Mode=OneWay}" />
+                            <BitmapImage DecodePixelHeight="300" UriSource="{x:Bind _imageLocation, Mode=OneWay}" />
                         </Image.Source>
                     </Image>
                 </Grid>
@@ -82,25 +82,23 @@
 
         <ScrollViewer x:Name="ScrollViewer" Opacity="0"
                       Background="Transparent" 
-                      Canvas.ZIndex="0">
+                      Canvas.ZIndex="0" >
 
-            <ItemsRepeater x:Name="ImageRepeater" ToolTipService.Placement="Mouse"
+            <ItemsRepeater x:Name="ImageRepeater"
                            Background="Transparent"
                            HorizontalAlignment="Stretch"
                            ItemTemplate="{StaticResource LinedFlowLayoutItemTemplate}"
-                           ItemsSource="{x:Bind ImgList, Mode=OneWay}"
-                           Layout="{x:Bind MyActivityFeedLayout, Mode=OneWay}"
+                           ItemsSource="{x:Bind ImgList}"
+                           Layout="{x:Bind MyActivityFeedLayout}"
                            Loaded="ImageRepeater_Loaded">
             </ItemsRepeater>
             <ScrollViewer.OpacityTransition>
                 <ScalarTransition Duration="0:0:0.5"/>
             </ScrollViewer.OpacityTransition>
-
-               
         </ScrollViewer>
 
 
-        <Grid x:Name="PocessingGrid">
+        <Grid x:Name="PocessingGrid" Background="Transparent">
             <Rectangle Fill="Transparent"/>
             <ProgressRing IsActive="True"  Height="50" Width="50" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0, 0, 0, 100"/>
             <TextBlock Text="加载中..."   VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" Foreground="#808080" Margin="0, 10, 0, 0"/>

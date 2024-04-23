@@ -99,7 +99,7 @@ namespace OneGallery
 
         private void Grid_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
-            Debug.Print("Grid_PointerEntered");
+
             var _temp = sender as Grid;
             if (_temp != null)
             {
@@ -120,12 +120,14 @@ namespace OneGallery
 
         private void Grid_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
+            Debug.Print("Grid_PointerEntered");
             var _temp = sender as Grid;
             if (_temp != null)
             {
                 var _ptr = e.GetCurrentPoint(_temp);
                 if ((int)_ptr.Properties.PointerUpdateKind == (int)Windows.UI.Input.PointerUpdateKind.RightButtonReleased)
                 {
+                    Debug.Print("Grid_PointerEntered RightButtonReleased");
                     foreach (var _category in Items)
                     {
                         var _tempCategory = _category as Category;

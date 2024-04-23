@@ -177,7 +177,7 @@ namespace OneGallery
 
                         NowFolders = new((Window.Categories[5] as Category).Children);
                         AddFolders = new();
-                        if (NowFolders.Last() != null )
+                        if (NowFolders.Count != 0 && NowFolders.Last() != null )
                             if ((NowFolders.Last() as Category).IsAddSelection)
                                 NowFolders.RemoveAt(NowFolders.Count - 1);
 

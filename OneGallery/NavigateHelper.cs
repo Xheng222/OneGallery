@@ -41,10 +41,14 @@ namespace OneGallery
 
             if (_tempPage is not null)
             {
-                _tempPage.MyActivityFeedLayout.LayoutImgArrangement = _window.FolderManager.MyImageArrangement;
-                _window.FolderManager.MyImageArrangement.ImgListForRepeater = _tempPage.ImgList;
-                _window.FolderManager.MyImageArrangement.ImgListChanged();
-                _frame.Content = _tempPage;
+                _window.DispatcherQueue.TryEnqueue(() =>
+                {
+                    _tempPage.MyActivityFeedLayout.LayoutImgArrangement = _window.FolderManager.MyImageArrangement;
+                    _window.FolderManager.MyImageArrangement.ImgListForRepeater = _tempPage.ImgList;
+                    _window.FolderManager.MyImageArrangement.ImgListChanged();
+                    _frame.Content = _tempPage;
+                });
+
             }
         }
 
@@ -192,7 +196,5 @@ namespace OneGallery
         {
             return (PageParameters)MemberwiseClone();
         }
-
-
     }
 }

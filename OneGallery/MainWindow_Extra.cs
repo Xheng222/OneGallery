@@ -491,7 +491,7 @@ namespace OneGallery
             }
         }
 
-        public static List<StorageFile> _selectImages = new();
+        private static List<StorageFile> _selectImages = new();
 
         private static async Task GetImageFile(string _path)
         {
@@ -819,13 +819,15 @@ namespace OneGallery
                 TitleFont.Opacity = 1;
 
                 await ImageListPage.InitPageTask;
-                _imageCount = FolderManager.MyImageArrangement.ImgList.Count;
 
-                if (_category.IsGallery || _category.IsFolder)
+
+                if (NowCategory.IsGallery || NowCategory.IsFolder)
                 {
+                    _imageCount = FolderManager.MyImageArrangement.ImgList.Count;
+                    Debug.Print(_imageCount + " count");
+                    await Task.Delay(100);
                     CountText.Opacity = 1;
                     CountNum.Opacity = 1;
-                    await Task.Delay(100);
                     CheckTitleBorder(TitleBorder.ActualWidth);
                 }
                 else
@@ -836,6 +838,5 @@ namespace OneGallery
                 }
             }
         }
-
     }
 }

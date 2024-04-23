@@ -12,6 +12,7 @@ using System.Reflection.Metadata;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -39,7 +40,7 @@ using Windows.UI.StartScreen;
 namespace OneGallery
 {
 
-    public partial class ImageListPage : Page, INotifyPropertyChanged
+    public partial class ImageListPage : Page
     {
         private static PageParameters Parameters = new();
 
@@ -61,8 +62,8 @@ namespace OneGallery
             this.InitializeComponent();
             Window = (Application.Current as App).Main;
             NavigationCacheMode = NavigationCacheMode.Disabled;
-            this.Height = Window.Height - 176;
         }
+
 
         public void Close()
         {
@@ -78,17 +79,22 @@ namespace OneGallery
             if (e.Parameter is Category)
             {
                 NowCategory = e.Parameter as Category;
-                InitPageTask = LoadData();
+                LoadData();
                 Window._nowCategory = NowCategory;
             }
         }
 
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
-            Parameters.Width = ScrollViewer.ActualWidth;
-            Parameters.Offset = ScrollViewer.VerticalOffset;
-            Parameters.FirstShow = false;
-            NavigateHelper.StoreContent(Window.NaPage, NowCategory, Parameters);
+            if (ImgList != null && MyActivityFeedLayout != null)
+            {
+                Parameters.Width = ScrollViewer.ActualWidth;
+                Parameters.Offset = ScrollViewer.VerticalOffset;
+                Parameters.FirstShow = false;
+                NavigateHelper.StoreContent(Window.NaPage, NowCategory, Parameters);
+            }
+
+            tokenSource.Cancel();
             base.OnNavigatingFrom(e);
         }
 
@@ -98,7 +104,7 @@ namespace OneGallery
             GC.Collect();
         }
 
-        private async Task LoadData()
+        private void LoadData()
         {
             NavigateHelper.GetParameter(
                 NowCategory,
@@ -115,15 +121,27 @@ namespace OneGallery
                 }
             );
 
+            tokenSource = new CancellationTokenSource();
+
+            InitPageTask = InitImageList();
+        }
+
+        CancellationTokenSource tokenSource;
+
+        private async Task InitImageList()
+        {
             if (Parameters.FirstShow == true)
             {
                 ImgList = new();
                 MyActivityFeedLayout = new();
-
                 await Window.InitFolder(NowCategory);
-                MyActivityFeedLayout.LayoutImgArrangement = Window.FolderManager.MyImageArrangement;
-                Window.FolderManager.MyImageArrangement.ImgListForRepeater = ImgList;
-                Window.FolderManager.MyImageArrangement.ImgListChanged();
+
+                if (!tokenSource.IsCancellationRequested)
+                {
+                    MyActivityFeedLayout.LayoutImgArrangement = Window.FolderManager.MyImageArrangement;
+                    Window.FolderManager.MyImageArrangement.ImgListForRepeater = ImgList;
+                    Window.FolderManager.MyImageArrangement.ImgListChanged();
+                }
 
                 PocessingGrid.Opacity = 0;
                 await Task.Delay(300);
@@ -132,16 +150,47 @@ namespace OneGallery
 
                 PocessingGrid.Visibility = Visibility.Collapsed;
             }
+
             else
             {
                 await Window.InitFolder(NowCategory);
-                NavigateHelper.GetContent(
-                    Window,
-                    Window.NaPage,
-                    NowCategory
-                );
+
+                if (!tokenSource.IsCancellationRequested)
+                {
+                    NavigateHelper.GetContent(
+                        Window,
+                        Window.NaPage,
+                        NowCategory
+                    );
+                }
             }
         }
+
+
+        /*
+         * Grid
+         */
+
+        private void Grid_Loaded(object sender, RoutedEventArgs e)
+        {
+            var _grid = sender as Grid;
+
+            _grid.PointerEntered += ItemGrid_PointerEntered;
+            _grid.PointerExited += ItemGrid_PointerExited;
+            _grid.PointerPressed += ItemGrid_PointerPressed;
+            _grid.PointerReleased += ItemGrid_PointerReleased;
+        }
+
+        private void Grid_Unloaded(object sender, RoutedEventArgs e)
+        {
+            var _grid = sender as Grid;
+
+            _grid.PointerEntered -= ItemGrid_PointerEntered;
+            _grid.PointerExited -= ItemGrid_PointerExited;
+            _grid.PointerPressed -= ItemGrid_PointerPressed;
+            _grid.PointerReleased -= ItemGrid_PointerReleased;
+        }
+
 
         /*
          * ImageRepeater_Loaded
@@ -351,7 +400,7 @@ namespace OneGallery
             return _temp;
         }
 
-        private async void UnSelectLastImage(PictureClass _image)
+        private void UnSelectLastImage(PictureClass _image)
         {
             if (SelectedImage == null)
             {
@@ -360,22 +409,14 @@ namespace OneGallery
             }
             else
             {
-                SelectedImage._checkBoxOpacity = 0; 
-                SelectedImage._rectangleOpacity = 0;
-                SelectedImage._borderOpacity = 0;
-                await Task.Delay(200);
-                SelectedImage._isSelected = false;
+                var _last = SelectedImage;
+
+                _last._checkBoxOpacity = 0;
+                _last._rectangleOpacity = 0;
+                _last._borderOpacity = 0;
                 SelectedImage = _image;
+                _last._isSelected = false;
             }
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void ImageListChanged()
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ImgList)));
-        }
-
-
     }
 }
