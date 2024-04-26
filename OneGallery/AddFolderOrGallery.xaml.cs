@@ -141,7 +141,7 @@ namespace OneGallery
                     var _flyout = _temp.Resources["Flyout"] as Flyout;
                     FlyoutShowOptions myOption = new()
                     {
-                        ShowMode = FlyoutShowMode.Standard
+                        ShowMode = FlyoutShowMode.Transient
                     };
                     _flyout.ShowAt(_temp, myOption);
                     NowFlyout = _flyout;

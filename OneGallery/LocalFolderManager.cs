@@ -70,17 +70,43 @@ namespace OneGallery
 
         public async Task InitConfigs()
         {
-            var _configFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Res/Settings.json"));     
-            string _configString = await FileIO.ReadTextAsync(_configFile);
+            var _settingsJsonPath = ApplicationData.Current.LocalCacheFolder.Path + "\\Settings.json";
+            StorageFile _settingsFile;
 
+            try
+            {
+                _settingsFile = await StorageFile.GetFileFromPathAsync(_settingsJsonPath);
+            }
+            catch(Exception)
+            {
+                var _originSettingsFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Res/Settings.json"));
+                var _folder = ApplicationData.Current.LocalCacheFolder;
+                await _originSettingsFile.CopyAsync(_folder);
+                _settingsFile = await StorageFile.GetFileFromPathAsync(_settingsJsonPath);
+            }
+    
+            string _configString = await FileIO.ReadTextAsync(_settingsFile);
             MySettingsConfig = JsonSerializer.Deserialize<SettingsConfig>(_configString);
-            MySettingsConfig.ConfigFile = _configFile;
+            MySettingsConfig.ConfigFile = _settingsFile;
 
-            _configFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Res/Path.json"));
-            _configString = await FileIO.ReadTextAsync(_configFile);
+            var _pathJsonPath = ApplicationData.Current.LocalCacheFolder.Path + "\\Path.json";
+            StorageFile _pathFile;
 
+            try
+            {
+                _pathFile = await StorageFile.GetFileFromPathAsync(_pathJsonPath);
+            }
+            catch (Exception)
+            {
+                var _originSettingsFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Res/Path.json"));
+                var _folder = ApplicationData.Current.LocalCacheFolder;
+                await _originSettingsFile.CopyAsync(_folder);
+                _pathFile = await StorageFile.GetFileFromPathAsync(_pathJsonPath);
+            }
+
+            _configString = await FileIO.ReadTextAsync(_pathFile);
             MyPathConfig = JsonSerializer.Deserialize<PathConfig>(_configString);
-            MyPathConfig.ConfigFile = _configFile;
+            MyPathConfig.ConfigFile = _pathFile;
 
             Window = (Application.Current as App).Main;
             Window.MySettingsConfig = MySettingsConfig;
@@ -490,6 +516,7 @@ namespace OneGallery
         {
             var _tempFolder = LocalFolders[_oldname];
             LocalFolders.Remove(_oldname);
+            _tempFolder.RenameFolder(_newname);
             LocalFolders.Add(_newname, _tempFolder);
         }
 

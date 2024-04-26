@@ -8,11 +8,11 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="bfbb5df6-fed5-4b50-a9a0-acf1bbb7ca76"
-    Publisher="CN=X__H"
-    Version="1.1.1.0" />
+    Name="5D9FD68F.OneGallery"
+    Publisher="CN=1161E5D9-9FEC-43B5-985B-A1D7B83E9E7F"
+    Version="1.1.3.0" />
 
-  <mp:PhoneIdentity PhoneProductId="bfbb5df6-fed5-4b50-a9a0-acf1bbb7ca76" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <!--<mp:PhoneIdentity PhoneProductId="d6718de6-9544-4c78-bfcf-806658cabb9b" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>-->
 
   <Properties>
     <DisplayName>OneGallery</DisplayName>
@@ -39,8 +39,7 @@
         BackgroundColor="transparent"
         Square150x150Logo="Images\Square150x150Logo.png"
         Square44x44Logo="Images\Square44x44Logo.png">
-        <uap:DefaultTile Wide310x150Logo="Images\Wide310x150Logo.png" />
-        <uap:SplashScreen Image="Images\SplashScreen.png" />
+        <uap:DefaultTile Wide310x150Logo="Images\Wide310x150Logo.png"  Square71x71Logo="Images\SmallTile.png" Square310x310Logo="Images\LargeTile.png"/>
       </uap:VisualElements>
     </Application>
   </Applications>

@@ -10,9 +10,18 @@
     <UseWinUI>true</UseWinUI>
 	<EnableMsixTooling>true</EnableMsixTooling>
 	<PublishProfile>Properties\PublishProfiles\win10-$(Platform).pubxml</PublishProfile>
-	<PackageCertificateThumbprint>E780A17E6C07859E59ADCE09117BD92E96E60B2E</PackageCertificateThumbprint>
+	<PackageCertificateThumbprint>0259A19A49DA6C2001EF49E7EAE5B8E14746C0A4</PackageCertificateThumbprint>
 	<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
 	<DefaultLanguage>zh-CN</DefaultLanguage>
+	<GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
+	<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+	<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+	<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+	<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+	<GenerateTestArtifacts>True</GenerateTestArtifacts>
+	<AppxBundle>Auto</AppxBundle>
+	<AppxBundlePlatforms>x64</AppxBundlePlatforms>
+	<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="新文件夹1\**" />
@@ -60,23 +69,62 @@
     <None Remove="Images\Image_edit.svg" />
     <None Remove="Images\Image_multiple_off.svg" />
     <None Remove="Images\Image_off.svg" />
-    <None Remove="Images\LockScreenLogo.scale-200.png" />
+    <None Remove="Images\LargeTile.scale-100.png" />
+    <None Remove="Images\LargeTile.scale-125.png" />
+    <None Remove="Images\LargeTile.scale-150.png" />
+    <None Remove="Images\LargeTile.scale-200.png" />
+    <None Remove="Images\LargeTile.scale-400.png" />
     <None Remove="Images\Resize_image.svg" />
     <None Remove="Images\Resize_large.svg" />
     <None Remove="Images\Resize_small.svg" />
     <None Remove="Images\Select_all.svg" />
     <None Remove="Images\Select_off.svg" />
-    <None Remove="Images\SplashScreen.scale-200.png" />
+    <None Remove="Images\SmallTile.scale-100.png" />
+    <None Remove="Images\SmallTile.scale-125.png" />
+    <None Remove="Images\SmallTile.scale-150.png" />
+    <None Remove="Images\SmallTile.scale-200.png" />
+    <None Remove="Images\SmallTile.scale-400.png" />
+    <None Remove="Images\Square150x150Logo.scale-100.png" />
+    <None Remove="Images\Square150x150Logo.scale-125.png" />
+    <None Remove="Images\Square150x150Logo.scale-150.png" />
     <None Remove="Images\Square150x150Logo.scale-200.png" />
+    <None Remove="Images\Square150x150Logo.scale-400.png" />
+    <None Remove="Images\Square44x44Logo.scale-100.png" />
+    <None Remove="Images\Square44x44Logo.scale-125.png" />
+    <None Remove="Images\Square44x44Logo.scale-150.png" />
     <None Remove="Images\Square44x44Logo.scale-200.png" />
+    <None Remove="Images\Square44x44Logo.scale-400.png" />
+    <None Remove="Images\Square44x44Logo.targetsize-16.png" />
+    <None Remove="Images\Square44x44Logo.targetsize-16_altform-lightunplated.png" />
+    <None Remove="Images\Square44x44Logo.targetsize-16_altform-unplated.png" />
+    <None Remove="Images\Square44x44Logo.targetsize-24.png" />
+    <None Remove="Images\Square44x44Logo.targetsize-24_altform-lightunplated.png" />
     <None Remove="Images\Square44x44Logo.targetsize-24_altform-unplated.png" />
+    <None Remove="Images\Square44x44Logo.targetsize-256.png" />
+    <None Remove="Images\Square44x44Logo.targetsize-256_altform-lightunplated.png" />
+    <None Remove="Images\Square44x44Logo.targetsize-256_altform-unplated.png" />
+    <None Remove="Images\Square44x44Logo.targetsize-32.png" />
+    <None Remove="Images\Square44x44Logo.targetsize-32_altform-lightunplated.png" />
+    <None Remove="Images\Square44x44Logo.targetsize-32_altform-unplated.png" />
+    <None Remove="Images\Square44x44Logo.targetsize-48.png" />
+    <None Remove="Images\Square44x44Logo.targetsize-48_altform-lightunplated.png" />
+    <None Remove="Images\Square44x44Logo.targetsize-48_altform-unplated.png" />
     <None Remove="Images\StoreLogo.png" />
+    <None Remove="Images\StoreLogo.scale-100.png" />
+    <None Remove="Images\StoreLogo.scale-125.png" />
+    <None Remove="Images\StoreLogo.scale-150.png" />
+    <None Remove="Images\StoreLogo.scale-200.png" />
+    <None Remove="Images\StoreLogo.scale-400.png" />
     <None Remove="Images\Tag.svg" />
     <None Remove="Images\Tag_off.svg" />
     <None Remove="Images\Tag_question.svg" />
     <None Remove="Images\Tag_search.svg" />
     <None Remove="Images\Text_t.svg" />
+    <None Remove="Images\Wide310x150Logo.scale-100.png" />
+    <None Remove="Images\Wide310x150Logo.scale-125.png" />
+    <None Remove="Images\Wide310x150Logo.scale-150.png" />
     <None Remove="Images\Wide310x150Logo.scale-200.png" />
+    <None Remove="Images\Wide310x150Logo.scale-400.png" />
     <None Remove="Package.appxmanifest" />
     <None Remove="Res\Path.json" />
     <None Remove="Res\Settings.json" />
@@ -114,23 +162,61 @@
     <Content Include="Images\Image_edit.svg" />
     <Content Include="Images\Image_multiple_off.svg" />
     <Content Include="Images\Image_off.svg" />
-    <Content Include="Images\LockScreenLogo.scale-200.png" />
+    <Content Include="Images\LargeTile.scale-100.png" />
+    <Content Include="Images\LargeTile.scale-125.png" />
+    <Content Include="Images\LargeTile.scale-150.png" />
+    <Content Include="Images\LargeTile.scale-200.png" />
+    <Content Include="Images\LargeTile.scale-400.png" />
     <Content Include="Images\Resize_image.svg" />
     <Content Include="Images\Resize_large.svg" />
     <Content Include="Images\Resize_small.svg" />
     <Content Include="Images\Select_all.svg" />
     <Content Include="Images\Select_off.svg" />
-    <Content Include="Images\SplashScreen.scale-200.png" />
+    <Content Include="Images\SmallTile.scale-100.png" />
+    <Content Include="Images\SmallTile.scale-125.png" />
+    <Content Include="Images\SmallTile.scale-150.png" />
+    <Content Include="Images\SmallTile.scale-200.png" />
+    <Content Include="Images\SmallTile.scale-400.png" />
+    <Content Include="Images\Square150x150Logo.scale-100.png" />
+    <Content Include="Images\Square150x150Logo.scale-125.png" />
+    <Content Include="Images\Square150x150Logo.scale-150.png" />
     <Content Include="Images\Square150x150Logo.scale-200.png" />
+    <Content Include="Images\Square150x150Logo.scale-400.png" />
+    <Content Include="Images\Square44x44Logo.scale-100.png" />
+    <Content Include="Images\Square44x44Logo.scale-125.png" />
+    <Content Include="Images\Square44x44Logo.scale-150.png" />
     <Content Include="Images\Square44x44Logo.scale-200.png" />
+    <Content Include="Images\Square44x44Logo.scale-400.png" />
+    <Content Include="Images\Square44x44Logo.targetsize-16.png" />
+    <Content Include="Images\Square44x44Logo.targetsize-16_altform-lightunplated.png" />
+    <Content Include="Images\Square44x44Logo.targetsize-16_altform-unplated.png" />
+    <Content Include="Images\Square44x44Logo.targetsize-24.png" />
+    <Content Include="Images\Square44x44Logo.targetsize-24_altform-lightunplated.png" />
     <Content Include="Images\Square44x44Logo.targetsize-24_altform-unplated.png" />
-    <Content Include="Images\StoreLogo.png" />
+    <Content Include="Images\Square44x44Logo.targetsize-256.png" />
+    <Content Include="Images\Square44x44Logo.targetsize-256_altform-lightunplated.png" />
+    <Content Include="Images\Square44x44Logo.targetsize-256_altform-unplated.png" />
+    <Content Include="Images\Square44x44Logo.targetsize-32.png" />
+    <Content Include="Images\Square44x44Logo.targetsize-32_altform-lightunplated.png" />
+    <Content Include="Images\Square44x44Logo.targetsize-32_altform-unplated.png" />
+    <Content Include="Images\Square44x44Logo.targetsize-48.png" />
+    <Content Include="Images\Square44x44Logo.targetsize-48_altform-lightunplated.png" />
+    <Content Include="Images\Square44x44Logo.targetsize-48_altform-unplated.png" />
+    <Content Include="Images\StoreLogo.scale-100.png" />
+    <Content Include="Images\StoreLogo.scale-125.png" />
+    <Content Include="Images\StoreLogo.scale-150.png" />
+    <Content Include="Images\StoreLogo.scale-200.png" />
+    <Content Include="Images\StoreLogo.scale-400.png" />
     <Content Include="Images\Tag.svg" />
     <Content Include="Images\Tag_off.svg" />
     <Content Include="Images\Tag_question.svg" />
     <Content Include="Images\Tag_search.svg" />
     <Content Include="Images\Text_t.svg" />
+    <Content Include="Images\Wide310x150Logo.scale-100.png" />
+    <Content Include="Images\Wide310x150Logo.scale-125.png" />
+    <Content Include="Images\Wide310x150Logo.scale-150.png" />
     <Content Include="Images\Wide310x150Logo.scale-200.png" />
+    <Content Include="Images\Wide310x150Logo.scale-400.png" />
     <Content Include="Res\Path.json" />
     <Content Include="Res\Settings.json" />
   </ItemGroup>
@@ -144,7 +230,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26031-preview" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.23531-preview" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240311000" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.2" />
     <PackageReference Include="WinUIEx" Version="2.3.4" />

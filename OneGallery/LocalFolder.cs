@@ -298,6 +298,8 @@ namespace OneGallery
             FolderPath = _path;
             FolderName = _name;
             ImageJsonPath = ApplicationData.Current.LocalFolder.Path + "\\" + FolderName + ".json";
+
+
         }
 
         public async Task Close()
@@ -322,6 +324,9 @@ namespace OneGallery
         {
             CheckFolderTask = GetFolder(true);
             await CheckFolderTask;
+
+            if (ImageList is null)
+                ImageList = new();
 
             if (!Stop)
                 CheckFolderTask = BackGroundFindFolder();
@@ -419,6 +424,23 @@ namespace OneGallery
         private void BackgroundSearchImage()
         {
             BackUpdateImage = SearchImages(SearchMode.Add);
+        }
+
+        public async void RenameFolder(string _newName)
+        {
+            FolderName = _newName;
+
+            try
+            {
+                StorageFile _jsonfile = await StorageFile.GetFileFromPathAsync(ImageJsonPath);
+                await _jsonfile.RenameAsync(_newName + ".json");
+            }
+            catch (Exception)
+            {
+
+            }
+
+            ImageJsonPath = ApplicationData.Current.LocalFolder.Path + "\\" + FolderName + ".json";
         }
 
     }

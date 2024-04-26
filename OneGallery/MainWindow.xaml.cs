@@ -125,7 +125,8 @@ namespace OneGallery
         private async Task InitWindow()
         {
             await FolderManager.InitConfigs();
-            this.SetWindowSize(MySettingsConfig.LastWidth, MySettingsConfig.LastHeight);
+            //this.SetWindowSize(MySettingsConfig.LastWidth, MySettingsConfig.LastHeight);
+            this.CenterOnScreen(MySettingsConfig.LastWidth, MySettingsConfig.LastHeight);
             if (MySettingsConfig.LastWidth < 850)
             {
                 if (Nv.PaneDisplayMode != NavigationViewPaneDisplayMode.LeftCompact)
@@ -251,6 +252,7 @@ namespace OneGallery
         public void SaveConfigs()
         {
             FolderManager.SaveConfig((int)Width, (int)Height, (Category)Categories[3], (Category)Categories[5]);
+            
         }
 
 
