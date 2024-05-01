@@ -112,6 +112,10 @@ namespace OneGallery
             FolderManager = new();
             InitWindowTask = InitWindow();
             Title = appTitleText;
+
+            Thread th = Thread.CurrentThread;
+            th.Name = "Main";
+            Debug.Print("Main " + th.Name);
         }
 
         public async Task InitFolder(Category _category)
@@ -563,7 +567,7 @@ namespace OneGallery
 
             MyPathConfig.FolderPathConfig.Add(_name, _folderPath);
             await FolderManager.InitFolderTask;
-            FolderManager.InitFolderTask = FolderManager.AddNewFolder(_name, _folderPath);
+            FolderManager.AddNewFolder(_name, _folderPath);
 
             Category _temp = new()
             { 

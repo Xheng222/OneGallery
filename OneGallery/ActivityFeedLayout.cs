@@ -245,24 +245,21 @@ namespace OneGallery
 
                 _indexToElementMap.Clear();
 
-                base.OnItemsChangedCore(context, source, args);
+                this.InvalidateMeasure();
             }
             else if (args.Action == NotifyCollectionChangedAction.Add)
             {
-                var _indexToElementMap = (context.LayoutState as ActivityFeedLayoutState).IndexToElementMap;
-                int _start = args.NewStartingIndex;
-
-                foreach (var _item in _indexToElementMap)
+                if (LayoutImgArrangement.ImgList.Count == LayoutImgArrangement.ImgListForRepeater.Count)
                 {
-                    if (_item.Key >= _start)
+                    var _indexToElementMap = (context.LayoutState as ActivityFeedLayoutState).IndexToElementMap;
+
+                    foreach (var _item in _indexToElementMap)
                     {
                         context.RecycleElement(_item.Value);
-                        _indexToElementMap.Remove(_item.Key);
-                    }                
-                }
-
-                if (LayoutImgArrangement.ImgList.Count == LayoutImgArrangement.ImgListForRepeater.Count)
+                        _indexToElementMap.Remove(_item.Key);   
+                    }
                     this.InvalidateMeasure();
+                }
             }
             else if (args.Action == NotifyCollectionChangedAction.Replace)
             {

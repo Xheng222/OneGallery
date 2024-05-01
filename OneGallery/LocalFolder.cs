@@ -1,22 +1,26 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Shapes;
 using Microsoft.Windows.Management.Deployment;
 using Windows.ApplicationModel.Background;
 using Windows.Devices.Pwm;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using Windows.Storage.Search;
+
 
 namespace OneGallery
 {
@@ -26,9 +30,7 @@ namespace OneGallery
 
         private bool Stop = false;
 
-        private Task CheckFolderTask { get; set; }
-
-        private Task BackUpdateImage { get; set; } = Task.CompletedTask;
+        private Task CheckFolderTask { get; set; } = Task.CompletedTask;
 
         public string FolderPath { get; set; }
 
@@ -118,30 +120,50 @@ namespace OneGallery
             FileCreated.Invoke(FolderName, e);
         }
 
-        private async void OnCreated(object sender, FileSystemEventArgs e)
+        private void OnCreated(object sender, FileSystemEventArgs e)
         {
-            //Debug.Print("Created " + e.Name);
-            if (IsImageChanged(e.Name))
+            if (IsImage(e.Name))
             {
-                StorageFile _image = await StorageFile.GetFileFromPathAsync(e.FullPath);
-                var imageProps = await _image.Properties.GetImagePropertiesAsync();
-                var basicProperties = await _image.GetBasicPropertiesAsync();
-
-                if (imageProps.Width != 0 && imageProps.Height != 0)
+                //StorageFile _image = await StorageFile.GetFileFromPathAsync(e.FullPath);
+                //var imageProps = await _image.Properties.GetImagePropertiesAsync();
+                //var basicProperties = await _image.GetBasicPropertiesAsync();
+                try
                 {
-                    var _newImage = new PictureClass(
-                        _image.Path,
-                        _image.Name,
-                        imageProps.Width,
-                        imageProps.Height,
-                        _image.DateCreated,
-                        basicProperties.DateModified,
-                        (empty == imageProps.DateTaken) ? basicProperties.DateModified : imageProps.DateTaken
-                    );
+                    FileInfo _file = new(e.FullPath);
+                    using Stream stream = File.OpenRead(e.FullPath);
+                    using Image sourceImage = Image.FromStream(stream, false, false);
 
-                    FileCreatedEvent(new(_newImage));
+                    if (sourceImage.Width != 0 && sourceImage.Height != 0)
+                    {
+                        DateTime _dateTaken;
+
+                        try
+                        {
+                            PropertyItem propItem = sourceImage.GetPropertyItem(36867);
+                            string dateTaken = Encoding.ASCII.GetString(propItem.Value);
+                            _dateTaken = DateTime.ParseExact(dateTaken.Trim('\0'), "yyyy:MM:dd HH:mm:ss", CultureInfo.InvariantCulture);
+                        }
+                        catch (Exception)
+                        {
+                            _dateTaken = _file.LastWriteTime;
+                        }
+
+                        if (sourceImage.Width != 0 && sourceImage.Height != 0)
+                        {
+                            var _newImage = new PictureClass(
+                                            _file.FullName,
+                                            _file.Name,
+                                            (uint)sourceImage.Width,
+                                            (uint)sourceImage.Height,
+                                            _file.CreationTime,
+                                            _file.LastWriteTime,
+                                            _dateTaken);
+
+                            FileCreatedEvent(new(_newImage));
+                        }
+                    }
                 }
-
+                catch (Exception) { }
 
             }
         }
@@ -178,7 +200,7 @@ namespace OneGallery
         {
             Debug.Print("Delete " + e.Name);
 
-            if(IsImageChanged(e.Name))
+            if(IsImage(e.Name))
             {
                 var _tempImage = ImageList.Find(x => x.ImageLocation == e.FullPath);
 
@@ -191,6 +213,19 @@ namespace OneGallery
                     FileDeletedEvent(new(_tempImage));
                 }
             }
+            else
+            {
+                List<PictureClass> list = new();
+
+                foreach (var _image in ImageList)
+                {
+                    if (_image.ImageLocation.Contains(e.FullPath))
+                        list.Add(_image);
+                }
+
+                foreach (var _image in list)
+                    FileDeletedEvent(new(_image));
+            }
         }
 
         private void OnError(object sender, ErrorEventArgs e)
@@ -199,114 +234,48 @@ namespace OneGallery
             Watcher = null;
         }
 
-        static readonly DateTimeOffset empty = new(1601, 1, 1, 8, 0, 0,
-                     new TimeSpan(8, 0, 0));
-        private async Task SearchImages(SearchMode _searchMode)
-        {
-            var _count = 0;
-
-            while (true)
-            {
-                if (_searchMode != SearchMode.Add)
-                    ImageList.Clear();
-
-                QueryOptions _imgQuery = new()
-                {
-                    FolderDepth = FolderDepth.Deep,
-                    ApplicationSearchFilter = "System.Security.EncryptionOwners:[]",
-                    IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-                };
-
-                _imgQuery.FileTypeFilter.Add(".jpg");
-                _imgQuery.FileTypeFilter.Add(".png");
-                _imgQuery.FileTypeFilter.Add(".bmp");
-                _imgQuery.FileTypeFilter.Add(".gif");
-                _imgQuery.FileTypeFilter.Add(".ico");
-                _imgQuery.FileTypeFilter.Add(".tiff");
-
-                _imgQuery.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties | PropertyPrefetchOptions.ImageProperties, null);
-
-                uint _index = 0;
-                const int _step = 500;
-
-                StorageFileQueryResult _queryResult = Folder.CreateFileQueryWithOptions(_imgQuery);
-                IReadOnlyList<StorageFile> _images = await _queryResult.GetFilesAsync(_index, _step);
-            
-                int i = 0;
-            
-                while (_images.Count != 0 && !Stop)
-                {
-                    foreach (StorageFile _image in _images)
-                    {
-                        var imageProps = await _image.Properties.GetImagePropertiesAsync();
-                        var basicProperties = await _image.GetBasicPropertiesAsync();
-                     
-                        if (imageProps.Height != 0 && imageProps.Width != 0)
-                        {
-                            var _temp = new PictureClass(
-                                _image.Path,
-                                _image.Name,
-                                imageProps.Width,
-                                imageProps.Height,
-                                _image.DateCreated,
-                                basicProperties.DateModified,
-                                (empty == imageProps.DateTaken) ? basicProperties.DateModified : imageProps.DateTaken);
-
-                            if (_searchMode == SearchMode.Add)
-                            {
-                                if (ImageList.Find(x=> x.ImageLocation == _temp.ImageLocation) is null)
-                                    FileCreatedEvent(new(_temp));
-                            }
-                            else
-                            {
-                                ImageList.Add(_temp);
-                            }
-
-                            i++;
-
-                        }
-                    }
-                    _index += _step;
-                    _images = await _queryResult.GetFilesAsync(_index, _step);
-                }
-
-
-                if (_searchMode == SearchMode.Add || _searchMode == SearchMode.Search)
-                    break;
-                else
-                {
-                    if (_count == ImageList.Count)
-                        break;
-                    else
-                        _count = ImageList.Count;
-                }
-            }
-
-        }
-
-        public static bool IsImageChanged(string _fileName)
+        public static bool IsImage(string _fileName)
         {
             var _suffix = _fileName.Split('.').Last();
-            if (_suffix == "png" || _suffix == "jpg" || _suffix == "gif" || _suffix == "bmp")
+            if (_suffix == "png" || _suffix == "jpg" || _suffix == "gif" || 
+                _suffix == "bmp" || _suffix == "ico" || _suffix == "tiff")
                 return true;
 
             return false;
-        }
+        }        
+
+        /*
+         * 
+         */
 
         public LocalFolder(string _path, string _name)
         {
             FolderPath = _path;
             FolderName = _name;
             ImageJsonPath = ApplicationData.Current.LocalFolder.Path + "\\" + FolderName + ".json";
-
-
         }
 
-        public async Task Close()
+        public async void RenameFolder(string _newName)
+        {
+            FolderName = _newName;
+
+            try
+            {
+                StorageFile _jsonfile = await StorageFile.GetFileFromPathAsync(ImageJsonPath);
+                await _jsonfile.RenameAsync(_newName + ".json");
+            }
+            catch (Exception)
+            {
+
+            }
+
+            ImageJsonPath = ApplicationData.Current.LocalFolder.Path + "\\" + FolderName + ".json";
+        }
+        
+        public async Task DeleteFolder()
         {
             Stop = true;
             await CheckFolderTask;
-            await BackUpdateImage;
             Watcher?.Dispose();
 
             try
@@ -325,8 +294,7 @@ namespace OneGallery
             CheckFolderTask = GetFolder(true);
             await CheckFolderTask;
 
-            if (ImageList is null)
-                ImageList = new();
+            ImageList ??= new();
 
             if (!Stop)
                 CheckFolderTask = BackGroundFindFolder();
@@ -345,27 +313,30 @@ namespace OneGallery
         {
             try
             {
-                Folder = await StorageFolder.GetFolderFromPathAsync(FolderPath);
+                if (!Directory.Exists(FolderPath))
+                {
+                    throw new FileNotFoundException();
+                }
 
                 if (IsFolderFound == false)
                 {
                     if (_isFirst)
                     {
-                        bool _isJsonExist = await GetFolderFromJson();
+                        bool _isJsonExist = await GetFolderImageFromJson();
                         if (!_isJsonExist)
                         {
                             ImageList = new();
-                            await SearchImages(SearchMode.Search);
+                            SearchImages(SearchMode.Search);
                         }
                         else
                         {
-                            BackgroundSearchImage();
+                            SearchImages(SearchMode.Add);
                         }
 
                     }
                     else
                     {
-                        await SearchImages(SearchMode.SearchLoop);
+                        SearchImages(SearchMode.SearchLoop);
                     }
 
 
@@ -379,7 +350,7 @@ namespace OneGallery
                 if (Watcher is null && !Stop)
                     SetWatcher();
             }
-            catch (FileNotFoundException)
+            catch (Exception)
             {
                 if (IsFolderFound)
                 {
@@ -388,10 +359,11 @@ namespace OneGallery
                     FolderNotFoundEvent();
                 }
             }
+
+
         }
 
-
-        private async Task<bool> GetFolderFromJson()
+        private async Task<bool> GetFolderImageFromJson()
         {
             try
             {
@@ -421,27 +393,197 @@ namespace OneGallery
             return true;
         }
 
-        private void BackgroundSearchImage()
+
+        //static readonly DateTimeOffset empty = new(1601, 1, 1, 8, 0, 0,
+        //             new TimeSpan(8, 0, 0));
+        //private async Task SearchImages(SearchMode _searchMode, bool aa)
+        //{
+        //    var _count = 0;
+
+        //    while (true)
+        //    {
+        //        if (_searchMode != SearchMode.Add)
+        //            ImageList.Clear();
+
+        //        QueryOptions _imgQuery = new()
+        //        {
+        //            FolderDepth = FolderDepth.Deep,
+        //            ApplicationSearchFilter = "System.Security.EncryptionOwners:[]",
+        //            IndexerOption = IndexerOption.UseIndexerWhenAvailable,
+        //        };
+
+        //        _imgQuery.FileTypeFilter.Add(".jpg");
+        //        _imgQuery.FileTypeFilter.Add(".png");
+        //        _imgQuery.FileTypeFilter.Add(".bmp");
+        //        _imgQuery.FileTypeFilter.Add(".gif");
+        //        _imgQuery.FileTypeFilter.Add(".ico");
+        //        _imgQuery.FileTypeFilter.Add(".tiff");
+
+        //        _imgQuery.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties | PropertyPrefetchOptions.ImageProperties, null);
+
+        //        uint _index = 0;
+        //        const int _step = 500;
+
+        //        StorageFileQueryResult _queryResult = Folder.CreateFileQueryWithOptions(_imgQuery);
+        //        IReadOnlyList<StorageFile> _images = await _queryResult.GetFilesAsync(_index, _step);
+
+        //        int i = 0;
+
+        //        while (_images.Count != 0 && !Stop)
+        //        {
+        //            foreach (StorageFile _image in _images)
+        //            {
+        //                var imageProps = await _image.Properties.GetImagePropertiesAsync();
+        //                var basicProperties = await _image.GetBasicPropertiesAsync();
+
+        //                //if (imageProps.Height != 0 && imageProps.Width != 0)
+        //                //{
+        //                //    var _temp = new PictureClass(
+        //                //        _image.Path,
+        //                //        _image.Name,
+        //                //        imageProps.Width,
+        //                //        imageProps.Height,
+        //                //        _image.DateCreated,
+        //                //        basicProperties.DateModified,
+        //                //        (empty == imageProps.DateTaken) ? basicProperties.DateModified : imageProps.DateTaken);
+
+        //                //    if (_searchMode == SearchMode.Add)
+        //                //    {
+        //                //        if (ImageList.Find(x=> x.ImageLocation == _temp.ImageLocation) is null)
+        //                //            FileCreatedEvent(new(_temp));
+        //                //    }
+        //                //    else
+        //                //    {
+        //                //        ImageList.Add(_temp);
+        //                //    }
+
+        //                //    i++;
+
+        //                //}
+        //            }
+        //            _index += _step;
+        //            _images = await _queryResult.GetFilesAsync(_index, _step);
+        //        }
+
+
+        //        if (_searchMode == SearchMode.Add || _searchMode == SearchMode.Search)
+        //            break;
+        //        else
+        //        {
+        //            if (_count == ImageList.Count)
+        //                break;
+        //            else
+        //                _count = ImageList.Count;
+        //        }
+        //    }
+
+        //}
+
+        private void SearchImages(SearchMode _searchMode)
         {
-            BackUpdateImage = SearchImages(SearchMode.Add);
+            var _count = 0;
+            Queue<DirectoryInfo> _foldersQueue = new();
+
+            while (true)
+            {
+                if (_searchMode != SearchMode.Add)
+                    ImageList.Clear();
+
+                _foldersQueue.Enqueue(new DirectoryInfo(FolderPath));
+
+                while (_foldersQueue.Count > 0 && !Stop)
+                {
+                    DirectoryInfo _folder = _foldersQueue.Dequeue();
+
+                    try
+                    {
+                        foreach (FileInfo _file in _folder.EnumerateFiles())
+                        {
+                            if (_file.Attributes == System.IO.FileAttributes.System)
+                                continue;
+
+                            if (IsImage(_file.Name))
+                            {
+                                try
+                                {
+                                    DateTime _dateTaken;
+
+                                    using Stream stream = File.OpenRead(_file.FullName);
+                                    using Image sourceImage = Image.FromStream(stream, false, false);
+                                    try
+                                    {
+                                        PropertyItem propItem = sourceImage.GetPropertyItem(36867);
+                                        string dateTaken = Encoding.ASCII.GetString(propItem.Value);
+                                        _dateTaken = DateTime.ParseExact(dateTaken.Trim('\0'), "yyyy:MM:dd HH:mm:ss", CultureInfo.InvariantCulture);
+                                    }
+                                    catch (Exception)
+                                    {
+                                        _dateTaken = _file.LastWriteTime;
+                                    }
+
+                                    if (sourceImage.Width != 0 && sourceImage.Height != 0)
+                                    {
+                                        if (_searchMode == SearchMode.Add)
+                                        {
+                                            if (ImageList.Find(x => x.ImageLocation == _file.FullName) is null)
+                                            {
+                                                var _temp = new PictureClass(
+                                                               _file.FullName,
+                                                               _file.Name,
+                                                               (uint)sourceImage.Width,
+                                                               (uint)sourceImage.Height,
+                                                               _file.CreationTime,
+                                                               _file.LastWriteTime,
+                                                               _dateTaken);
+
+                                                FileCreatedEvent(new(_temp));
+                                            }
+                                        }
+                                        else
+                                        {
+                                            var _temp = new PictureClass(
+                                                           _file.FullName,
+                                                           _file.Name,
+                                                           (uint)sourceImage.Width,
+                                                           (uint)sourceImage.Height,
+                                                           _file.CreationTime,
+                                                           _file.LastWriteTime,
+                                                           _dateTaken);
+
+                                            ImageList.Add(_temp);
+                                        }
+
+
+                                    }
+                                }
+                                catch (Exception) { }
+                            }
+                        }
+
+                        foreach (DirectoryInfo _subFolder in _folder.EnumerateDirectories())
+                        {
+                            _foldersQueue.Enqueue(_subFolder);
+                        }
+                    }
+                    catch (Exception) { }
+
+
+
+
+                }
+
+                if (_searchMode != SearchMode.SearchLoop)
+                    break;
+                else
+                {
+                    if (_count == ImageList.Count)
+                        break;
+                    else
+                        _count = ImageList.Count;
+                }
+            }
         }
 
-        public async void RenameFolder(string _newName)
-        {
-            FolderName = _newName;
-
-            try
-            {
-                StorageFile _jsonfile = await StorageFile.GetFileFromPathAsync(ImageJsonPath);
-                await _jsonfile.RenameAsync(_newName + ".json");
-            }
-            catch (Exception)
-            {
-
-            }
-
-            ImageJsonPath = ApplicationData.Current.LocalFolder.Path + "\\" + FolderName + ".json";
-        }
 
     }
 

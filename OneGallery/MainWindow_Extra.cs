@@ -491,11 +491,11 @@ namespace OneGallery
             }
         }
 
-        private static List<StorageFile> _selectImages = new();
+        private static List<StorageFile> SelectImages = new();
 
         private static async Task GetImageFile(string _path)
         {
-            _selectImages.Add(await StorageFile.GetFileFromPathAsync(_path));
+            SelectImages.Add(await StorageFile.GetFileFromPathAsync(_path));
         }
 
         private async Task<DataPackage> CopyOrCutImages()
@@ -513,7 +513,7 @@ namespace OneGallery
             var _images = new DataPackage();
             await Task.WhenAll(_copyTasks);
 
-            _images.SetStorageItems(_selectImages);
+            _images.SetStorageItems(SelectImages);
 
             return _images;
         }
@@ -524,7 +524,7 @@ namespace OneGallery
             var _images = await CopyOrCutImages();
             _images.RequestedOperation = DataPackageOperation.Copy;
             Clipboard.SetContent(_images);
-            _selectImages.Clear();
+            SelectImages.Clear();
             await _copyStart;
             CopySuccessed();
         }
@@ -550,7 +550,7 @@ namespace OneGallery
             var _images = await CopyOrCutImages();
             _images.RequestedOperation = DataPackageOperation.Move;
             Clipboard.SetContent(_images);
-            _selectImages.Clear();
+            SelectImages.Clear();
             await _cutStart;
             CutSuccessed();
         }

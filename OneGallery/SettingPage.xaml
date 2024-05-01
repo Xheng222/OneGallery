@@ -277,7 +277,7 @@
                     <Image Source="/Images/github-mark.svg" HorizontalAlignment="Right" VerticalAlignment="Center"  Height="24"/>
                     <HyperlinkButton NavigateUri="https://github.com/Xheng222/OneGallery" Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Center"  />
 
-                    <TextBlock Text="V 1.1.2" FontSize="12.4" Foreground="#696969" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0, 10, 35, 0"/>
+                    <TextBlock Text="V 1.2.1" FontSize="12.4" Foreground="#696969" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0, 10, 35, 0"/>
                 </Grid>            
             
             </Grid>

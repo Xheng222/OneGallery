@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
@@ -31,115 +32,11 @@ namespace OneGallery
 
         public ImageArrangement MyImageArrangement { get; set; }
 
-        public Task InitFolderTask { get; set; }
+        public Task InitFolderTask { get; set; } = Task.CompletedTask;
        
         public LocalFolderManager() 
         {
             MyImageArrangement = new();
-        }
-
-        public void SaveConfig(int _lastWidth, int _lastHeight, Category _galleries, Category _folders)
-        {
-            MyPathConfig.StorePathConfig(_galleries, _folders);
-            MySettingsConfig.StoreSettingsConfig(_lastWidth, _lastHeight);
-
-            SaveImageConfigs();
-        }
-
-        private void SaveImageConfigs()
-        {
-            StorageFolder _folder = ApplicationData.Current.LocalFolder;
-            foreach (var _localFolder in LocalFolders.Values)
-            {
-                SaveImageJson(_localFolder, _folder);
-            }
-
-        }
-
-        private static async void SaveImageJson(LocalFolder _localFolder, StorageFolder _folder)
-        {
-            StorageFile _jsonFile = await _folder.CreateFileAsync(_localFolder.FolderName + ".json", CreationCollisionOption.ReplaceExisting);
-            
-            if (_localFolder.ImageList is not null)
-            {
-                string jsonString = JsonSerializer.Serialize(_localFolder.ImageList);
-                await FileIO.WriteTextAsync(_jsonFile, jsonString);
-            }
-
-        }
-
-        public async Task InitConfigs()
-        {
-            var _settingsJsonPath = ApplicationData.Current.LocalCacheFolder.Path + "\\Settings.json";
-            StorageFile _settingsFile;
-
-            try
-            {
-                _settingsFile = await StorageFile.GetFileFromPathAsync(_settingsJsonPath);
-            }
-            catch(Exception)
-            {
-                var _originSettingsFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Res/Settings.json"));
-                var _folder = ApplicationData.Current.LocalCacheFolder;
-                await _originSettingsFile.CopyAsync(_folder);
-                _settingsFile = await StorageFile.GetFileFromPathAsync(_settingsJsonPath);
-            }
-    
-            string _configString = await FileIO.ReadTextAsync(_settingsFile);
-            MySettingsConfig = JsonSerializer.Deserialize<SettingsConfig>(_configString);
-            MySettingsConfig.ConfigFile = _settingsFile;
-
-            var _pathJsonPath = ApplicationData.Current.LocalCacheFolder.Path + "\\Path.json";
-            StorageFile _pathFile;
-
-            try
-            {
-                _pathFile = await StorageFile.GetFileFromPathAsync(_pathJsonPath);
-            }
-            catch (Exception)
-            {
-                var _originSettingsFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Res/Path.json"));
-                var _folder = ApplicationData.Current.LocalCacheFolder;
-                await _originSettingsFile.CopyAsync(_folder);
-                _pathFile = await StorageFile.GetFileFromPathAsync(_pathJsonPath);
-            }
-
-            _configString = await FileIO.ReadTextAsync(_pathFile);
-            MyPathConfig = JsonSerializer.Deserialize<PathConfig>(_configString);
-            MyPathConfig.ConfigFile = _pathFile;
-
-            Window = (Application.Current as App).Main;
-            Window.MySettingsConfig = MySettingsConfig;
-            Window.MyPathConfig = MyPathConfig;
-
-            InitFolderTask = InitFolder();
-        }
-
-        public async Task InitFolder()
-        {
-            foreach (var _selectItemName in MyPathConfig.GalleryToFolderListConfig.Keys)
-                GallerySelectionToImgList.Add(_selectItemName, new());
-
-            foreach (var _foldPath in MyPathConfig.FolderPathConfig)
-                await AddNewFolder(_foldPath.Key, _foldPath.Value);
-        }
-
-        public async Task InitImageListPage(Category _category)
-        {
-            await InitFolderTask;
-
-            NowCategory = _category;
-
-            if (NowCategory.IsHomePage)
-                MyImageArrangement.ImgList = HomPageImgList;
-            else if (NowCategory.IsGallery)
-                MyImageArrangement.ImgList = GallerySelectionToImgList[NowCategory.Name];
-            else if (NowCategory.IsFolder)
-                MyImageArrangement.ImgList = LocalFolders[NowCategory.Name].ImageList;
-            
-            MyImageArrangement.SortImg();
-            MyImageArrangement.UpdateImgRect();
-            return;
         }
 
         /*
@@ -224,7 +121,7 @@ namespace OneGallery
             string _folderName = sender as string;
             RenamedEventArgs e = _e as RenamedEventArgs;
 
-            if (LocalFolder.IsImageChanged(e.Name))
+            if (LocalFolder.IsImage(e.Name))
             {
                 var _tempImage = LocalFolders[_folderName].ImageList.Find(x => x.ImageLocation == e.OldFullPath);
                 
@@ -381,7 +278,6 @@ namespace OneGallery
                 Stretch _temp = (MySettingsConfig.ImageZoomMode == 0) ? Stretch.UniformToFill : Stretch.Uniform;
                 foreach (var _item in LocalFolders[_folderName].ImageList)
                 {
-                    //_item.NowStretch = _temp;
                     HomPageImgList.Add(_item);
                 }          
             }
@@ -449,19 +345,17 @@ namespace OneGallery
                     HomPageImgList.Remove(_item);
             }
 
-            if (NowCategory != null && !NowCategory.IsFolderInfo)
+            if (NowCategory != null && !NowCategory.IsFolderInfo && !NowCategory.IsGalleryInfo)
             {
                 if (NowCategory.IsHomePage || (NowCategory.IsFolder && NowCategory.Name == _folderName) ||
                     (NowCategory.IsGallery && MyPathConfig.GalleryToFolderListConfig[NowCategory.Name].Contains(_folderName)))
                 {
-                    Window._imageCount = MyImageArrangement.ImgList.Count;
                     MyImageArrangement.SortImg();
                     MyImageArrangement.UpdateImgRect();
 
                     foreach (var _item in LocalFolders[_folderName].ImageList)
                     {
-                        bool isQueued = Window.DispatcherQueue.TryEnqueue(
-                        () =>
+                        Window.DispatcherQueue.TryEnqueue(() =>
                         {
                             MyImageArrangement.ImgListForRepeater.Remove(_item);
                             if (_item.IsSelected)
@@ -474,25 +368,187 @@ namespace OneGallery
                             }
                         });
                     }
+
+                    LocalFolders[_folderName].ImageList.Clear();
                 }
             }
 
-            LocalFolders[_folderName].ImageList.Clear();
+            Window.DispatcherQueue.TryEnqueue(() =>
+            {
+                Window._imageCount = MyImageArrangement.ImgList.Count;
+            });
         }
 
-        public async Task AddNewFolder(string _name, string _folderPath) 
+
+        public void SaveConfig(int _lastWidth, int _lastHeight, Category _galleries, Category _folders)
         {
-            LocalFolder _localFolder = new(_folderPath, _name);
-            LocalFolders.Add(_name, _localFolder);
-            _localFolder.FileDeleted += OnFileDeletedEvent;
-            _localFolder.FileRenamed += OnFileReNamedEvent;
-            _localFolder.FileCreated += OnFileCreatedEvent;
+            MyPathConfig.StorePathConfig(_galleries, _folders);
+            MySettingsConfig.StoreSettingsConfig(_lastWidth, _lastHeight);
 
-            _localFolder.FolderNotFound += OnFolderNotFoundEvent;
-            _localFolder.FolderExist += OnFolderExistEvent;
-            await _localFolder.FirstInitFolder();
-            //await Task.Delay(20000);
+            SaveImageConfigs();
         }
+
+        private void SaveImageConfigs()
+        {
+            StorageFolder _folder = ApplicationData.Current.LocalFolder;
+            foreach (var _localFolder in LocalFolders.Values)
+            {
+                SaveImageJson(_localFolder, _folder);
+            }
+
+        }
+
+        private static async void SaveImageJson(LocalFolder _localFolder, StorageFolder _folder)
+        {
+            StorageFile _jsonFile = await _folder.CreateFileAsync(_localFolder.FolderName + ".json", CreationCollisionOption.ReplaceExisting);
+
+            if (_localFolder.ImageList is not null)
+            {
+                string jsonString = JsonSerializer.Serialize(_localFolder.ImageList);
+                await FileIO.WriteTextAsync(_jsonFile, jsonString);
+            }
+        }
+
+        public async Task InitConfigs()
+        {
+            var _settingsJsonPath = ApplicationData.Current.LocalCacheFolder.Path + "\\Settings.json";
+            StorageFile _settingsFile;
+
+            try
+            {
+                _settingsFile = await StorageFile.GetFileFromPathAsync(_settingsJsonPath);
+            }
+            catch (Exception)
+            {
+                var _originSettingsFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Res/Settings.json"));
+                var _folder = ApplicationData.Current.LocalCacheFolder;
+                await _originSettingsFile.CopyAsync(_folder);
+                _settingsFile = await StorageFile.GetFileFromPathAsync(_settingsJsonPath);
+            }
+
+            string _configString = await FileIO.ReadTextAsync(_settingsFile);
+            MySettingsConfig = JsonSerializer.Deserialize<SettingsConfig>(_configString);
+            MySettingsConfig.ConfigFile = _settingsFile;
+
+            var _pathJsonPath = ApplicationData.Current.LocalCacheFolder.Path + "\\Path.json";
+            StorageFile _pathFile;
+
+            try
+            {
+                _pathFile = await StorageFile.GetFileFromPathAsync(_pathJsonPath);
+            }
+            catch (Exception)
+            {
+                var _originSettingsFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Res/Path.json"));
+                var _folder = ApplicationData.Current.LocalCacheFolder;
+                await _originSettingsFile.CopyAsync(_folder);
+                _pathFile = await StorageFile.GetFileFromPathAsync(_pathJsonPath);
+            }
+
+            _configString = await FileIO.ReadTextAsync(_pathFile);
+            MyPathConfig = JsonSerializer.Deserialize<PathConfig>(_configString);
+            MyPathConfig.ConfigFile = _pathFile;
+
+            Window = (Application.Current as App).Main;
+            Window.MySettingsConfig = MySettingsConfig;
+            Window.MyPathConfig = MyPathConfig;
+
+            InitFolderTask = InitFolder();
+        }
+
+        public async Task InitFolder()
+        {
+            foreach (var _selectItemName in MyPathConfig.GalleryToFolderListConfig.Keys)
+                GallerySelectionToImgList.Add(_selectItemName, new());
+
+            foreach (var _foldPath in MyPathConfig.FolderPathConfig)
+            {
+                AddNewFolder(_foldPath.Key, _foldPath.Value);
+                await Task.Delay(200);
+            }
+
+        }
+
+
+        private async Task WaitFolderTask(Category _category)
+        {
+            if (_category.IsHomePage)
+            {
+                await Task.WhenAll(FolderInitTask.Values);
+            }
+            else
+            {
+                if (_category.IsGallery)
+                {
+                    foreach (var _folderName in MyPathConfig.GalleryToFolderListConfig[_category.Name])
+                    {
+                        await FolderInitTask[_folderName];
+                    }
+                }
+                else if (_category.IsFolder)
+                {
+                    await FolderInitTask[_category.Name];
+                }
+            }
+
+        }
+
+        public async Task InitImageListPage(Category _category)
+        {
+            await InitFolderTask;
+            await WaitFolderTask(_category);
+
+            NowCategory = _category;
+
+            if (NowCategory.IsHomePage)
+                MyImageArrangement.ImgList = HomPageImgList;
+            else if (NowCategory.IsGallery)
+                MyImageArrangement.ImgList = GallerySelectionToImgList[NowCategory.Name];
+            else if (NowCategory.IsFolder)
+                MyImageArrangement.ImgList = LocalFolders[NowCategory.Name].ImageList;
+
+            MyImageArrangement.SortImg();
+            MyImageArrangement.UpdateImgRect();
+
+            return;
+        }
+
+
+
+        static Dictionary<string, Task> FolderInitTask = new();
+
+        //public void AddNewFolderBack(string _name, string _folderPath) 
+        //{
+        //    LocalFolder _localFolder = new(_folderPath, _name);
+        //    LocalFolders.Add(_name, _localFolder);
+        //    _localFolder.FileDeleted += OnFileDeletedEvent;
+        //    _localFolder.FileRenamed += OnFileReNamedEvent;
+        //    _localFolder.FileCreated += OnFileCreatedEvent;
+
+        //    _localFolder.FolderNotFound += OnFolderNotFoundEvent;
+        //    _localFolder.FolderExist += OnFolderExistEvent;
+
+        //    FolderInitTask.Add(_name, _localFolder.FirstInitFolder());
+        //}
+
+        public void AddNewFolder(string _name, string _folderPath)
+        {
+            Thread thread = new(() =>
+            {
+                LocalFolder _localFolder = new(_folderPath, _name);
+                LocalFolders.Add(_name, _localFolder);
+                _localFolder.FileDeleted += OnFileDeletedEvent;
+                _localFolder.FileRenamed += OnFileReNamedEvent;
+                _localFolder.FileCreated += OnFileCreatedEvent;
+
+                _localFolder.FolderNotFound += OnFolderNotFoundEvent;
+                _localFolder.FolderExist += OnFolderExistEvent;
+
+                FolderInitTask.Add(_name, _localFolder.FirstInitFolder());
+            });
+            thread.Start();
+        }
+
 
         public void AddNewGallery(string _name)
         {
@@ -518,6 +574,10 @@ namespace OneGallery
             LocalFolders.Remove(_oldname);
             _tempFolder.RenameFolder(_newname);
             LocalFolders.Add(_newname, _tempFolder);
+
+            var _folderTask = FolderInitTask[_oldname];
+            FolderInitTask.Remove(_oldname);
+            FolderInitTask.Add(_newname, _folderTask);
         }
 
         public void RenameGallery(string _oldname, string _newname)
@@ -532,7 +592,7 @@ namespace OneGallery
 
             var _localFolder = LocalFolders[_name];
 
-            await _localFolder.Close();
+            await _localFolder.DeleteFolder();
             _localFolder.FileDeleted -= OnFileDeletedEvent;
             _localFolder.FileRenamed -= OnFileReNamedEvent;
             _localFolder.FileCreated -= OnFileCreatedEvent;
@@ -540,6 +600,7 @@ namespace OneGallery
             _localFolder.FolderExist -= OnFolderExistEvent;
             OnFolderNotFoundEvent(_name, null);
             LocalFolders.Remove(_name);
+            FolderInitTask.Remove(_name);
         }
 
         public void RemoveGallery(string _name)
@@ -550,7 +611,7 @@ namespace OneGallery
         public void ResetFolder(string _name, string _path)
         {
             RemoveFolder(_name);
-            _ = AddNewFolder(_name, _path);
+            AddNewFolder(_name, _path);
         }
 
         public void ResetGallery(string _name)

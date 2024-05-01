@@ -24,11 +24,11 @@ namespace OneGallery
 
         public int Width { get; set; }
 
-        public DateTimeOffset CreatDate { get; set; }
+        public DateTime CreatDate { get; set; }
 
-        public DateTimeOffset LastEditDate { get; set; }
+        public DateTime LastEditDate { get; set; }
 
-        public DateTimeOffset ShootDate { get; set; }
+        public DateTime ShootDate { get; set; }
 
         public string Name { get; set; }
 
@@ -140,7 +140,8 @@ namespace OneGallery
             OnPropertyChanged(nameof(_nowStretch));
         }
 
-        public PictureClass(string _path, string _name, uint _width, uint _height, DateTimeOffset creatDate, DateTimeOffset lastEditDate, DateTimeOffset shootDate)
+        public PictureClass(string _path, string _name, uint _width, uint _height, 
+                            DateTime creatDate, DateTime lastEditDate, DateTime shootDate)
         {
             ImageLocation = _path;
             Name = _name;
