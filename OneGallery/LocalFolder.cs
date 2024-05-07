@@ -291,11 +291,14 @@ namespace OneGallery
 
         public async Task FirstInitFolder()
         {
-            CheckFolderTask = GetFolder(true);
-            await CheckFolderTask;
-
+            await GetFolder(true);
             ImageList ??= new();
+            BackGroundFindImage();
+        }
 
+        private async void BackGroundFindImage()
+        {
+            await CheckFolderTask;
             if (!Stop)
                 CheckFolderTask = BackGroundFindFolder();
         }
@@ -320,23 +323,27 @@ namespace OneGallery
 
                 if (IsFolderFound == false)
                 {
+                    Task _updateImage = null;
+
                     if (_isFirst)
                     {
                         bool _isJsonExist = await GetFolderImageFromJson();
+
                         if (!_isJsonExist)
                         {
                             ImageList = new();
-                            SearchImages(SearchMode.Search);
+                            await SearchImages(SearchMode.Search);
+
                         }
                         else
                         {
-                            SearchImages(SearchMode.Add);
+                            CheckFolderTask = SearchImages(SearchMode.Add);
                         }
 
                     }
                     else
                     {
-                        SearchImages(SearchMode.SearchLoop);
+                         await SearchImages(SearchMode.SearchLoop);
                     }
 
 
@@ -393,94 +400,11 @@ namespace OneGallery
             return true;
         }
 
-
-        //static readonly DateTimeOffset empty = new(1601, 1, 1, 8, 0, 0,
-        //             new TimeSpan(8, 0, 0));
-        //private async Task SearchImages(SearchMode _searchMode, bool aa)
-        //{
-        //    var _count = 0;
-
-        //    while (true)
-        //    {
-        //        if (_searchMode != SearchMode.Add)
-        //            ImageList.Clear();
-
-        //        QueryOptions _imgQuery = new()
-        //        {
-        //            FolderDepth = FolderDepth.Deep,
-        //            ApplicationSearchFilter = "System.Security.EncryptionOwners:[]",
-        //            IndexerOption = IndexerOption.UseIndexerWhenAvailable,
-        //        };
-
-        //        _imgQuery.FileTypeFilter.Add(".jpg");
-        //        _imgQuery.FileTypeFilter.Add(".png");
-        //        _imgQuery.FileTypeFilter.Add(".bmp");
-        //        _imgQuery.FileTypeFilter.Add(".gif");
-        //        _imgQuery.FileTypeFilter.Add(".ico");
-        //        _imgQuery.FileTypeFilter.Add(".tiff");
-
-        //        _imgQuery.SetPropertyPrefetch(PropertyPrefetchOptions.BasicProperties | PropertyPrefetchOptions.ImageProperties, null);
-
-        //        uint _index = 0;
-        //        const int _step = 500;
-
-        //        StorageFileQueryResult _queryResult = Folder.CreateFileQueryWithOptions(_imgQuery);
-        //        IReadOnlyList<StorageFile> _images = await _queryResult.GetFilesAsync(_index, _step);
-
-        //        int i = 0;
-
-        //        while (_images.Count != 0 && !Stop)
-        //        {
-        //            foreach (StorageFile _image in _images)
-        //            {
-        //                var imageProps = await _image.Properties.GetImagePropertiesAsync();
-        //                var basicProperties = await _image.GetBasicPropertiesAsync();
-
-        //                //if (imageProps.Height != 0 && imageProps.Width != 0)
-        //                //{
-        //                //    var _temp = new PictureClass(
-        //                //        _image.Path,
-        //                //        _image.Name,
-        //                //        imageProps.Width,
-        //                //        imageProps.Height,
-        //                //        _image.DateCreated,
-        //                //        basicProperties.DateModified,
-        //                //        (empty == imageProps.DateTaken) ? basicProperties.DateModified : imageProps.DateTaken);
-
-        //                //    if (_searchMode == SearchMode.Add)
-        //                //    {
-        //                //        if (ImageList.Find(x=> x.ImageLocation == _temp.ImageLocation) is null)
-        //                //            FileCreatedEvent(new(_temp));
-        //                //    }
-        //                //    else
-        //                //    {
-        //                //        ImageList.Add(_temp);
-        //                //    }
-
-        //                //    i++;
-
-        //                //}
-        //            }
-        //            _index += _step;
-        //            _images = await _queryResult.GetFilesAsync(_index, _step);
-        //        }
-
-
-        //        if (_searchMode == SearchMode.Add || _searchMode == SearchMode.Search)
-        //            break;
-        //        else
-        //        {
-        //            if (_count == ImageList.Count)
-        //                break;
-        //            else
-        //                _count = ImageList.Count;
-        //        }
-        //    }
-
-        //}
-
-        private void SearchImages(SearchMode _searchMode)
+        private async Task SearchImages(SearchMode _searchMode)
         {
+            if (_searchMode == SearchMode.Add)
+                await Task.Delay(1000);
+
             var _count = 0;
             Queue<DirectoryInfo> _foldersQueue = new();
 
