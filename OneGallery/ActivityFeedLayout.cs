@@ -125,54 +125,58 @@ namespace OneGallery
             {
                 var state = context.LayoutState as ActivityFeedLayoutState;
 
-                if (!UpdateImgRect(availableSize.Width))
-                    return new Size(availableSize.Width, _newTop);
 
-                state.IndexToElementMap.Clear();
-                state.LayoutRects.Clear();
-                state.FirstRealizedIndex = -1;
-
-                int i = 0;
-                foreach (var _item in LayoutImgArrangement.RowFirstIndex)
+                lock (LayoutImgArrangement.ImgList)
                 {
-                    double zoomImg = (availableSize.Width - LayoutImgArrangement.RowImgCount[i] * _colSpacing) / (LayoutImgArrangement.NowWidth - (LayoutImgArrangement.RowImgCount[i] - 1) * _colSpacing);
+                    if (!UpdateImgRect(availableSize.Width))
+                        return new Size(availableSize.Width, _newTop);
 
-                    if (_newTop >= context.VisibleRect.Top - LayoutImgArrangement.ImageHeight * 2 && _newTop <= context.VisibleRect.Bottom + LayoutImgArrangement.ImageHeight * 2)
+                    state.IndexToElementMap.Clear();
+                    state.LayoutRects.Clear();
+                    state.FirstRealizedIndex = -1;
+
+                    int i = 0;
+                    foreach (var _item in LayoutImgArrangement.RowFirstIndex)
                     {
-                        int RowImgCount = LayoutImgArrangement.RowImgCount[i];
+                        double zoomImg = (availableSize.Width - LayoutImgArrangement.RowImgCount[i] * _colSpacing) / (LayoutImgArrangement.NowWidth - (LayoutImgArrangement.RowImgCount[i] - 1) * _colSpacing);
 
-                        if (state.FirstRealizedIndex == -1)
+                        if (_newTop >= context.VisibleRect.Top - LayoutImgArrangement.ImageHeight * 2 && _newTop <= context.VisibleRect.Bottom + LayoutImgArrangement.ImageHeight * 2)
                         {
-                            state.FirstRealizedIndex = _item;
-                        }
+                            int RowImgCount = LayoutImgArrangement.RowImgCount[i];
 
-                        double _newX = _colSpacing;
-
-                        for (var j = 0; j < RowImgCount; j++)
-                        {
-                            var _index = _item + j;
-                            if (_index >= context.ItemCount)
-                                break;
-
-                            var container = context.GetOrCreateElementAt(_index);
-                            var _rect = LayoutImgArrangement.ImageRect[_index];
-                            Rect _size = new()
+                            if (state.FirstRealizedIndex == -1)
                             {
-                                Width = _rect.Width * zoomImg,
-                                Height = _rect.Height * zoomImg,
-                                X = _newX,
-                                Y = _newTop
-                            };
-                            container.Measure(new Size(_size.Width, _size.Height));
-                            state.LayoutRects.Add(_size);
-                            state.IndexToElementMap.Add(_index, container);
-                            _newX += _size.Width + _colSpacing;
-                        }
-                    }
+                                state.FirstRealizedIndex = _item;
+                            }
 
-                    _newTop += zoomImg * LayoutImgArrangement.ImageRect[_item].Height + _rowSpacing;
-                    i++;
-                }
+                            double _newX = _colSpacing;
+
+                            for (var j = 0; j < RowImgCount; j++)
+                            {
+                                var _index = _item + j;
+                                if (_index >= context.ItemCount)
+                                    break;
+
+                                var container = context.GetOrCreateElementAt(_index);
+                                var _rect = LayoutImgArrangement.ImageRect[_index];
+                                Rect _size = new()
+                                {
+                                    Width = _rect.Width * zoomImg,
+                                    Height = _rect.Height * zoomImg,
+                                    X = _newX,
+                                    Y = _newTop
+                                };
+                                container.Measure(new Size(_size.Width, _size.Height));
+                                state.LayoutRects.Add(_size);
+                                state.IndexToElementMap.Add(_index, container);
+                                _newX += _size.Width + _colSpacing;
+                            }
+                        }
+
+                        _newTop += zoomImg * LayoutImgArrangement.ImageRect[_item].Height + _rowSpacing;
+                        i++;
+                    }
+                }   
             }
 
             return new Size(availableSize.Width, _newTop);

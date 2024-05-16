@@ -40,8 +40,6 @@ using WinUIEx.Messaging;
 
 namespace OneGallery
 {
-
-
     public partial class MainWindow : WindowEx, INotifyPropertyChanged
     {
         public string appTitleText = "OneGallery";
@@ -59,9 +57,10 @@ namespace OneGallery
 
         public Category SettingCategory = new()
         {
-            Name = "设置",
+            _name = "设置",
         };
-        public Category NowCategory {  get; set; }
+
+        public Category NowCategory { get; set; }
 
         public Category _nowCategory
         {
@@ -75,7 +74,7 @@ namespace OneGallery
         public Frame NaPage
         {
             get { return Nv_page; }
-        } 
+        }
 
         public NavigationView NaView
         {
@@ -102,7 +101,7 @@ namespace OneGallery
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        Task InitWindowTask {  get; set; }
+        Task InitWindowTask { get; set; }
 
         public MainWindow()
         {
@@ -113,9 +112,7 @@ namespace OneGallery
             InitWindowTask = InitWindow();
             Title = appTitleText;
 
-            Thread th = Thread.CurrentThread;
-            th.Name = "Main";
-            Debug.Print("Main " + th.Name);
+            Window = this;
         }
 
         public async Task InitFolder(Category _category)
@@ -182,7 +179,7 @@ namespace OneGallery
                 IsHomePage = true,
             };
             _temp.SetFontIcon("\uE80F");
-            
+
             Categories.Add(_temp);
             Categories.Add(new NavigationViewItemSeparator());
 
@@ -197,7 +194,7 @@ namespace OneGallery
             InitAddCategories(_temp, MyPathConfig.GalleryToFolderListConfig.Keys.ToList(), false);
             Categories.Add(_temp);
             Categories.Add(new NavigationViewItemSeparator());
-            
+
             _temp = new Category()
             {
                 _name = "文件夹",
@@ -227,22 +224,27 @@ namespace OneGallery
                     _temp.IsFolder = true;
                     _temp.SetFontIcon("\uE8B7");
                 }
-                    
+
                 else
                 {
                     _temp.IsGallery = true;
                     _temp.SetFontIcon("\uE8EC");
                 }
-                          
+
                 _parent.Children.Add(_temp);
             }
         }
 
-
+        public static bool Is_Close = false;
+        
+        public static MainWindow Window { set; get; }
 
         private void Window_Closed(object sender, WindowEventArgs args)
         {
             // Make sure any Mica/Acrylic controller is disposed
+            Debug.Print("Closed");
+            Is_Close = true;
+
             if (m_backdropController != null)
             {
                 m_backdropController.Dispose();
@@ -485,7 +487,6 @@ namespace OneGallery
             {
                 if (Item is NavigationViewItem NaView)
                 {
-                    //var NaView = (NavigationViewItem)Item;
                     var PageName = NaView.Tag.ToString();
                     
                     if (!PageDictionary.ContainsKey(PageName))
@@ -562,16 +563,13 @@ namespace OneGallery
          * Add
          */
 
-        public async void AddFolderOrGallery(string _name, string _folderPath)
+        public void AddFolderOrGallery(string _name, string _folderPath)
         {
-
-            MyPathConfig.FolderPathConfig.Add(_name, _folderPath);
-            await FolderManager.InitFolderTask;
-            FolderManager.AddNewFolder(_name, _folderPath);
+            //await FolderManager.InitFolderTask;
 
             Category _temp = new()
             { 
-                Name = _name,
+                _name = _name,
                 IsFolder = true,
                 PageType = "ImageListPage",
             };
@@ -580,34 +578,41 @@ namespace OneGallery
             var FolderCategory = Categories[5] as Category;
             FolderCategory.Children.Insert(FolderCategory.Children.Count - 1, _temp);
 
+            MyPathConfig.FolderPathConfig.Add(_name, _folderPath);
+
+            FolderManager.AddNewFolder(_name, _folderPath);
             return;
         }
 
         public bool AddFolderOrGallery(string _name, List<object> _folderName)
         {
-            List<string> _tempFolderList = new();
-            foreach (var _item in _folderName)
-            {
-                if (_item is Category _category)
-                {
-                    _tempFolderList.Add(_category.Name);
-                }
-            }
-
-            MyPathConfig.GalleryToFolderListConfig.Add(_name, _tempFolderList);
-            FolderManager.AddNewGallery(_name);
-
             Category _temp = new()
             {
-                Name = _name,
+                _name = _name,
                 IsGallery = true,
                 PageType = "ImageListPage",
             };
             _temp.SetFontIcon("\uE8EC");
 
-            var GalleryCategory = Categories[3] as Category;
-            GalleryCategory.Children.Insert(GalleryCategory.Children.Count - 1, _temp);
+            var _children = Categories[3] as Category;
+            _children.Children.Insert(_children.Children.Count - 1, _temp);
 
+            List<string> _tempFolderList = new();
+            lock (MyPathConfig.GalleryToFolderListConfig)
+            {
+                foreach (var _item in _folderName)
+                {
+                    if (_item is Category _category)
+                    {
+                        _tempFolderList.Add(_category._name);
+                    }
+                }
+
+                MyPathConfig.GalleryToFolderListConfig.Add(_name, _tempFolderList);
+            }
+
+
+            FolderManager.AddNewGallery(_name);
             return true;
         }
 
@@ -639,7 +644,7 @@ namespace OneGallery
                 {
                     if (_category is Category _tempCategory)
                     {
-                        if (_tempCategory.Name == _oldname)
+                        if (_tempCategory._name == _oldname)
                         {
                             DispatcherQueue.TryEnqueue(() =>
                             {
@@ -654,13 +659,11 @@ namespace OneGallery
             return true;
         }
 
-        public bool ResetFolder(string _oldname, string _newName, string _newPath)
+        public async Task ResetFolder(string _oldname, string _newName, string _newPath)
         {
             ResetFolder(_oldname, _newName);
             MyPathConfig.FolderPathConfig[_newName] = _newPath;
-            FolderManager.ResetFolder(_newName, _newPath);
-
-            return true;
+            await FolderManager.ResetFolder(_newName, _newPath);
         }
 
 
@@ -680,7 +683,7 @@ namespace OneGallery
                 {
                     if (_child is Category _category)
                     {
-                        if (_category.Name == _oldname)
+                        if (_category._name == _oldname)
                         {
                             DispatcherQueue.TryEnqueue(() =>
                             {
@@ -708,10 +711,10 @@ namespace OneGallery
          * Delete
          */
 
-        public bool DeleteFolder(string _folderName)
+        public async void DeleteFolder(string _folderName)
         {
             NavigateHelper.RemoveFolder(_folderName);
-            FolderManager.RemoveFolder(_folderName);
+            await FolderManager.RemoveFolder(_folderName);
 
             MyPathConfig.FolderPathConfig.Remove(_folderName);
 
@@ -726,7 +729,7 @@ namespace OneGallery
             foreach (var _category in (Categories[5] as Category).Children)
             {
                 var _tempCategory = _category as Category;
-                if (_tempCategory.Name == _folderName)
+                if (_tempCategory._name == _folderName)
                 {
                     DispatcherQueue.TryEnqueue(() =>
                     {
@@ -739,7 +742,7 @@ namespace OneGallery
             foreach (var _temp in Nv_page.BackStack)
             {
                 var _c = _temp.Parameter as Category;
-                if (_c.IsFolder && _c.Name == _folderName)
+                if (_c.IsFolder && _c._name == _folderName)
                 {
                     Nv_page.BackStack.Remove(_temp);
                 }
@@ -753,7 +756,6 @@ namespace OneGallery
                 if (_tempParameter is null)
                 {
                     _tempParameter = _temp.Parameter as Category;
-                    Debug.Print("first " + _tempParameter.Name);
                 }
                 else
                 {
@@ -761,13 +763,11 @@ namespace OneGallery
                     {
                         if (_c == _tempParameter)
                         {
-                            Debug.Print("remove " + _c.Name);
                             _removeList.Add(_temp);
                         }
                         else
                         {
                             _tempParameter = _c;
-                            Debug.Print("switch " + _tempParameter.Name);
                         }
 
                     }
@@ -782,7 +782,7 @@ namespace OneGallery
                 Nv_page.BackStack.Remove(Nv_page.BackStack.Last());
 
 
-            return true;
+            return;
         }
 
         public bool DeleteGallery(string _galleryName)
@@ -795,7 +795,7 @@ namespace OneGallery
             {
                 if (_category is Category _tempCategory)
                 {
-                    if (_tempCategory.Name == _galleryName)
+                    if (_tempCategory._name == _galleryName)
                     {
                         DispatcherQueue.TryEnqueue(() =>
                         {
@@ -809,7 +809,7 @@ namespace OneGallery
             foreach (var _temp in Nv_page.BackStack)
             {
                 var _c = _temp.Parameter as Category;
-                if (_c.IsGallery && _c.Name == _galleryName)
+                if (_c.IsGallery && _c._name == _galleryName)
                 {
                     Nv_page.BackStack.Remove(_temp);
                 }
@@ -823,7 +823,6 @@ namespace OneGallery
                 if (_tempParameter is null)
                 {
                     _tempParameter = _temp.Parameter as Category;
-                    Debug.Print("first " + _tempParameter.Name);
                 }
                 else
                 {
@@ -831,13 +830,11 @@ namespace OneGallery
                     {
                         if (_c == _tempParameter)
                         {
-                            Debug.Print("remove " + _c.Name);
                             _removeList.Add(_temp);
                         }
                         else
                         {
                             _tempParameter = _c;
-                            Debug.Print("switch " + _tempParameter.Name);
                         }
                             
                     }
@@ -863,22 +860,36 @@ namespace OneGallery
 
         public DataTemplate NULLTemplate { get; set; }
 
+        public DataTemplate ItemTemplate_ForInfo { get; set; }
+
         protected override DataTemplate SelectTemplateCore(object item)
         {
-            if (item.GetType() == typeof(Category))
+            if (item is Category _category)
             {
-                if (!(item as Category).IsAddSelection)
-                    return ItemTemplate;
+                if (!_category.IsAddSelection)
+                {
+                    if (_category.IsFolderInfo || _category.IsGalleryInfo)
+                    {
+                        return ItemTemplate_ForInfo;
+                    }
+                    else
+                    {
+                        return ItemTemplate;
+                    }
+                }
                 else
+                {
                     return NULLTemplate;
+                }
+
             } 
-            else if (item.GetType() == typeof(NavigationViewItemSeparator))
+            else if (item is NavigationViewItemSeparator)
             {
                 return SeparatorTemplate;
             }
             else
             {
-                return null;
+                return NULLTemplate;
             }
         }
     }

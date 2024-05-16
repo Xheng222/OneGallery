@@ -29,7 +29,7 @@ namespace OneGallery
        
         public bool IsAddSelection = false;
 
-        public string Name { get; set; }
+        private string Name { get; set; }
 
         public string   _name
         {
@@ -43,14 +43,12 @@ namespace OneGallery
 
         public FontIcon Icon = new();
 
-
-
         public void SetFontIcon(string _glyph)
         {
             Icon.Glyph = _glyph;
         }
 
-        public ObservableCollection<object> Children = new();
+        public ObservableCollection<Category> Children = new();
 
         public string PageType { get; set; }
 
@@ -59,6 +57,41 @@ namespace OneGallery
         {
             Icon.Glyph = "\uE713";
         }
+
+
+        private int SearchCount { get; set; } = 0;
+
+        public int _searchCount
+        {
+            get => SearchCount; 
+            set
+            {
+                SearchCount = value;
+                if (SearchCount > 0)
+                {
+                    _processBarOpacity = 1;
+                }
+                else
+                {
+                    _processBarOpacity = 0;
+                }
+            }
+        }
+
+        private int ProcessBarOpacity { get; set; } = 0;
+
+        public int _processBarOpacity
+        {
+            get => ProcessBarOpacity;
+            set
+            {
+                ProcessBarOpacity = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+
 
 
     }

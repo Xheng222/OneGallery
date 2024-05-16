@@ -140,13 +140,13 @@ namespace OneGallery
             OnPropertyChanged(nameof(_nowStretch));
         }
 
-        public PictureClass(string _path, string _name, uint _width, uint _height, 
+        public PictureClass(string _path, string _name, int _width, int _height, 
                             DateTime creatDate, DateTime lastEditDate, DateTime shootDate)
         {
             ImageLocation = _path;
             Name = _name;
-            Height = (int)_height;
-            Width = (int)_width;
+            Height = _height;
+            Width = _width;
             IsSelected = false;
             CreatDate = creatDate;
             LastEditDate = lastEditDate;

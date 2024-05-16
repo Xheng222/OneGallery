@@ -440,17 +440,22 @@ namespace OneGallery
             {
                 if (FolderManager.MyImageArrangement.ImgList is not null)
                 {
-                    foreach (var _image in FolderManager.MyImageArrangement.ImgList)
+                    lock (FolderManager.MyImageArrangement.ImgList)
                     {
-                        if (_image.IsSelected)
+
+                        foreach (var _image in FolderManager.MyImageArrangement.ImgList)
                         {
-                            _image._checkBoxOpacity = 0;
-                            _image._borderOpacity = 0;
-                            _image._rectangleOpacity = 0;
-                            UnSelect(_image);
+                            if (_image.IsSelected)
+                            {
+                                _image._checkBoxOpacity = 0;
+                                _image._borderOpacity = 0;
+                                _image._rectangleOpacity = 0;
+                                UnSelect(_image);
+                            }
                         }
                     }
                 }
+
             }
 
 
@@ -582,16 +587,18 @@ namespace OneGallery
 
             if (_deleteDialog.Result == AddContentDialog.ContentDialogResult.ConfirmDelete)
             {
+                List<PictureClass> _delete = new();
                 foreach (var _image in FolderManager.MyImageArrangement.ImgList)
                 {
                     if (_image.IsSelected)
                     {
-                        FolderManager.DeleteImg(_image);
+                        _delete.Add(_image);
                     }
                 }
-
-                //_selectedCount = 0;
-                //ImageListPage.SelectedImage = null;
+                foreach (var _image in  _delete)
+                {
+                    FolderManager.DeleteImg(_image);
+                }
             }
         }
 
@@ -824,7 +831,6 @@ namespace OneGallery
                 if (NowCategory.IsGallery || NowCategory.IsFolder)
                 {
                     _imageCount = FolderManager.MyImageArrangement.ImgList.Count;
-                    Debug.Print(_imageCount + " count");
                     await Task.Delay(100);
                     CountText.Opacity = 1;
                     CountNum.Opacity = 1;
@@ -837,6 +843,26 @@ namespace OneGallery
 
                 }
             }
+        }
+
+        public void ChangeProcessBar(string _folderName, bool _isEnd)
+        {
+            int _flag = _isEnd ? -1 : 1;
+
+            (Categories[1] as Category)._searchCount += _flag;
+
+            lock (MyPathConfig.GalleryToFolderListConfig)
+            {
+                foreach (var _gallery in MyPathConfig.GalleryToFolderListConfig)
+                {
+                    if (_gallery.Value.Contains(_folderName))
+                    {
+                        (Categories[3] as Category).Children.FirstOrDefault(x => x._name == _gallery.Key)._searchCount += _flag;
+                    }
+                }
+            }
+
+            (Categories[5] as Category).Children.FirstOrDefault(x => x._name == _folderName)._searchCount += _flag;
         }
     }
 }

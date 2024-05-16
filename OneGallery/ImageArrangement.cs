@@ -39,27 +39,33 @@ namespace OneGallery
 
         public void ImgListChanged()
         {
-            int _count = ImgListForRepeater.Count;
-
-            for (int i = 0;  i < ImgList.Count; i++)
+            lock(ImgList)
             {
-                if (i < _count)
-                {
-                    if (ImgList[i] != ImgListForRepeater[i])
-                        ImgListForRepeater[i] = ImgList[i];
-                }
-                else
-                {
-                    ImgListForRepeater.Add(ImgList[i]);
-                }
-            }
+                int _count = ImgListForRepeater.Count;
 
-            _count = ImgListForRepeater.Count;
-            int _totalCount = ImgList.Count;
+                for (int i = 0;  i < ImgList.Count; i++)
+                {
+                    if (MainWindow.Is_Close)
+                        return;
 
-            for (int i = _count - 1; i >= _totalCount; i--)
-            {
-                ImgListForRepeater.RemoveAt(i);
+                    if (i < _count)
+                    {
+                        if (ImgList[i] != ImgListForRepeater[i])
+                            ImgListForRepeater[i] = ImgList[i];
+                    }
+                    else
+                    {
+                        ImgListForRepeater.Add(ImgList[i]);
+                    }
+                }
+
+                _count = ImgListForRepeater.Count;
+                int _totalCount = ImgList.Count;
+
+                for (int i = _count - 1; i >= _totalCount; i--)
+                {
+                    ImgListForRepeater.RemoveAt(i);
+                }
             }
         }
 
@@ -99,171 +105,174 @@ namespace OneGallery
 
         public void SortImg()
         {
-            if (ImgList.Count > 0)
+            lock (ImgList)
             {
-                switch (MainWindow.NowSortMode)
+                if (ImgList.Count > 0)
                 {
-                    case MainWindow.SortMode.CreateDate:
-                        {
-                            if (MainWindow.IsAscending)
+                    switch (MainWindow.NowSortMode)
+                    {
+                        case MainWindow.SortMode.CreateDate:
                             {
-                                ImgList.Sort((x, y) => 
+                                if (MainWindow.IsAscending)
                                 {
-                                    int _temp = x.CreatDate.CompareTo(y.CreatDate);
-                                    if (_temp != 0)
-                                        return _temp;
-                                    else
+                                    ImgList.Sort((x, y) => 
                                     {
-                                        _temp = x.LastEditDate.CompareTo(y.LastEditDate);
-                                        if (_temp != 0) 
-                                            return _temp;
-                                        else
-                                            return x.Name.CompareTo(y.Name); 
-                                    }               
-                                });
-                            }
-                            else
-                            {
-                                ImgList.Sort((x, y) => 
-                                {
-                                    int _temp = -x.CreatDate.CompareTo(y.CreatDate);
-                                    if (_temp != 0)
-                                        return _temp;
-                                    else
-                                    {
-                                        _temp = -x.LastEditDate.CompareTo(y.LastEditDate);
+                                        int _temp = x.CreatDate.CompareTo(y.CreatDate);
                                         if (_temp != 0)
                                             return _temp;
                                         else
-                                            return -x.Name.CompareTo(y.Name);
-                                    }
-                                });
-                            }
+                                        {
+                                            _temp = x.LastEditDate.CompareTo(y.LastEditDate);
+                                            if (_temp != 0) 
+                                                return _temp;
+                                            else
+                                                return x.Name.CompareTo(y.Name); 
+                                        }               
+                                    });
+                                }
+                                else
+                                {
+                                    ImgList.Sort((x, y) => 
+                                    {
+                                        int _temp = -x.CreatDate.CompareTo(y.CreatDate);
+                                        if (_temp != 0)
+                                            return _temp;
+                                        else
+                                        {
+                                            _temp = -x.LastEditDate.CompareTo(y.LastEditDate);
+                                            if (_temp != 0)
+                                                return _temp;
+                                            else
+                                                return -x.Name.CompareTo(y.Name);
+                                        }
+                                    });
+                                }
 
-                            break;
-                        }
-                    case MainWindow.SortMode.LastEditDate:
-                        {
-                            if (MainWindow.IsAscending)
+                                break;
+                            }
+                        case MainWindow.SortMode.LastEditDate:
                             {
-                                ImgList.Sort((x, y) =>
+                                if (MainWindow.IsAscending)
                                 {
-                                    int _temp = x.LastEditDate.CompareTo(y.LastEditDate);
-                                    if (_temp != 0)
-                                        return _temp;
-                                    else
+                                    ImgList.Sort((x, y) =>
                                     {
-                                        _temp = x.CreatDate.CompareTo(y.CreatDate);
+                                        int _temp = x.LastEditDate.CompareTo(y.LastEditDate);
                                         if (_temp != 0)
                                             return _temp;
                                         else
-                                            return x.Name.CompareTo(y.Name);
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                ImgList.Sort((x, y) =>
+                                        {
+                                            _temp = x.CreatDate.CompareTo(y.CreatDate);
+                                            if (_temp != 0)
+                                                return _temp;
+                                            else
+                                                return x.Name.CompareTo(y.Name);
+                                        }
+                                    });
+                                }
+                                else
                                 {
-                                    int _temp = -x.LastEditDate.CompareTo(y.LastEditDate);
-                                    if (_temp != 0)
-                                        return _temp;
-                                    else
+                                    ImgList.Sort((x, y) =>
                                     {
-                                        _temp = -x.CreatDate.CompareTo(y.CreatDate);
+                                        int _temp = -x.LastEditDate.CompareTo(y.LastEditDate);
                                         if (_temp != 0)
                                             return _temp;
                                         else
-                                            return -x.Name.CompareTo(y.Name);
-                                    }
-                                });
-                            }
+                                        {
+                                            _temp = -x.CreatDate.CompareTo(y.CreatDate);
+                                            if (_temp != 0)
+                                                return _temp;
+                                            else
+                                                return -x.Name.CompareTo(y.Name);
+                                        }
+                                    });
+                                }
 
-                            break;
-                        }
-                    case MainWindow.SortMode.ShootDate:
-                        {
-                            if (MainWindow.IsAscending)
+                                break;
+                            }
+                        case MainWindow.SortMode.ShootDate:
                             {
-                                ImgList.Sort((x, y) =>
+                                if (MainWindow.IsAscending)
                                 {
-                                    int _temp = x.ShootDate.CompareTo(y.ShootDate);
-                                    if (_temp != 0)
-                                        return _temp;
-                                    else
+                                    ImgList.Sort((x, y) =>
                                     {
-                                        _temp = x.CreatDate.CompareTo(y.CreatDate);
+                                        int _temp = x.ShootDate.CompareTo(y.ShootDate);
                                         if (_temp != 0)
                                             return _temp;
                                         else
-                                            return x.Name.CompareTo(y.Name);
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                ImgList.Sort((x, y) =>
+                                        {
+                                            _temp = x.CreatDate.CompareTo(y.CreatDate);
+                                            if (_temp != 0)
+                                                return _temp;
+                                            else
+                                                return x.Name.CompareTo(y.Name);
+                                        }
+                                    });
+                                }
+                                else
                                 {
-                                    int _temp = -x.ShootDate.CompareTo(y.ShootDate);
-                                    if (_temp != 0)
-                                        return _temp;
-                                    else
+                                    ImgList.Sort((x, y) =>
                                     {
-                                        _temp = -x.CreatDate.CompareTo(y.CreatDate);
+                                        int _temp = -x.ShootDate.CompareTo(y.ShootDate);
                                         if (_temp != 0)
                                             return _temp;
                                         else
-                                            return -x.Name.CompareTo(y.Name);
-                                    }
-                                });
-                            }
+                                        {
+                                            _temp = -x.CreatDate.CompareTo(y.CreatDate);
+                                            if (_temp != 0)
+                                                return _temp;
+                                            else
+                                                return -x.Name.CompareTo(y.Name);
+                                        }
+                                    });
+                                }
 
-                            break; 
-                        }
-                    case MainWindow.SortMode.Name: 
-                        {
-                            if (MainWindow.IsAscending)
+                                break; 
+                            }
+                        case MainWindow.SortMode.Name: 
                             {
-                                ImgList.Sort((x, y) =>
+                                if (MainWindow.IsAscending)
                                 {
-                                    int _temp = x.Name.CompareTo(y.Name);
-                                    if (_temp != 0)
-                                        return _temp;
-                                    else
+                                    ImgList.Sort((x, y) =>
                                     {
-                                        _temp = x.LastEditDate.CompareTo(y.LastEditDate);
+                                        int _temp = x.Name.CompareTo(y.Name);
                                         if (_temp != 0)
                                             return _temp;
                                         else
-                                            return x.CreatDate.CompareTo(y.CreatDate);
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                ImgList.Sort((x, y) =>
+                                        {
+                                            _temp = x.LastEditDate.CompareTo(y.LastEditDate);
+                                            if (_temp != 0)
+                                                return _temp;
+                                            else
+                                                return x.CreatDate.CompareTo(y.CreatDate);
+                                        }
+                                    });
+                                }
+                                else
                                 {
-                                    int _temp = -x.Name.CompareTo(y.Name);
-                                    if (_temp != 0)
-                                        return _temp;
-                                    else
+                                    ImgList.Sort((x, y) =>
                                     {
-                                        _temp = -x.LastEditDate.CompareTo(y.LastEditDate);
+                                        int _temp = -x.Name.CompareTo(y.Name);
                                         if (_temp != 0)
                                             return _temp;
                                         else
-                                            return -x.CreatDate.CompareTo(y.CreatDate);
-                                    }
-                                });
+                                        {
+                                            _temp = -x.LastEditDate.CompareTo(y.LastEditDate);
+                                            if (_temp != 0)
+                                                return _temp;
+                                            else
+                                                return -x.CreatDate.CompareTo(y.CreatDate);
+                                        }
+                                    });
+                                }
+
+                                break; 
                             }
+                    }
 
-                            break; 
-                        }
-                }
-
-                for (int i = 0; i < ImgList.Count; i++)
-                {
-                    ImgList[i].Index = i;
+                    for (int i = 0; i < ImgList.Count; i++)
+                    {
+                        ImgList[i].Index = i;
+                    }
                 }
             }
         }
@@ -326,58 +335,63 @@ namespace OneGallery
             RowFirstIndex_Default.Clear();
             RowImgCount_Default.Clear();
 
-            while (_imgIndex < ImgList.Count)
+            lock (ImgList)
             {
-                List<double> Wigthlist = TryPutImg(_imgIndex, NowWidth - ColSpacing);
+                while (_imgIndex < ImgList.Count)
+                {
+                    List<double> Wigthlist = TryPutImg(_imgIndex, NowWidth - ColSpacing);
 
-                double _actualWidth = 0; 
+                    double _actualWidth = 0; 
                 
-                foreach (var i in Wigthlist)
-                {
-                    _actualWidth += i;
-                }
-                    
-                double zoom = (NowWidth - ColSpacing * Wigthlist.Count) / _actualWidth;
-
-                if (_imgIndex + Wigthlist.Count == ImgList.Count)
-                {
-                    if (zoom > 1.2)
+                    foreach (var i in Wigthlist)
                     {
-                        zoom = 1.2;
+                        _actualWidth += i;
                     }
-                }
+                    
+                    double zoom = (NowWidth - ColSpacing * Wigthlist.Count) / _actualWidth;
 
-                double _nowX = ColSpacing;
-
-                for (int i = 0; i < Wigthlist.Count; i++)
-                {
-                    Rect _rect = new()
+                    if (_imgIndex + Wigthlist.Count == ImgList.Count)
                     {
-                        Width = Wigthlist[i] * zoom,
-                        Height = ImageHeight * zoom,
-                        Y = _nowY,
-                        X = _nowX
-                    };
+                        if (zoom > 1.2)
+                        {
+                            zoom = 1.2;
+                        }
+                    }
 
-                    _nowX += Wigthlist[i] * zoom + ColSpacing;
-                    ImageRect_Default.Add(_rect);
+                    double _nowX = ColSpacing;
+
+                    for (int i = 0; i < Wigthlist.Count; i++)
+                    {
+                        Rect _rect = new()
+                        {
+                            Width = Wigthlist[i] * zoom,
+                            Height = ImageHeight * zoom,
+                            Y = _nowY,
+                            X = _nowX
+                        };
+
+                        _nowX += Wigthlist[i] * zoom + ColSpacing;
+                        ImageRect_Default.Add(_rect);
+                    }
+
+                    RowFirstIndex_Default.Add(_imgIndex);
+                    _nowY += ImageHeight * zoom + RowSpacing;
+                    _imgIndex += Wigthlist.Count;
+
                 }
 
-                RowFirstIndex_Default.Add(_imgIndex);
-                _nowY += ImageHeight * zoom + RowSpacing;
-                _imgIndex += Wigthlist.Count;
+                int _count;
 
+                for (int i = 1; i < RowFirstIndex_Default.Count; i++)
+                {
+                    _count = RowFirstIndex_Default[i] - RowFirstIndex_Default[i-1];
+                    RowImgCount_Default.Add(_count);
+                }
+
+                RowImgCount_Default.Add(ImgList.Count - RowFirstIndex_Default.Last());
             }
 
-            int _count;
 
-            for (int i = 1; i < RowFirstIndex_Default.Count; i++)
-            {
-                _count = RowFirstIndex_Default[i] - RowFirstIndex_Default[i-1];
-                RowImgCount_Default.Add(_count);
-            }
-
-            RowImgCount_Default.Add(ImgList.Count - RowFirstIndex_Default.Last());
         }
 
     }

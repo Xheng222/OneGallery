@@ -82,7 +82,29 @@
             </Style>
 
             <DataTemplate  x:Key="NavigationViewMenuItem" x:DataType="local:Category">
-                <NavigationViewItem Tag="{x:Bind _name}" Content="{x:Bind _name, Mode=OneWay}" Icon="{x:Bind Icon, Mode=OneWay}" MenuItemsSource="{x:Bind Children, Mode=OneWay}" IsExpanded="True"/>
+                <NavigationViewItem Tag="{x:Bind _name}"  Icon="{x:Bind Icon, Mode=OneWay}" MenuItemsSource="{x:Bind Children, Mode=OneWay}" IsExpanded="True">
+                    <NavigationViewItem.Content>
+                        <Grid Height="30">
+                            <TextBlock Text="{x:Bind _name, Mode=OneWay}" VerticalAlignment="Center"/>
+                            <ProgressBar IsIndeterminate="True" ShowPaused="False" ShowError="False"  VerticalAlignment="Bottom"  Opacity="{x:Bind _processBarOpacity, Mode=OneWay}">
+                                <ProgressBar.OpacityTransition>
+                                    <ScalarTransition Duration="0:0:0.5"/>
+                                </ProgressBar.OpacityTransition>
+                            </ProgressBar>                     
+                        </Grid>
+
+                    </NavigationViewItem.Content>
+                </NavigationViewItem>
+            </DataTemplate>
+
+            <DataTemplate  x:Key="NavigationViewMenuItem_ForInfo" x:DataType="local:Category">
+                <NavigationViewItem Tag="{x:Bind _name}"  Icon="{x:Bind Icon, Mode=OneWay}" MenuItemsSource="{x:Bind Children, Mode=OneWay}" IsExpanded="True">
+                    <NavigationViewItem.Content>
+                        <Grid Height="30">
+                            <TextBlock Text="{x:Bind _name, Mode=OneWay}" VerticalAlignment="Center"/>
+                        </Grid>
+                    </NavigationViewItem.Content>
+                </NavigationViewItem>
             </DataTemplate>
 
             <DataTemplate x:Key="NavigationViewItemSeparator">
@@ -90,13 +112,14 @@
             </DataTemplate>
 
             <DataTemplate x:Key="NULL" x:DataType="local:Category">
-                <NavigationViewItem Tag="{x:Bind Name}" Content="{x:Bind Name}" Visibility="Collapsed"/>
+                <NavigationViewItem Visibility="Collapsed"/>
             </DataTemplate>
 
             <local:MyTemplateSelector x:Key="MyTemplateSelector"
                              ItemTemplate="{StaticResource NavigationViewMenuItem}"
                              SeparatorTemplate="{StaticResource NavigationViewItemSeparator}"
-                             NULLTemplate="{StaticResource NULL}"         />
+                             NULLTemplate="{StaticResource NULL}"     
+                             ItemTemplate_ForInfo="{StaticResource NavigationViewMenuItem_ForInfo}"/>
 
             <Storyboard x:Name="BorderUpForImagePage">
                 <DoubleAnimationUsingKeyFrames Storyboard.TargetName="TitleBorder"
@@ -668,5 +691,6 @@
                 </Frame>
             </Grid>
         </NavigationView>
+
     </Grid>
 </winex:WindowEx>

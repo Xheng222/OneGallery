@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using System.Text;
@@ -24,15 +26,7 @@ using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
-using Microsoft.VisualBasic;
-using Windows.ApplicationModel.Contacts;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Foundation.Metadata;
-using Windows.Storage;
-using Windows.Storage.Search;
-using Windows.UI;
-using Windows.UI.StartScreen;
+
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -50,8 +44,6 @@ namespace OneGallery
 
         private Category NowCategory {  get; set; }
 
-        private MainWindow Window {  get; set; }
-
         public ObservableCollection<PictureClass> ImgList {  get; set; }
 
         public ActivityFeedLayout MyActivityFeedLayout { get; set; }
@@ -60,7 +52,6 @@ namespace OneGallery
         public ImageListPage()
         {
             this.InitializeComponent();
-            Window = (Application.Current as App).Main;
             NavigationCacheMode = NavigationCacheMode.Disabled;
         }
 
@@ -68,6 +59,7 @@ namespace OneGallery
         public void Close()
         {
             MyActivityFeedLayout = null;
+            ImgList.CollectionChanged -= OnCollectionChanged;
             ImgList = null;
             this.UnloadObject(this);
         }
@@ -80,7 +72,7 @@ namespace OneGallery
             {
                 NowCategory = e.Parameter as Category;
                 LoadData();
-                Window._nowCategory = NowCategory;
+                MainWindow.Window._nowCategory = NowCategory;
             }
         }
 
@@ -91,7 +83,7 @@ namespace OneGallery
                 Parameters.Width = ScrollViewer.ActualWidth;
                 Parameters.Offset = ScrollViewer.VerticalOffset;
                 Parameters.FirstShow = false;
-                NavigateHelper.StoreContent(Window.NaPage, NowCategory, Parameters);
+                NavigateHelper.StoreContent(NowCategory, Parameters);
             }
 
             tokenSource.Cancel();
@@ -134,32 +126,42 @@ namespace OneGallery
             {
                 ImgList = new();
                 MyActivityFeedLayout = new();
-                await Window.InitFolder(NowCategory);
+                await MainWindow.Window.InitFolder(NowCategory);
 
                 if (!tokenSource.IsCancellationRequested)
                 {
-                    MyActivityFeedLayout.LayoutImgArrangement = Window.FolderManager.MyImageArrangement;
-                    Window.FolderManager.MyImageArrangement.ImgListForRepeater = ImgList;
-                    Window.FolderManager.MyImageArrangement.ImgListChanged();
+                    MyActivityFeedLayout.LayoutImgArrangement = MainWindow.Window.FolderManager.MyImageArrangement;
+                    MainWindow.Window.FolderManager.MyImageArrangement.ImgListForRepeater = ImgList;
+                    MainWindow.Window.FolderManager.MyImageArrangement.ImgListChanged();
                 }
 
                 PocessingGrid.Opacity = 0;
                 await Task.Delay(300);
-                ScrollViewer.Opacity = 1;
-                await Task.Delay(200);
 
+                if (ImgList.Count == 0)
+                {
+                    EmptyGrid.Opacity = 1;
+                    ScrollViewer.Opacity = 0;
+                }
+                else
+                {
+                    EmptyGrid.Opacity = 0;
+                    ScrollViewer.Opacity = 1;
+                }
+
+                await Task.Delay(200);
                 PocessingGrid.Visibility = Visibility.Collapsed;
+
+                ImgList.CollectionChanged += OnCollectionChanged;
             }
 
             else
             {
-                await Window.InitFolder(NowCategory);
+                await MainWindow.Window.InitFolder(NowCategory);
 
                 if (!tokenSource.IsCancellationRequested)
                 {
                     NavigateHelper.GetContent(
-                        Window,
-                        Window.NaPage,
                         NowCategory
                     );
                 }
@@ -347,7 +349,7 @@ namespace OneGallery
 
                     var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("ForwardConnectedAnimation", (Grid)sender);
                     anim.Configuration = new DirectConnectedAnimationConfiguration();
-                    Window.NaPage.Navigate(typeof(ImagePage), _image, new DrillInNavigationTransitionInfo());
+                    MainWindow.Window.NaPage.Navigate(typeof(ImagePage), _image, new DrillInNavigationTransitionInfo());
                     if (!_image.IsSelected)
                     {
                         _image._checkBoxOpacity = 0;
@@ -362,7 +364,7 @@ namespace OneGallery
                         if (_image.IsSelected)
                         {
                             _image._isSelected = false;
-                            Window._selectedCount--;
+                            MainWindow.Window._selectedCount--;
                             SelectedImage = null;
                         }
                             
@@ -373,7 +375,7 @@ namespace OneGallery
                             if (MainWindow.NowSelectMode == MainWindow.SelectMode.Single)
                                 UnSelectLastImage(_image);
                             else
-                                Window._selectedCount++;
+                                MainWindow.Window._selectedCount++;
                         }
 
 
@@ -400,12 +402,12 @@ namespace OneGallery
             return _temp;
         }
 
-        private void UnSelectLastImage(PictureClass _image)
+        private static void UnSelectLastImage(PictureClass _image)
         {
             if (SelectedImage == null)
             {
                 SelectedImage = _image;
-                Window._selectedCount++;
+                MainWindow.Window._selectedCount++;
             }
             else
             {
@@ -416,6 +418,25 @@ namespace OneGallery
                 _last._borderOpacity = 0;
                 SelectedImage = _image;
                 _last._isSelected = false;
+            }
+        }
+
+        private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (MainWindow.Window.NowCategory == NowCategory)
+            {
+                MainWindow.Window._imageCount = ImgList.Count;
+                if (ImgList.Count == 0)
+                {
+                    EmptyGrid.Opacity = 1;
+                    ScrollViewer.Opacity = 0;
+                }
+                else
+                {
+                    EmptyGrid.Opacity = 0;
+                    ScrollViewer.Opacity = 1;
+                }
+
             }
         }
     }

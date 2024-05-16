@@ -34,8 +34,6 @@ namespace OneGallery
 
         public bool DeleteToTrashcan { get; set; }
 
-        [JsonIgnore]
-        public StorageFile ConfigFile { get; set; }
 
         public async void StoreSettingsConfig(int _lastWidth, int _lastHeight)
         {
@@ -44,7 +42,8 @@ namespace OneGallery
 
             var options = new JsonSerializerOptions { WriteIndented = true };
             var jsonString = JsonSerializer.Serialize(this, options);
-            await FileIO.WriteTextAsync(ConfigFile, jsonString);
+            var _pathFile = await StorageFile.GetFileFromPathAsync(ApplicationData.Current.LocalCacheFolder.Path + "\\Settings.json");
+            await FileIO.WriteTextAsync(_pathFile, jsonString);
         }
 
     }

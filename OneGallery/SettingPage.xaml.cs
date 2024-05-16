@@ -27,8 +27,6 @@ namespace OneGallery
     {
         private Category NowCategory { get; set; }
 
-        private MainWindow Window { get; set; }
-
         private SettingsConfig Settings { get; set; }
 
         public static int[] Height_Large = { 375, 400, 425, 450, 500 };
@@ -38,15 +36,13 @@ namespace OneGallery
         public SettingPage()
         {
             this.InitializeComponent();
-            Window = (Application.Current as App).Main;
-            
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             NowCategory = e.Parameter as Category;
-            Window._nowCategory = NowCategory;
-            Settings = Window.MySettingsConfig;
+            MainWindow.Window._nowCategory = NowCategory;
+            Settings = MainWindow.Window.MySettingsConfig;
             LoadSetting();
             base.OnNavigatedTo(e);
         }
@@ -123,8 +119,8 @@ namespace OneGallery
             Settings.IsAscending = UpOrDownComboBox.SelectedIndex == 0;
             Settings.DeleteToTrashcan = DeleteComboBox.SelectedIndex == 0;
 
-            Window.InitConfigs();
-            Window.SaveConfigs();
+            MainWindow.Window.InitConfigs();
+            MainWindow.Window.SaveConfigs();
         }
     }
 }

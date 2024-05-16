@@ -17,10 +17,6 @@ namespace OneGallery
 
         public Dictionary<string, List<string>> GalleryToFolderListConfig { get; set; }
 
-
-        [JsonIgnore]
-        public StorageFile ConfigFile { get; set; }
-
         public async void StorePathConfig(Category _galleries, Category _folders)
         {
             Dictionary<string, List<string>> _tempGalleries = new();
@@ -30,7 +26,7 @@ namespace OneGallery
                 {
                     if (!_gallery.IsAddSelection)
                     {
-                        _tempGalleries.Add(_gallery.Name, GalleryToFolderListConfig[_gallery.Name]);
+                        _tempGalleries.Add(_gallery._name, GalleryToFolderListConfig[_gallery._name]);
                     }
                 }
             }
@@ -43,7 +39,7 @@ namespace OneGallery
                 {
                     if (!_folder.IsAddSelection)
                     {
-                        _tempFolders.Add(_folder.Name, FolderPathConfig[_folder.Name]);
+                        _tempFolders.Add(_folder._name, FolderPathConfig[_folder._name]);
                     }
                 }
             }
@@ -51,7 +47,8 @@ namespace OneGallery
 
             var options = new JsonSerializerOptions { WriteIndented = true };
             var jsonString = JsonSerializer.Serialize(this, options);
-            await FileIO.WriteTextAsync(ConfigFile, jsonString);
+            var _pathFile = await StorageFile.GetFileFromPathAsync(ApplicationData.Current.LocalCacheFolder.Path + "\\Path.json");
+            await FileIO.WriteTextAsync(_pathFile, jsonString);
         }
 
     }

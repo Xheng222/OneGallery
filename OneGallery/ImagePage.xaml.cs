@@ -50,16 +50,13 @@ namespace OneGallery
 
         bool isPointInToolBar = false;
 
-        private MainWindow Window { get; set; }
-
         private Category NowCategory { get; set; }
 
         public ImagePage()
         {
             this.InitializeComponent();
-            Window = (MainWindow)(Application.Current as App).Main;
             NavigationCacheMode = NavigationCacheMode.Disabled;
-            NowCategory = Window._nowCategory;
+            NowCategory = MainWindow.Window.NowCategory;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -74,17 +71,17 @@ namespace OneGallery
             ToolsBarIn.Completed += ToolBarInCompelete;
 
             NowImagePage = this;
-            Window.TitleBorderUp.Begin();
+            MainWindow.Window.TitleBorderUp.Begin();
         }
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
-            if (NowCategory == Window.NaView.SelectedItem)
+            if (NowCategory == MainWindow.Window.NaView.SelectedItem)
             {
                 var anim = ConnectedAnimationService.GetForCurrentView().PrepareToAnimate("BackwardConnectedAnimation", image);
                 anim.Configuration = new DirectConnectedAnimationConfiguration();
             }
 
-            Window.TitleBorderDown.Begin();
+            MainWindow.Window.TitleBorderDown.Begin();
             base.OnNavigatingFrom(e);
         }
 
@@ -92,7 +89,7 @@ namespace OneGallery
         {
             if (e.NavigationMode == NavigationMode.New)
             {
-                Window.NaPage.BackStack.RemoveAt(Window.NaPage.BackStack.Count - 1);
+                MainWindow.Window.NaPage.BackStack.RemoveAt(MainWindow.Window.NaPage.BackStack.Count - 1);
             }
 
             base.OnNavigatedFrom(e);
@@ -521,8 +518,8 @@ namespace OneGallery
          */
         private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            var ActualHeight = Window.NaGrid.ActualHeight;
-            var ActualWidth = Window.NaGrid.ActualWidth;
+            var ActualHeight = MainWindow.Window.NaGrid.ActualHeight;
+            var ActualWidth = MainWindow.Window.NaGrid.ActualWidth;
 
             var _tempLength = ActualHeight + ActualWidth;
 
@@ -804,9 +801,9 @@ namespace OneGallery
 
                 if (_deleteDialog.Result == AddContentDialog.ContentDialogResult.ConfirmDelete)
                 {
-                    Window.Nv_BackRequested(null, null);
+                    MainWindow.Window.Nv_BackRequested(null, null);
                     await Task.Delay(1000);
-                    Window.FolderManager.DeleteImg(ChooseImage);
+                    MainWindow.Window.FolderManager.DeleteImg(ChooseImage);
                 }
 
                 return;
@@ -876,7 +873,7 @@ namespace OneGallery
 
             if (CenterFontIcon.Scale.X == (float)0.94)
             {
-                Window.Nv_BackRequested(null, null);
+                MainWindow.Window.Nv_BackRequested(null, null);
                 return;
             }
 

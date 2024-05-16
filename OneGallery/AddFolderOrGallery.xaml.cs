@@ -29,16 +29,13 @@ namespace OneGallery
     {
         private Category NowCategory { get; set; }
 
-        private MainWindow Window { get; set; }
-
-        private ObservableCollection<object> Items { get; set; }
+        private ObservableCollection<Category> Items { get; set; }
 
         private Category SelectedCategory { get; set; }
 
         public AddFolderOrGallery()
         {
             this.InitializeComponent();
-            Window = (Application.Current as App).Main;
             NavigationCacheMode = NavigationCacheMode.Disabled;
         }
 
@@ -49,8 +46,8 @@ namespace OneGallery
             if (e.Parameter is Category)
             {
                 NowCategory = e.Parameter as Category;
-                Window._nowCategory = NowCategory;
-                Window.FolderManager.NowCategory = null;
+                MainWindow.Window._nowCategory = NowCategory;
+                MainWindow.Window.FolderManager.NowCategory = null;
                 LoadData();
             }
         }
@@ -75,7 +72,7 @@ namespace OneGallery
                 {
                     Items.Add(new Category()
                     {
-                        Name = "添加文件夹",
+                        _name = "添加文件夹",
                         IsAddSelection = true,
                         IsFolder = true
                     });
@@ -84,7 +81,7 @@ namespace OneGallery
                 {
                     Items.Add(new Category()
                     {
-                        Name = "添加画廊",
+                        _name = "添加画廊",
                         IsAddSelection = true,
                         IsGallery = true
                     });
@@ -131,7 +128,7 @@ namespace OneGallery
                     foreach (var _category in Items)
                     {
                         var _tempCategory = _category as Category;
-                        if (_tempCategory.Name == _temp.Name)
+                        if (_tempCategory._name == _temp.Name)
                         {
                             SelectedCategory = _tempCategory;
                             break;
@@ -159,22 +156,22 @@ namespace OneGallery
         {
             if (NowCategory.IsFolderInfo)
             {
-                foreach (var _pathConfig in Window.MyPathConfig.FolderPathConfig)
+                foreach (var _pathConfig in MainWindow.Window.MyPathConfig.FolderPathConfig)
                 {
-                    if (_pathConfig.Key == SelectedCategory.Name)
+                    if (_pathConfig.Key == SelectedCategory._name)
                     {
-                        ShowDialog(SelectedCategory.Name, _pathConfig.Value, AddContentDialog.Mode.ChangeFolderMode);
+                        ShowDialog(SelectedCategory._name, _pathConfig.Value, AddContentDialog.Mode.ChangeFolderMode);
                         break;
                     }
                 }
             }
             else
             {
-                foreach (var _galleryConfig in Window.MyPathConfig.GalleryToFolderListConfig)
+                foreach (var _galleryConfig in MainWindow.Window.MyPathConfig.GalleryToFolderListConfig)
                 {
-                    if (_galleryConfig.Key == SelectedCategory.Name)
+                    if (_galleryConfig.Key == SelectedCategory._name)
                     {
-                        ShowDialog(SelectedCategory.Name, _galleryConfig.Value, AddContentDialog.Mode.ChangeGalleryMode);
+                        ShowDialog(SelectedCategory._name, _galleryConfig.Value, AddContentDialog.Mode.ChangeGalleryMode);
                         break;
                     }
                 }
@@ -192,11 +189,11 @@ namespace OneGallery
 
             if (NowCategory.IsFolderInfo)
             {
-                ShowDialog(SelectedCategory.Name, AddContentDialog.Mode.DeleteFolderMode);
+                ShowDialog(SelectedCategory._name, AddContentDialog.Mode.DeleteFolderMode);
             }
             else
             {
-                ShowDialog(SelectedCategory.Name, AddContentDialog.Mode.DeleteGalleryMode);
+                ShowDialog(SelectedCategory._name, AddContentDialog.Mode.DeleteGalleryMode);
             }
 
 
@@ -221,9 +218,9 @@ namespace OneGallery
                 var _temp = _item as Category;
                 if (!_temp.IsAddSelection)
                 {
-                    Window.DispatcherQueue.TryEnqueue(() =>
+                    MainWindow.Window.DispatcherQueue.TryEnqueue(() =>
                     {
-                        Window.NaPage.Navigate(typeof(ImageListPage), _item, new EntranceNavigationTransitionInfo());
+                        MainWindow.Window.NaPage.Navigate(typeof(ImageListPage), _item, new EntranceNavigationTransitionInfo());
                     });
                     
                     break;
@@ -251,13 +248,13 @@ namespace OneGallery
         {
             Debug.Print("ItemGridView_DragItemsCompleted");
 
-            object _temp = null;
+            Category _temp = null;
             int i;
             int count = Items.Count;
 
             for (i = 0; i < count; i++)
             {
-                if (((Category)Items[i]).IsAddSelection)
+                if (Items[i].IsAddSelection)
                 {
                     _temp = Items[i];
                     break;
@@ -302,13 +299,13 @@ namespace OneGallery
         private async void ShowDialog(string _nowName, List<string> _folders, AddContentDialog.Mode _mode)
         {
             ObservableCollection<object> _temp = new();
-            var _Cfolders = (Window.Categories[5] as Category).Children;
+            var _Cfolders = (MainWindow.Window.Categories[5] as Category).Children;
 
             foreach (var _item in _Cfolders)
             {
                 if (_item is Category _folder)
                 {
-                    if (_folders.Contains(_folder.Name))
+                    if (_folders.Contains(_folder._name))
                     {
                         _temp.Add(_folder);
                     }

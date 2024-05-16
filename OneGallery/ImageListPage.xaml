@@ -18,7 +18,7 @@
             <Grid  Loaded="Grid_Loaded"
                    Unloaded="Grid_Unloaded">
 
-                <Grid CornerRadius="5"
+                <Grid CornerRadius="5" 
                       CanBeScrollAnchor="False"
                       Loaded="ItemContainer_Loaded">
                     <Grid.ScaleTransition>
@@ -30,7 +30,7 @@
                         StrokeThickness="2.5"
                         Canvas.ZIndex="2" 
                         RadiusX="5"
-                        RadiusY="5"
+                        RadiusY="5" x:Phase="8"
                         Opacity="{x:Bind _borderOpacity, Mode=OneWay}">
                     </Rectangle>
 
@@ -42,7 +42,7 @@
                         VerticalAlignment="Top"
                         Margin="0, 5, 5, 0"
                         RadiusX="5"
-                        RadiusY="5"
+                        RadiusY="5" x:Phase="8"
                         Opacity="{x:Bind _rectangleOpacity, Mode=OneWay}" >
                     </Rectangle>
 
@@ -52,20 +52,20 @@
                         HorizontalAlignment="Right"
                         VerticalAlignment="Top"
                         Margin="0, -1, -95, 0"
-                        CornerRadius="5"
+                        CornerRadius="5" x:Phase="8"
                         Opacity="{x:Bind _checkBoxOpacity, Mode=OneWay}" >
                     </CheckBox>
 
                     <Image 
                         Canvas.ZIndex="0" VerticalAlignment="Center" HorizontalAlignment="Center"
-                        Stretch="{x:Bind _nowStretch, Mode=OneWay}">
+                        Stretch="{x:Bind _nowStretch, Mode=OneWay}" x:Phase="4">
                         <Image.Source>
                             <BitmapImage DecodePixelHeight="300" UriSource="{x:Bind _imageLocation, Mode=OneWay}" />
                         </Image.Source>
                     </Image>
                 </Grid>
 
-                <Rectangle Fill="Transparent" Opacity="0" ToolTipService.Placement="Mouse" >
+                <Rectangle Fill="Transparent" Opacity="0" ToolTipService.Placement="Mouse">
                     <ToolTipService.ToolTip>
                         <Border>
                             <TextBlock Text="{x:Bind _name, Mode=OneWay}"/>
@@ -97,11 +97,19 @@
             </ScrollViewer.OpacityTransition>
         </ScrollViewer>
 
+        <Grid x:Name="EmptyGrid" Background="Transparent" Opacity="0" IsHitTestVisible="False">
+            <Image Source="/Images/Empty.png" VerticalAlignment="Center" HorizontalAlignment="Center" Height="96" Width="96" Stretch="Fill" Margin="0, 0, 0, 130"/>
+            <TextBlock Text="空空如也..."   VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" Foreground="#808080" Margin="10, 10, 0, 0"/>
+            <Grid.OpacityTransition>
+                <ScalarTransition Duration="0:0:0.5"/>
+            </Grid.OpacityTransition>
+        </Grid>
 
-        <Grid x:Name="PocessingGrid" Background="Transparent">
+
+        <Grid x:Name="PocessingGrid" Background="Transparent" IsHitTestVisible="False">
             <Rectangle Fill="Transparent"/>
-            <ProgressRing IsActive="True"  Height="50" Width="50" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0, 0, 0, 100"/>
-            <TextBlock Text="加载中..."   VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" Foreground="#808080" Margin="0, 10, 0, 0"/>
+            <ProgressRing IsActive="True"  Height="54" Width="54" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0, 0, 0, 120"/>
+            <TextBlock Text="加载中..."   VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" Foreground="#808080" Margin="10, 10, 0, 0"/>
             <Grid.OpacityTransition>
                 <ScalarTransition Duration="0:0:0.5"/>
             </Grid.OpacityTransition>

@@ -50,8 +50,6 @@ namespace OneGallery
 
         public ContentDialogResult Result { get; private set; }
 
-        private MainWindow Window { get; set; }
-
         public string AddFolderPath { get; set; }
 
         private string NowName { get; set; }
@@ -94,7 +92,6 @@ namespace OneGallery
         private void Init()
         {
             this.InitializeComponent();
-            Window = (Application.Current as App).Main;
 
             switch (ShowMode)
             {
@@ -175,7 +172,7 @@ namespace OneGallery
                         FolderPath.Visibility = Visibility.Collapsed;
                         FolderWrongInfo.Visibility = Visibility.Collapsed;
 
-                        NowFolders = new((Window.Categories[5] as Category).Children);
+                        NowFolders = new((MainWindow.Window.Categories[5] as Category).Children);
                         AddFolders = new();
                         if (NowFolders.Count != 0 && NowFolders.Last() != null )
                             if ((NowFolders.Last() as Category).IsAddSelection)
@@ -205,7 +202,7 @@ namespace OneGallery
                         FolderPath.Visibility = Visibility.Collapsed;
                         FolderWrongInfo.Visibility = Visibility.Collapsed;
 
-                        NowFolders = new((Window.Categories[5] as Category).Children);
+                        NowFolders = new((MainWindow.Window.Categories[5] as Category).Children);
                         
                         if (NowFolders.Last() != null)
                             if ((NowFolders.Last() as Category).IsAddSelection)
@@ -271,7 +268,7 @@ namespace OneGallery
                         AddFoldersViewer.Visibility = Visibility.Collapsed;
                         GalleryWrongInfo.Visibility = Visibility.Collapsed;
 
-                        if (Window._selectedCount == 1)
+                        if (MainWindow.Window._selectedCount == 1)
                             DeleteFolderImage.Source = new SvgImageSource(new Uri("ms-appx:///Images/Image_off.svg"));
                         else
                             DeleteFolderImage.Source = new SvgImageSource(new Uri("ms-appx:///Images/Image_multiple_off.svg"));
@@ -298,7 +295,7 @@ namespace OneGallery
 
         private void ChangeHeight(int __delta)
         {
-            double _windowHeight = (700 - Window.Height > 0)? (700 - Window.Height): -40;
+            double _windowHeight = (700 - MainWindow.Window.Height > 0)? (700 - MainWindow.Window.Height): -40;
             int _maxHeight = 400 - (int)(_windowHeight / 40 + 1) * 40 - __delta * 40;
 
             int _nowFolderHeight = (NowFolders.Count + 1) / 2 * 40;
@@ -325,7 +322,7 @@ namespace OneGallery
         }
 
 
-        private void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             switch (ShowMode)
             {
@@ -336,7 +333,7 @@ namespace OneGallery
                             NameWrongInfo.Message = "未输入文件夹名";
                             NameWrongInfo.IsOpen = true;
                         }
-                        else if (!Window.CheckAddFolderOrGalleryName(NameTextBox.Text))
+                        else if (!MainWindow.Window.CheckAddFolderOrGalleryName(NameTextBox.Text))
                         {
                             NameWrongInfo.Message = "文件夹名重复";
                             NameWrongInfo.IsOpen = true;
@@ -347,7 +344,7 @@ namespace OneGallery
                             FolderWrongInfo.Message = "未选择文件夹";
                             FolderWrongInfo.IsOpen = true;
                         }
-                        else if (!Window.CheckAddFolderPath(AddFolderPath))
+                        else if (!MainWindow.Window.CheckAddFolderPath(AddFolderPath))
                         {
                             FolderWrongInfo.Message = "文件夹路径重复";
                             FolderWrongInfo.IsOpen = true;
@@ -359,7 +356,7 @@ namespace OneGallery
                         if (args.Cancel == false)
                         {
                             ContentDialogButtonClickDeferral deferral = args.GetDeferral();
-                            Window.AddFolderOrGallery(NameTextBox.Text, AddFolderPath);
+                            MainWindow.Window.AddFolderOrGallery(NameTextBox.Text, AddFolderPath);
                             deferral.Complete();
                         }
                         break;
@@ -375,7 +372,7 @@ namespace OneGallery
                         }
                         else if (NowName != NameTextBox.Text)
                         {
-                            if (!Window.CheckAddFolderOrGalleryName(NameTextBox.Text))
+                            if (!MainWindow.Window.CheckAddFolderOrGalleryName(NameTextBox.Text))
                             {
                                 NameWrongInfo.Message = "文件夹名重复";
                                 NameWrongInfo.IsOpen = true;
@@ -386,7 +383,7 @@ namespace OneGallery
                         {
                             if (AddFolderPath != NowPath)
                             {
-                                if (!Window.CheckAddFolderPath(AddFolderPath))
+                                if (!MainWindow.Window.CheckAddFolderPath(AddFolderPath))
                                 {
                                     FolderWrongInfo.Message = "文件夹路径重复";
                                     FolderWrongInfo.IsOpen = true;
@@ -403,11 +400,11 @@ namespace OneGallery
 
                             if (AddFolderPath is null || AddFolderPath == NowPath)
                             {
-                                Window.ResetFolder(NowName, NameTextBox.Text);
+                                MainWindow.Window.ResetFolder(NowName, NameTextBox.Text);
                             }
                             else
                             {
-                                Window.ResetFolder(NowName, NameTextBox.Text, AddFolderPath);
+                                await MainWindow.Window.ResetFolder(NowName, NameTextBox.Text, AddFolderPath);
                             }
 
                             deferral.Complete();
@@ -418,7 +415,7 @@ namespace OneGallery
                 case Mode.DeleteFolderMode:
                     {
                         ContentDialogButtonClickDeferral deferral = args.GetDeferral();
-                        Window.DeleteFolder(NowName);
+                        MainWindow.Window.DeleteFolder(NowName);
                         this.Result = ContentDialogResult.ConfirmDelete;
                         deferral.Complete();
                         break;
@@ -434,7 +431,7 @@ namespace OneGallery
                             NameWrongInfo.IsOpen = true;
                             _delta++;
                         }
-                        else if (!Window.CheckAddFolderOrGalleryName(NameTextBox.Text))
+                        else if (!MainWindow.Window.CheckAddFolderOrGalleryName(NameTextBox.Text))
                         {
                             NameWrongInfo.Message = "画廊名重复";
                             NameWrongInfo.IsOpen = true;
@@ -456,7 +453,7 @@ namespace OneGallery
                         if (args.Cancel == false)
                         {
                             ContentDialogButtonClickDeferral deferral = args.GetDeferral();
-                            Window.AddFolderOrGallery(NameTextBox.Text, AddFolders.ToList());
+                            MainWindow.Window.AddFolderOrGallery(NameTextBox.Text, AddFolders.ToList());
                             deferral.Complete();
                         }
 
@@ -475,7 +472,7 @@ namespace OneGallery
                         }
                         else if(NowName != NameTextBox.Text)
                         {
-                            if (!Window.CheckAddFolderOrGalleryName(NameTextBox.Text))
+                            if (!MainWindow.Window.CheckAddFolderOrGalleryName(NameTextBox.Text))
                             {
                                 NameWrongInfo.Message = "画廊名重复";
                                 NameWrongInfo.IsOpen = true;
@@ -498,37 +495,44 @@ namespace OneGallery
                         if (args.Cancel == false)
                         {
                             ContentDialogButtonClickDeferral deferral = args.GetDeferral();
-                            var _oldFolders = Window.MyPathConfig.GalleryToFolderListConfig[NowName];
+                            var _oldFolders = MainWindow.Window.MyPathConfig.GalleryToFolderListConfig[NowName];
                             var _newFolder = new List<string>();
 
                             foreach ( var _item in AddFolders)
                             {
                                 if (_item is Category _folder)
                                 {
-                                    _newFolder.Add(_folder.Name);
+                                    _newFolder.Add(_folder._name);
                                 }
                             }
 
                             if (_oldFolders.Count != _newFolder.Count)
                             {
-                                Window.ResetGallery(NowName, NameTextBox.Text, _newFolder);
-                                deferral.Complete();
-                                break;
+                                MainWindow.Window.ResetGallery(NowName, NameTextBox.Text, _newFolder);
                             }
                             else
                             {
+                                bool _flag = true;
                                 foreach ( var _item in _newFolder)
                                 {
                                     if (!_oldFolders.Contains(_item))
                                     {
-                                        Window.ResetGallery(NowName, NameTextBox.Text, _newFolder);
-                                        deferral.Complete();
+                                        _flag = false;
                                         break;
                                     }
                                 }
+
+                                if (_flag)
+                                {
+                                    MainWindow.Window.ResetGallery(NowName, NameTextBox.Text);
+                                }
+                                else
+                                {
+                                    MainWindow.Window.ResetGallery(NowName, NameTextBox.Text, _newFolder);
+                                }
                             }
 
-                            Window.ResetGallery(NowName, NameTextBox.Text);
+
                             deferral.Complete();
                         }
                         break;
@@ -537,7 +541,7 @@ namespace OneGallery
                 case Mode.DeleteGalleryMode:
                     {
                         ContentDialogButtonClickDeferral deferral = args.GetDeferral();
-                        Window.DeleteGallery(NowName);
+                        MainWindow.Window.DeleteGallery(NowName);
                         this.Result = ContentDialogResult.ConfirmDelete;
                         deferral.Complete();
                         break;
@@ -591,7 +595,7 @@ namespace OneGallery
             FolderWrongInfo.IsOpen = false;
 
             FolderPicker _folderPicker = new();
-            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(Window);
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(MainWindow.Window);
             WinRT.Interop.InitializeWithWindow.Initialize(_folderPicker, hWnd);
             _folderPicker.SuggestedStartLocation = PickerLocationId.Desktop;
             _folderPicker.FileTypeFilter.Add("*");

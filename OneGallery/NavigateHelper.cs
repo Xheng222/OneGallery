@@ -20,9 +20,10 @@ namespace OneGallery
 
         private static readonly PageStackContent ContentForHomePage = new();
 
-        public static void GetContent(MainWindow _window, Frame _frame, Category _nowPage)
+        public static void GetContent(Category _nowPage)
         {
             ImageListPage _tempPage = null;
+            Frame _frame = MainWindow.Window.NaPage;
 
             if (_nowPage.IsHomePage)
             {
@@ -30,22 +31,22 @@ namespace OneGallery
             }
             else if (_nowPage.IsGallery)
             {
-                if (DictPageForGalleryPage.ContainsKey(_nowPage.Name))
-                    _tempPage = (ImageListPage)DictPageForGalleryPage[_nowPage.Name].PageContent;
+                if (DictPageForGalleryPage.ContainsKey(_nowPage._name))
+                    _tempPage = (ImageListPage)DictPageForGalleryPage[_nowPage._name].PageContent;
             }
             else if (_nowPage.IsFolder)
             {
-                if (DictPageForFolderPage.ContainsKey(_nowPage.Name))
-                    _tempPage = (ImageListPage)DictPageForFolderPage[_nowPage.Name].PageContent;
+                if (DictPageForFolderPage.ContainsKey(_nowPage._name))
+                    _tempPage = (ImageListPage)DictPageForFolderPage[_nowPage._name].PageContent;
             }
 
             if (_tempPage is not null)
             {
-                _window.DispatcherQueue.TryEnqueue(() =>
+                MainWindow.Window.DispatcherQueue.TryEnqueue(() =>
                 {
-                    _tempPage.MyActivityFeedLayout.LayoutImgArrangement = _window.FolderManager.MyImageArrangement;
-                    _window.FolderManager.MyImageArrangement.ImgListForRepeater = _tempPage.ImgList;
-                    _window.FolderManager.MyImageArrangement.ImgListChanged();
+                    _tempPage.MyActivityFeedLayout.LayoutImgArrangement = MainWindow.Window.FolderManager.MyImageArrangement;
+                    MainWindow.Window.FolderManager.MyImageArrangement.ImgListForRepeater = _tempPage.ImgList;
+                    MainWindow.Window.FolderManager.MyImageArrangement.ImgListChanged();
                     _frame.Content = _tempPage;
                 });
 
@@ -62,21 +63,22 @@ namespace OneGallery
             }
             else if (_nowPage.IsGallery)
             {
-                if (DictPageForGalleryPage.ContainsKey(_nowPage.Name))
-                    pageParameter = DictPageForGalleryPage[_nowPage.Name].PageParameter;
+                if (DictPageForGalleryPage.ContainsKey(_nowPage._name))
+                    pageParameter = DictPageForGalleryPage[_nowPage._name].PageParameter;
             }
             else if (_nowPage.IsFolder)
             {
-                if (DictPageForFolderPage.ContainsKey(_nowPage.Name))
-                    pageParameter = DictPageForFolderPage[_nowPage.Name].PageParameter;
+                if (DictPageForFolderPage.ContainsKey(_nowPage._name))
+                    pageParameter = DictPageForFolderPage[_nowPage._name].PageParameter;
             }
 
             if (backPageCallBack != null)
                 backPageCallBack?.Invoke(pageParameter);
         }
 
-        public static void StoreContent(Frame frame, Category _nowPage, PageParameters pageContent)
+        public static void StoreContent(Category _nowPage, PageParameters pageContent)
         {
+            Frame frame = MainWindow.Window.NaPage;
 
             if (_nowPage.IsHomePage)
             {
@@ -85,28 +87,28 @@ namespace OneGallery
             }
             else if (_nowPage.IsGallery)
             {
-                if (DictPageForGalleryPage.ContainsKey(_nowPage.Name))
+                if (DictPageForGalleryPage.ContainsKey(_nowPage._name))
                 {
-                    DictPageForGalleryPage[_nowPage.Name].PageContent = frame.Content;
-                    DictPageForGalleryPage[_nowPage.Name].PageParameter = pageContent.Clone();
+                    DictPageForGalleryPage[_nowPage._name].PageContent = frame.Content;
+                    DictPageForGalleryPage[_nowPage._name].PageParameter = pageContent.Clone();
                 }
                 else
                 {
                     var _temp = new PageStackContent(frame.Content, pageContent?.Clone());
-                    DictPageForGalleryPage.Add(_nowPage.Name, _temp);
+                    DictPageForGalleryPage.Add(_nowPage._name, _temp);
                 }
             }
             else if (_nowPage.IsFolder)
             {
-                if (DictPageForFolderPage.ContainsKey(_nowPage.Name))
+                if (DictPageForFolderPage.ContainsKey(_nowPage._name))
                 {
-                    DictPageForFolderPage[_nowPage.Name].PageContent = frame.Content;
-                    DictPageForFolderPage[_nowPage.Name].PageParameter = pageContent.Clone();
+                    DictPageForFolderPage[_nowPage._name].PageContent = frame.Content;
+                    DictPageForFolderPage[_nowPage._name].PageParameter = pageContent.Clone();
                 }
                 else
                 {
                     var _temp = new PageStackContent(frame.Content, pageContent?.Clone());
-                    DictPageForFolderPage.Add(_nowPage.Name, _temp);
+                    DictPageForFolderPage.Add(_nowPage._name, _temp);
                 }
             }
         }

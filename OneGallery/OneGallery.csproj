@@ -20,7 +20,7 @@
 	<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
 	<GenerateTestArtifacts>True</GenerateTestArtifacts>
 	<AppxBundle>Auto</AppxBundle>
-	<AppxBundlePlatforms>x86|x64|arm64</AppxBundlePlatforms>
+	<AppxBundlePlatforms>x64</AppxBundlePlatforms>
 	<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
   </PropertyGroup>
   <ItemGroup>
@@ -49,7 +49,6 @@
     <None Remove="Images\Bookmark_add.svg" />
     <None Remove="Images\Calendar_add.svg" />
     <None Remove="Images\Cancel.svg" />
-    <None Remove="Images\Checkbox_1 - 复制.svg" />
     <None Remove="Images\Checkbox_1.svg" />
     <None Remove="Images\Checkbox_sync.svg" />
     <None Remove="Images\Checkbox_warning.svg" />
@@ -59,6 +58,7 @@
     <None Remove="Images\Delete_dismiss.svg" />
     <None Remove="Images\Document_error.svg" />
     <None Remove="Images\Document_question.svg" />
+    <None Remove="Images\Empty.png" />
     <None Remove="Images\Folder_add.svg" />
     <None Remove="Images\Folder_delete.svg" />
     <None Remove="Images\Folder_image.svg" />
@@ -142,7 +142,6 @@
     <Content Include="Images\Bookmark_add.svg" />
     <Content Include="Images\Calendar_add.svg" />
     <Content Include="Images\Cancel.svg" />
-    <Content Include="Images\Checkbox_1 - 复制.svg" />
     <Content Include="Images\Checkbox_1.svg" />
     <Content Include="Images\Checkbox_sync.svg" />
     <Content Include="Images\Checkbox_warning.svg" />
@@ -152,6 +151,7 @@
     <Content Include="Images\Delete_dismiss.svg" />
     <Content Include="Images\Document_error.svg" />
     <Content Include="Images\Document_question.svg" />
+    <Content Include="Images\Empty.png" />
     <Content Include="Images\Folder_add.svg" />
     <Content Include="Images\Folder_delete.svg" />
     <Content Include="Images\Folder_image.svg" />
@@ -232,7 +232,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.23531-preview" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240311000" />
-    <PackageReference Include="System.Drawing.Common" Version="8.0.2" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
     <PackageReference Include="WinUIEx" Version="2.3.4" />
   </ItemGroup>
 

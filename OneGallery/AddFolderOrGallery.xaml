@@ -515,9 +515,5 @@
             SelectionChanged="ItemGridView_SelectionChanged"
             DragItemsCompleted="ItemGridView_DragItemsCompleted">
         </GridView>
-
-        <ContentDialog x:Name="AddFolder" >
-
-        </ContentDialog>
     </Grid>
 </Page>
