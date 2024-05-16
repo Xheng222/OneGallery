@@ -323,8 +323,6 @@ namespace OneGallery
 
                 if (IsFolderFound == false)
                 {
-                    Task _updateImage = null;
-
                     if (_isFirst)
                     {
                         bool _isJsonExist = await GetFolderImageFromJson();
