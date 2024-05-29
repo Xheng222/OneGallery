@@ -58,6 +58,7 @@ namespace OneGallery
 
         public void Close()
         {
+            tokenSource.Cancel();
             MyActivityFeedLayout = null;
             ImgList.CollectionChanged -= OnCollectionChanged;
             ImgList = null;
@@ -72,7 +73,6 @@ namespace OneGallery
             {
                 NowCategory = e.Parameter as Category;
                 LoadData();
-                MainWindow.Window._nowCategory = NowCategory;
             }
         }
 
@@ -122,6 +122,8 @@ namespace OneGallery
 
         private async Task InitImageList()
         {
+            MainWindow.Window._nowCategory = NowCategory;
+
             if (Parameters.FirstShow == true)
             {
                 ImgList = new();
@@ -133,26 +135,25 @@ namespace OneGallery
                     MyActivityFeedLayout.LayoutImgArrangement = MainWindow.Window.FolderManager.MyImageArrangement;
                     MainWindow.Window.FolderManager.MyImageArrangement.ImgListForRepeater = ImgList;
                     MainWindow.Window.FolderManager.MyImageArrangement.ImgListChanged();
+
+                    PocessingGrid.Opacity = 0;
+                    await Task.Delay(300);
+
+                    if (ImgList.Count == 0)
+                    {
+                        EmptyGrid.Opacity = 1;
+                        ScrollViewer.Opacity = 0;
+                    }
+                    else
+                    {
+                        EmptyGrid.Opacity = 0;
+                        ScrollViewer.Opacity = 1;
+                    }
+
+                    await Task.Delay(200);
+                    PocessingGrid.Visibility = Visibility.Collapsed;
+                    ImgList.CollectionChanged += OnCollectionChanged;
                 }
-
-                PocessingGrid.Opacity = 0;
-                await Task.Delay(300);
-
-                if (ImgList.Count == 0)
-                {
-                    EmptyGrid.Opacity = 1;
-                    ScrollViewer.Opacity = 0;
-                }
-                else
-                {
-                    EmptyGrid.Opacity = 0;
-                    ScrollViewer.Opacity = 1;
-                }
-
-                await Task.Delay(200);
-                PocessingGrid.Visibility = Visibility.Collapsed;
-
-                ImgList.CollectionChanged += OnCollectionChanged;
             }
 
             else

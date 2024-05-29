@@ -85,12 +85,16 @@ namespace OneGallery
             get => ProcessBarOpacity;
             set
             {
-                ProcessBarOpacity = value;
-                OnPropertyChanged();
+                ProcessBarOpacityChange(value);
             }
         }
 
-
+        private async void ProcessBarOpacityChange(int _value)
+        {
+            ProcessBarOpacity = _value;
+            await Task.Delay(600);
+            OnPropertyChanged(nameof(_processBarOpacity));
+        }
 
 
 

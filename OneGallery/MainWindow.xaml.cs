@@ -111,7 +111,6 @@ namespace OneGallery
             FolderManager = new();
             InitWindowTask = InitWindow();
             Title = appTitleText;
-
             Window = this;
         }
 
@@ -126,7 +125,7 @@ namespace OneGallery
         private async Task InitWindow()
         {
             await FolderManager.InitConfigs();
-            //this.SetWindowSize(MySettingsConfig.LastWidth, MySettingsConfig.LastHeight);
+
             this.CenterOnScreen(MySettingsConfig.LastWidth, MySettingsConfig.LastHeight);
             if (MySettingsConfig.LastWidth < 850)
             {
@@ -138,9 +137,6 @@ namespace OneGallery
                 if (Nv.PaneDisplayMode != NavigationViewPaneDisplayMode.Left)
                     Nv.PaneDisplayMode = NavigationViewPaneDisplayMode.Left;
             }
-
-
-            Task InitCategory = InitCategories();
 
             if (DesktopAcrylicController.IsSupported())
             {
@@ -164,11 +160,12 @@ namespace OneGallery
             }
 
             this.Closed += Window_Closed;
+
             InitConfigs();
-            await InitCategory;
+            InitCategories();
         }
 
-        private async Task InitCategories()
+        private void InitCategories()
         {
             Categories.Add(new NavigationViewItemSeparator());
             Category _temp = new()
@@ -191,7 +188,6 @@ namespace OneGallery
             };
             _temp.SetFontIcon("\uE8B9");
 
-            InitAddCategories(_temp, MyPathConfig.GalleryToFolderListConfig.Keys.ToList(), false);
             Categories.Add(_temp);
             Categories.Add(new NavigationViewItemSeparator());
 
@@ -203,14 +199,21 @@ namespace OneGallery
 
             };
             _temp.SetFontIcon("\uEC50");
-            InitAddCategories(_temp, MyPathConfig.FolderPathConfig.Keys.ToList(), true);
-            Categories.Add(_temp);
 
-            await Task.Delay(100);
+            Categories.Add(_temp);
         }
 
-        private static void InitAddCategories(Category _parent, List<string> _children, bool _isFolder)
+        private async Task InitFolderAndGallery()
         {
+            Task _gallery = InitAddCategories(Categories[3] as Category, MyPathConfig.GalleryToFolderListConfig.Keys.ToList(), false);
+            Task _folder = InitAddCategories(Categories[5] as Category, MyPathConfig.FolderPathConfig.Keys.ToList(), true);
+            
+            await _gallery;
+            await _folder;
+        }
+
+        private static async Task InitAddCategories(Category _parent, List<string> _children, bool _isFolder)
+        { 
             foreach (var _child in _children)
             {
                 Category _temp = new()
@@ -232,6 +235,27 @@ namespace OneGallery
                 }
 
                 _parent.Children.Add(_temp);
+
+                await Task.Delay(50);
+            }
+
+            if (_isFolder)
+            {
+                _parent.Children.Add(new Category()
+                {
+                    _name = "添加文件夹",
+                    IsAddSelection = true,
+                    IsFolder = true
+                });
+            }
+            else
+            {
+                _parent.Children.Add(new Category()
+                {
+                    _name = "添加画廊",
+                    IsAddSelection = true,
+                    IsGallery = true
+                });
             }
         }
 
@@ -241,7 +265,6 @@ namespace OneGallery
 
         private void Window_Closed(object sender, WindowEventArgs args)
         {
-            // Make sure any Mica/Acrylic controller is disposed
             Debug.Print("Closed");
             Is_Close = true;
 
@@ -257,8 +280,9 @@ namespace OneGallery
 
         public void SaveConfigs()
         {
+            MySettingsConfig.FolderExpand = PageDictionary["文件夹"].IsExpanded;
+            MySettingsConfig.GalleryExpand = PageDictionary["画廊"].IsExpanded;
             FolderManager.SaveConfig((int)Width, (int)Height, (Category)Categories[3], (Category)Categories[5]);
-            
         }
 
 
@@ -464,19 +488,35 @@ namespace OneGallery
 
         private async void Nv_grid_Loaded(object sender, RoutedEventArgs e)
         {
-            Debug.Print("Nv_grid_Loaded");
             Nv_page.CacheSize = 0;
-            
-            var rootGrid = VisualTreeHelper.GetChild(Nv, 0);
 
             await InitWindowTask;
+            var rootGrid = VisualTreeHelper.GetChild(Nv, 0);
 
-            Nv.SelectedItem = Categories[1];
-            NavView_Navigate(typeof(ImageListPage), (Category)Categories[1]);
+            while (true)
+            {
+                try
+                {
+                    FindNaView(rootGrid);
+                    PageDictionary["文件夹"].IsExpanded = MySettingsConfig.FolderExpand;
+                    PageDictionary["画廊"].IsExpanded = MySettingsConfig.GalleryExpand;
+                    break;
+                }
+                catch (Exception) 
+                {
+                    await Task.Delay(100);
+                }
+            }
 
-            FindNaView(rootGrid);
-            await Task.Delay(1000);
-            FindNaView(rootGrid);
+            await InitFolderAndGallery();
+            FolderManager.InitFolder();            
+
+            if (Nv.SelectedItem is null)
+            {
+                Nv.SelectedItem = Categories[1];
+                NavView_Navigate(typeof(ImageListPage), (Category)Categories[1]);
+            }
+
         }
 
 
@@ -538,8 +578,6 @@ namespace OneGallery
                 return true;
             }
         }
-
-        
 
         public bool CheckAddFolderPath(string _folderPath)
         {
@@ -609,10 +647,10 @@ namespace OneGallery
                 }
 
                 MyPathConfig.GalleryToFolderListConfig.Add(_name, _tempFolderList);
+                
+                FolderManager.AddNewGallery(_name);
             }
 
-
-            FolderManager.AddNewGallery(_name);
             return true;
         }
 
@@ -726,14 +764,14 @@ namespace OneGallery
                 }
             }
 
-            foreach (var _category in (Categories[5] as Category).Children)
+            foreach (var _tempCategory in (Categories[5] as Category).Children)
             {
-                var _tempCategory = _category as Category;
+
                 if (_tempCategory._name == _folderName)
                 {
                     DispatcherQueue.TryEnqueue(() =>
                     {
-                        (Categories[5] as Category).Children.Remove(_category);
+                        (Categories[5] as Category).Children.Remove(_tempCategory);
                     });
                     break;
                 }
@@ -850,6 +888,8 @@ namespace OneGallery
 
             return true;
         }
+
+
     }
 
     internal class MyTemplateSelector : DataTemplateSelector

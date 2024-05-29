@@ -51,13 +51,16 @@ namespace OneGallery
             string _folderName = sender as string;
             PictureClass _tempImg = (e as FileChangeEvent).File;
 
-            foreach (var _selectedItem in MyPathConfig.GalleryToFolderListConfig)
+            lock (MyPathConfig.GalleryToFolderListConfig)
             {
-                if (_selectedItem.Value.Contains(_folderName))
-                {        
-                    lock (GallerySelectionToImgList[_selectedItem.Key])
-                    {
-                        GallerySelectionToImgList[_selectedItem.Key].Add(_tempImg);
+                foreach (var _selectedItem in MyPathConfig.GalleryToFolderListConfig)
+                {
+                    if (_selectedItem.Value.Contains(_folderName))
+                    {        
+                        lock (GallerySelectionToImgList[_selectedItem.Key])
+                        {
+                            GallerySelectionToImgList[_selectedItem.Key].Add(_tempImg);
+                        }
                     }
                 }
             }
@@ -191,16 +194,21 @@ namespace OneGallery
             Debug.Print("OnFileDeletedEvent");
             string _folderName = sender as string;
             PictureClass _tempImg = (e as FileChangeEvent).File;
-            foreach (var _selectedItem in MyPathConfig.GalleryToFolderListConfig)
+
+            lock (MyPathConfig.GalleryToFolderListConfig)
             {
-                if (_selectedItem.Value.Contains(_folderName))
+                foreach (var _selectedItem in MyPathConfig.GalleryToFolderListConfig)
                 {
-                    lock(GallerySelectionToImgList[_selectedItem.Key])
+                    if (_selectedItem.Value.Contains(_folderName))
                     {
-                        GallerySelectionToImgList[_selectedItem.Key].Remove(_tempImg);
-                    }                    
+                        lock(GallerySelectionToImgList[_selectedItem.Key])
+                        {
+                            GallerySelectionToImgList[_selectedItem.Key].Remove(_tempImg);
+                        }                    
+                    }
                 }
             }
+
 
             lock (LocalFolders[_folderName].ImageList)
             {
@@ -442,11 +450,14 @@ namespace OneGallery
 
             MainWindow.Window.MySettingsConfig = MySettingsConfig;
             MainWindow.Window.MyPathConfig = MyPathConfig;
-
-            InitFolderTask = InitFolder();
         }
 
-        public async Task InitFolder()
+        public void InitFolder()
+        {
+            InitFolderTask = InitFolders();
+        }
+
+        private async Task InitFolders()
         {
             foreach (var _selectItemName in MyPathConfig.GalleryToFolderListConfig.Keys)
                 GallerySelectionToImgList.Add(_selectItemName, new());
@@ -454,9 +465,8 @@ namespace OneGallery
             foreach (var _foldPath in MyPathConfig.FolderPathConfig)
             {
                 AddNewFolder(_foldPath.Key, _foldPath.Value);
-                await Task.Delay(200);
+                await Task.Delay(100);
             }
-
         }
 
 
@@ -488,17 +498,20 @@ namespace OneGallery
             await InitFolderTask;
             await WaitFolderTask(_category);
 
-            NowCategory = _category;
+            if (MainWindow.Window._nowCategory == _category)
+            {
+                NowCategory = _category;
 
-            if (NowCategory.IsHomePage)
-                MyImageArrangement.ImgList = HomPageImgList;
-            else if (NowCategory.IsGallery)
-                MyImageArrangement.ImgList = GallerySelectionToImgList[NowCategory._name];
-            else if (NowCategory.IsFolder)
-                MyImageArrangement.ImgList = LocalFolders[NowCategory._name].ImageList;
+                if (NowCategory.IsHomePage)
+                    MyImageArrangement.ImgList = HomPageImgList;
+                else if (NowCategory.IsGallery)
+                    MyImageArrangement.ImgList = GallerySelectionToImgList[NowCategory._name];
+                else if (NowCategory.IsFolder)
+                    MyImageArrangement.ImgList = LocalFolders[NowCategory._name].ImageList;
 
-            MyImageArrangement.SortImg();
-            MyImageArrangement.UpdateImgRect();
+                MyImageArrangement.SortImg();
+                MyImageArrangement.UpdateImgRect();
+            }
 
             return;
         }

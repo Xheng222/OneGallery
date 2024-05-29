@@ -1,13 +1,15 @@
 {
-    "LastWidth": 1402,
-    "LastHeight": 832,
+    "LastWidth": 1346,
+    "LastHeight": 836,
     "ChooseMode": 0,
     "SortMode": 0,
     "IsAscending": false,
-    "ImageSizeMode": 0,
+    "ImageSizeMode": 1,
     "ImageZoomMode": 0,
     "ImageHeight_Small": 0,
     "ImageHeight_Medium": 0,
     "ImageHeight_Large": 0,
-    "DeleteToTrashcan": false
+    "DeleteToTrashcan": true,
+    "GalleryExpand": true,
+    "FolderExpand": true
 }

@@ -60,9 +60,6 @@ namespace OneGallery
         [JsonIgnore]
         public int Index { get; set; }
 
-        //public string SourceName { get; set; }
-
-
         [JsonIgnore]
         public bool IsSelected { get; set; } = false;
 
@@ -79,7 +76,6 @@ namespace OneGallery
 
 
         [JsonIgnore]
-
         public int CheckBoxOpacity { set; get; } = 0;
 
         [JsonIgnore]

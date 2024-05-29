@@ -34,6 +34,10 @@ namespace OneGallery
 
         public bool DeleteToTrashcan { get; set; }
 
+        public bool GalleryExpand { get; set; }
+
+        public bool FolderExpand { get; set; }
+
 
         public async void StoreSettingsConfig(int _lastWidth, int _lastHeight)
         {

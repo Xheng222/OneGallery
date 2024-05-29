@@ -66,27 +66,6 @@ namespace OneGallery
         private void LoadData()
         {
             Items = NowCategory.Children;
-            if (Items.Count == 0 || !(Items.Last() as Category).IsAddSelection)
-            {
-                if (NowCategory.IsFolderInfo)
-                {
-                    Items.Add(new Category()
-                    {
-                        _name = "添加文件夹",
-                        IsAddSelection = true,
-                        IsFolder = true
-                    });
-                }
-                else
-                {
-                    Items.Add(new Category()
-                    {
-                        _name = "添加画廊",
-                        IsAddSelection = true,
-                        IsGallery = true
-                    });
-                }
-            }
         }
 
 
@@ -127,10 +106,9 @@ namespace OneGallery
                     Debug.Print("Grid_PointerEntered RightButtonReleased");
                     foreach (var _category in Items)
                     {
-                        var _tempCategory = _category as Category;
-                        if (_tempCategory._name == _temp.Name)
+                        if (_category._name == _temp.Name)
                         {
-                            SelectedCategory = _tempCategory;
+                            SelectedCategory = _category;
                             break;
                         }
                     }

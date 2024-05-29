@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
@@ -845,8 +847,9 @@ namespace OneGallery
             }
         }
 
-        public void ChangeProcessBar(string _folderName, bool _isEnd)
+        public async void ChangeProcessBar(string _folderName, bool _isEnd)
         {
+            await InitWindowTask;
             int _flag = _isEnd ? -1 : 1;
 
             (Categories[1] as Category)._searchCount += _flag;
@@ -863,6 +866,22 @@ namespace OneGallery
             }
 
             (Categories[5] as Category).Children.FirstOrDefault(x => x._name == _folderName)._searchCount += _flag;
+        }
+
+
+
+        private void ProgressBar_Loading(FrameworkElement sender, object args)
+        {
+            var _progressBar = sender as ProgressBar;
+            double _temp = _progressBar.Opacity;
+            _progressBar.Opacity = 0;
+
+            _progressBar.OpacityTransition = new ScalarTransition()
+            {
+                Duration = TimeSpan.FromMilliseconds(500)
+            };
+
+            _progressBar.Opacity = _temp;
         }
     }
 }
