@@ -132,27 +132,7 @@ namespace OneGallery
 
                 if (!tokenSource.IsCancellationRequested)
                 {
-                    MyActivityFeedLayout.LayoutImgArrangement = MainWindow.Window.FolderManager.MyImageArrangement;
-                    MainWindow.Window.FolderManager.MyImageArrangement.ImgListForRepeater = ImgList;
-                    MainWindow.Window.FolderManager.MyImageArrangement.ImgListChanged();
-
-                    PocessingGrid.Opacity = 0;
-                    await Task.Delay(300);
-
-                    if (ImgList.Count == 0)
-                    {
-                        EmptyGrid.Opacity = 1;
-                        ScrollViewer.Opacity = 0;
-                    }
-                    else
-                    {
-                        EmptyGrid.Opacity = 0;
-                        ScrollViewer.Opacity = 1;
-                    }
-
-                    await Task.Delay(200);
-                    PocessingGrid.Visibility = Visibility.Collapsed;
-                    ImgList.CollectionChanged += OnCollectionChanged;
+                    InitPage();
                 }
             }
 
@@ -167,6 +147,31 @@ namespace OneGallery
                     );
                 }
             }
+        }
+
+        public async void InitPage()
+        {
+            MyActivityFeedLayout.LayoutImgArrangement = MainWindow.Window.FolderManager.MyImageArrangement;
+            MainWindow.Window.FolderManager.MyImageArrangement.ImgListForRepeater = ImgList;
+            MainWindow.Window.FolderManager.MyImageArrangement.ImgListChanged();
+
+            PocessingGrid.Opacity = 0;
+            await Task.Delay(300);
+
+            if (ImgList.Count == 0)
+            {
+                EmptyGrid.Opacity = 1;
+                ScrollViewer.Opacity = 0;
+            }
+            else
+            {
+                EmptyGrid.Opacity = 0;
+                ScrollViewer.Opacity = 1;
+            }
+
+            await Task.Delay(200);
+            PocessingGrid.Visibility = Visibility.Collapsed;
+            ImgList.CollectionChanged += OnCollectionChanged;
         }
 
 

@@ -42,11 +42,9 @@ namespace OneGallery
 
             if (_tempPage is not null)
             {
-                MainWindow.Window.DispatcherQueue.TryEnqueue(() =>
+                MainWindow.Window.DispatcherQueue.TryEnqueue(async () =>
                 {
-                    _tempPage.MyActivityFeedLayout.LayoutImgArrangement = MainWindow.Window.FolderManager.MyImageArrangement;
-                    MainWindow.Window.FolderManager.MyImageArrangement.ImgListForRepeater = _tempPage.ImgList;
-                    MainWindow.Window.FolderManager.MyImageArrangement.ImgListChanged();
+                    _tempPage.InitPage();
                     _frame.Content = _tempPage;
                 });
 

@@ -121,6 +121,7 @@ namespace OneGallery
 
         SystemBackdropConfiguration m_configurationSource;
         DesktopAcrylicController m_backdropController;
+        //MicaController m_backdropController;
 
         private async Task InitWindow()
         {
@@ -157,6 +158,18 @@ namespace OneGallery
                 m_backdropController.SetSystemBackdropConfiguration(m_configurationSource);
 
                 this.SystemBackdrop = new DesktopAcrylicBackdrop();
+
+                //m_backdropController = new MicaController()
+                //{
+                //    Kind = MicaKind.Base,
+                //    TintColor = Color.FromArgb(255, 255, 255, 255),
+                //    TintOpacity = 0.5f
+                //};
+
+                //m_backdropController.AddSystemBackdropTarget(this.As<Microsoft.UI.Composition.ICompositionSupportsSystemBackdrop>());
+                //m_backdropController.SetSystemBackdropConfiguration(m_configurationSource);
+
+                //this.SystemBackdrop = new MicaBackdrop();
             }
 
             this.Closed += Window_Closed;
@@ -318,7 +331,7 @@ namespace OneGallery
             {
                 if (args.IsSettingsInvoked == true)
                 {
-                    if (!string.Equals(CurrentPage.Name, "SettingsPage"))
+                    if (!string.Equals(CurrentPage.Name, "SettingPage"))
                     {
                         NavView_Navigate(typeof(SettingPage));
                     }
