@@ -42,7 +42,7 @@ namespace OneGallery
 
             if (_tempPage is not null)
             {
-                MainWindow.Window.DispatcherQueue.TryEnqueue(async () =>
+                MainWindow.Window.DispatcherQueue.TryEnqueue(() =>
                 {
                     _tempPage.InitPage();
                     _frame.Content = _tempPage;

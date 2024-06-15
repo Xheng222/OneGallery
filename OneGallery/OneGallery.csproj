@@ -22,6 +22,7 @@
 	<AppxBundle>Auto</AppxBundle>
 	<AppxBundlePlatforms>x64</AppxBundlePlatforms>
 	<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+	  <defineconstants>DISABLE_XAML_GENERATED_MAIN</defineconstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="新文件夹1\**" />
@@ -231,7 +232,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.23531-preview" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240311000" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240607001" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
     <PackageReference Include="WinUIEx" Version="2.3.4" />
   </ItemGroup>
@@ -281,3 +282,5 @@
     </Page>
   </ItemGroup>
 </Project>
+
+

@@ -35,7 +35,6 @@ namespace OneGallery
         public App()
         {
             this.InitializeComponent();
-
         }
 
         /// <summary>
