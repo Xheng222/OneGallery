@@ -3,33 +3,42 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.UI.Dispatching;
 using Microsoft.Windows.AppLifecycle;
-using Windows.ApplicationModel.Activation;
-using Windows.Storage;
+using Windows.Foundation;
+using WinUIEx;
 
 namespace OneGallery
 {
-    class Program
+    public class Program
     {
+        static Task RedirectTask = null;
+
         [STAThread]
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             WinRT.ComWrappersSupport.InitializeComWrappers();
-            bool isRedirect = await DecideRedirection();
-            if (!isRedirect)
+
+            if (!DecideRedirection())
             {
                 Microsoft.UI.Xaml.Application.Start((p) =>
                 {
                     var context = new DispatcherQueueSynchronizationContext(
                         DispatcherQueue.GetForCurrentThread());
                     SynchronizationContext.SetSynchronizationContext(context);
-                    new App();
+                    _ = new App();
                 });
+            }
+            else
+            {
+                while (!RedirectTask.IsCompleted)
+                {
+                    Thread.Sleep(100);
+                }
             }
 
             return;
         }
 
-        private static async Task<bool> DecideRedirection()
+        private static bool DecideRedirection()
         {
             bool isRedirect = false;
             AppActivationArguments args = AppInstance.GetCurrent().GetActivatedEventArgs();
@@ -42,13 +51,14 @@ namespace OneGallery
             else
             {
                 isRedirect = true;
-                await keyInstance.RedirectActivationToAsync(args);
+                RedirectTask = keyInstance.RedirectActivationToAsync(args).AsTask();
             }
             return isRedirect;
         }
 
         private static void OnActivated(object sender, AppActivationArguments args)
         {
+            MainWindow.Window.WindowState = WindowState.Normal;
             MainWindow.Window.BringToFront();
         }
     }

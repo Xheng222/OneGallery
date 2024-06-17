@@ -1,19 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.UI.Xaml;
 
 namespace OneGallery
 {
     internal class NavigateHelper
-    {    
+    {
         private static readonly Dictionary<string, PageStackContent> DictPageForGalleryPage = new();
 
         private static readonly Dictionary<string, PageStackContent> DictPageForFolderPage = new();
@@ -169,7 +161,7 @@ namespace OneGallery
         public PageParameters PageParameter { get; set; }
     }
 
-    class PageParameters 
+    class PageParameters
     {
         public PictureClass Image { get; set; }
 

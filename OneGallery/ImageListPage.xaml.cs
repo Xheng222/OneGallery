@@ -1,29 +1,14 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Numerics;
-using System.Reflection;
-using System.Reflection.Metadata;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
-using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
 
@@ -38,13 +23,13 @@ namespace OneGallery
     {
         private static PageParameters Parameters = new();
 
-        public static PictureClass SelectedImage {set; get; }
+        public static PictureClass SelectedImage { set; get; }
 
         public static Task InitPageTask { set; get; }
 
-        private Category NowCategory {  get; set; }
+        private Category NowCategory { get; set; }
 
-        public ObservableCollection<PictureClass> ImgList {  get; set; }
+        public ObservableCollection<PictureClass> ImgList { get; set; }
 
         public ActivityFeedLayout MyActivityFeedLayout { get; set; }
 
@@ -68,7 +53,7 @@ namespace OneGallery
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
- 
+
             if (e.Parameter is Category)
             {
                 NowCategory = e.Parameter as Category;
@@ -373,11 +358,11 @@ namespace OneGallery
                             MainWindow.Window._selectedCount--;
                             SelectedImage = null;
                         }
-                            
+
                         else
                         {
                             _image._isSelected = true;
-                            
+
                             if (MainWindow.NowSelectMode == MainWindow.SelectMode.Single)
                                 UnSelectLastImage(_image);
                             else

@@ -1,17 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml;
-using Windows.Foundation;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
 using System.Collections.Specialized;
-using Microsoft.UI.Xaml.Documents;
+using System.Diagnostics;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Windows.Foundation;
 
 
 namespace OneGallery
@@ -176,7 +169,7 @@ namespace OneGallery
                         _newTop += zoomImg * LayoutImgArrangement.ImageRect[_item].Height + _rowSpacing;
                         i++;
                     }
-                }   
+                }
             }
 
             return new Size(availableSize.Width, _newTop);
@@ -260,7 +253,7 @@ namespace OneGallery
                     foreach (var _item in _indexToElementMap)
                     {
                         context.RecycleElement(_item.Value);
-                        _indexToElementMap.Remove(_item.Key);   
+                        _indexToElementMap.Remove(_item.Key);
                     }
                     this.InvalidateMeasure();
                 }

@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml.Controls;
 
 namespace OneGallery
 {
-    public class Category: INotifyPropertyChanged
+    public class Category : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -26,12 +22,12 @@ namespace OneGallery
         public bool IsFolderInfo = false;
 
         public bool IsGalleryInfo = false;
-       
+
         public bool IsAddSelection = false;
 
         private string Name { get; set; }
 
-        public string   _name
+        public string _name
         {
             get => Name;
             set
@@ -63,7 +59,7 @@ namespace OneGallery
 
         public int _searchCount
         {
-            get => SearchCount; 
+            get => SearchCount;
             set
             {
                 SearchCount = value;

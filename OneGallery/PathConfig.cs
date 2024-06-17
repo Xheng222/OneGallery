@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace OneGallery
@@ -33,8 +27,8 @@ namespace OneGallery
             GalleryToFolderListConfig = _tempGalleries;
 
             Dictionary<string, string> _tempFolders = new();
-            foreach (var _item in _folders.Children) 
-            { 
+            foreach (var _item in _folders.Children)
+            {
                 if (_item is Category _folder)
                 {
                     if (!_folder.IsAddSelection)

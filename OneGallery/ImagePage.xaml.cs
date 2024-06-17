@@ -2,16 +2,11 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.UI.Composition;
-using Microsoft.UI.Dispatching;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 
@@ -30,7 +25,7 @@ namespace OneGallery
 
         public static ImagePage NowImagePage { get; set; }
 
-        public float ScrollViewerRotation 
+        public float ScrollViewerRotation
         {
             get { return scrollViewer.Rotation; }
             set { scrollViewer.Rotation = value; }
@@ -194,14 +189,14 @@ namespace OneGallery
         private void CalculateImage()
         {
             var _extra = (image.ActualWidth * Zoom - ActualWidth) / 2;
-            
+
             if (_extra > -100)
             {
                 ScrollBackWidth = (ImageBorder.Width - scrollViewer.Width) / 2 - _extra - 100;
             }
-            
+
             _extra = (image.ActualHeight * Zoom - ActualHeight) / 2;
-            
+
             if (_extra > -100)
             {
                 ScrollBackHeight = (ImageBorder.Height - scrollViewer.Height) / 2 - _extra - 100;
@@ -245,17 +240,17 @@ namespace OneGallery
             DeleteIn.Begin();
 
             if (ViewChanged)
-                ResetIn.Begin();  
+                ResetIn.Begin();
         }
 
         private async void ToolBarInCompelete(object sender, object e)
         {
-            await Task.Delay(1500); 
+            await Task.Delay(1500);
             while (isPointInToolBar)
             {
                 await Task.Delay(500);
             }
-            
+
             ToolsBarOut.Begin();
 
             LeftOut.Begin();
@@ -289,7 +284,7 @@ namespace OneGallery
                 if (!ViewChanged)
                 {
                     ViewChanged = true;
-                    
+
                     ResetFontIcon.PointerEntered += ResetFontIcon_PointerEntered;
                     ResetFontIcon.PointerExited += ResetFontIcon_PointerExited;
                     ResetFontIcon.PointerPressed += ResetFontIcon_PointerPressed;
@@ -300,7 +295,7 @@ namespace OneGallery
                 }
                 return;
             }
-            
+
             if (state == 0)
             {
                 ViewChanged = false;
@@ -312,7 +307,7 @@ namespace OneGallery
                 ResetOut.Begin();
                 ResetEllipseBorderOut.Begin();
                 isPointInToolBar = false;
-                
+
 
             }
         }
@@ -320,8 +315,8 @@ namespace OneGallery
         private void ChangeSrollView(float _newZoom, float _oldZoom)
         {
             Zoom = _newZoom;
-            var _horizontalOffset = scrollViewer.HorizontalOffset  + image.ActualWidth * (Zoom - _oldZoom) / 2;
-            var _verticalOffset = scrollViewer.VerticalOffset  + image.ActualHeight * (Zoom - _oldZoom) / 2 - 50;
+            var _horizontalOffset = scrollViewer.HorizontalOffset + image.ActualWidth * (Zoom - _oldZoom) / 2;
+            var _verticalOffset = scrollViewer.VerticalOffset + image.ActualHeight * (Zoom - _oldZoom) / 2 - 50;
 
             CalculateScrollViewer();
             CalculateImage();
@@ -329,8 +324,8 @@ namespace OneGallery
         }
 
         private void MoveBorder(PointerRoutedEventArgs e, int choose)
-        {            
-            switch(choose)
+        {
+            switch (choose)
             {
                 case 1:
                     {
@@ -388,7 +383,7 @@ namespace OneGallery
 
                 default: return;
             }
-            
+
         }
 
         private void ResetBorder()
@@ -538,7 +533,7 @@ namespace OneGallery
             image.Height = ActualHeight - 250;
             image.Width = ActualWidth - 250;
             image.Margin = new(_tempMarginWidth, _tempMarginHeight - 75, _tempMarginWidth, _tempMarginHeight + 75);
-            
+
             _tempMarginWidth = Math.Min(250, Math.Max(50, ActualWidth * 0.25));
             ToolsBar.Width = _tempMarginWidth * 2;
 
@@ -675,7 +670,7 @@ namespace OneGallery
                     if (_newZoom <= 5)
                     {
                         ImageBorderUp.Begin();
-                                 
+
                         await Task.Delay(500);
                         ChangeSrollView(_newZoom, Zoom);
                         SwitchResetBtn(1);
@@ -704,7 +699,7 @@ namespace OneGallery
                             SwitchResetBtn(1);
                         }
                     }
-                    
+
                 }
 
                 WheelState = 0;
@@ -902,7 +897,7 @@ namespace OneGallery
             e.Handled = true;
 
             if (RightFontIcon.PointerCaptures != null && RightFontIcon.PointerCaptures.Count > 0)
-            {      
+            {
                 MoveBorder(e, -1);
                 SwitchResetBtn(1);
             }
@@ -982,7 +977,7 @@ namespace OneGallery
         private void LeftFontIcon_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
             e.Handled = true;
-            
+
             if (LeftFontIcon.PointerCaptures != null && LeftFontIcon.PointerCaptures.Count > 0)
             {
                 MoveBorder(e, 1);
@@ -999,7 +994,7 @@ namespace OneGallery
 
             if (ToolsBar.Opacity == 0)
                 ShowToolsBar();
-            
+
             LeftEllipseBorderIn.Begin();
             LeftEllipse.Scale = new Vector3((float)1.06, (float)1.06, 1);
             LeftEllipseBorder.Scale = new Vector3((float)1.06, (float)1.06, 1);
@@ -1009,17 +1004,17 @@ namespace OneGallery
 
         private void LeftFontIcon_PointerExited(object sender, PointerRoutedEventArgs e)
         {
-            e.Handled = true;        
-            
+            e.Handled = true;
+
             LeftEllipse.Scale = new Vector3(1, 1, 1);
             LeftEllipseBorder.Scale = new Vector3(1, 1, 1);
             LeftFontIcon.Scale = new Vector3(1, 1, 1);
-            
+
             if (LeftFontIcon.PointerCaptures == null || LeftFontIcon.PointerCaptures.Count == 0)
             {
                 isPointInToolBar = false;
                 LeftEllipseBorderOut.Begin();
-            }  
+            }
         }
 
         private void LeftFontIcon_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -1049,13 +1044,13 @@ namespace OneGallery
             {
                 scrollViewer.Rotation -= 90;
             }
-            
+
             if (LeftFontIcon.Scale.X == 1)
             {
                 LeftEllipseBorderOut.Begin();
                 isPointInToolBar = false;
             }
-            
+
             EnterToolBar(e);
             SwitchResetBtn(1);
         }
@@ -1123,7 +1118,7 @@ namespace OneGallery
 
         private void ResetFontIcon_PointerReleased(object sender, PointerRoutedEventArgs e)
         {
-           
+
             e.Handled = true;
             Debug.Print("ResetFontIcon_PointerReleased");
             ResetFontIcon.ReleasePointerCaptures();

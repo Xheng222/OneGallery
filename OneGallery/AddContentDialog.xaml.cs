@@ -1,21 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
 using Windows.Storage.Pickers;
@@ -46,7 +36,7 @@ namespace OneGallery
             DeleteImageMode,
         }
 
-        public Mode ShowMode {  get; set; }
+        public Mode ShowMode { get; set; }
 
         public ContentDialogResult Result { get; private set; }
 
@@ -75,7 +65,7 @@ namespace OneGallery
 
         public AddContentDialog(string _nowName, ObservableCollection<object> _folders, Mode _mode)
         {
-            ShowMode= _mode;
+            ShowMode = _mode;
             NowName = _nowName;
             AddFolders = _folders;
             Init();
@@ -137,8 +127,8 @@ namespace OneGallery
                         this.CloseButtonStyle = (Style)this.Resources["StyleButton"];
                         break;
                     }
-                
-                
+
+
                 case Mode.DeleteFolderMode:
                     {
                         NameTextBox.Visibility = Visibility.Collapsed;
@@ -174,7 +164,7 @@ namespace OneGallery
 
                         NowFolders = new((MainWindow.Window.Categories[5] as Category).Children);
                         AddFolders = new();
-                        if (NowFolders.Count != 0 && NowFolders.Last() != null )
+                        if (NowFolders.Count != 0 && NowFolders.Last() != null)
                             if ((NowFolders.Last() as Category).IsAddSelection)
                                 NowFolders.RemoveAt(NowFolders.Count - 1);
 
@@ -203,14 +193,14 @@ namespace OneGallery
                         FolderWrongInfo.Visibility = Visibility.Collapsed;
 
                         NowFolders = new((MainWindow.Window.Categories[5] as Category).Children);
-                        
+
                         if (NowFolders.Last() != null)
                             if ((NowFolders.Last() as Category).IsAddSelection)
                                 NowFolders.RemoveAt(NowFolders.Count - 1);
 
                         foreach (var Folder in AddFolders)
                             NowFolders.Remove(Folder);
-                        
+
                         ChangeHeight(0);
 
                         NowFoldersViewerRepeater.ItemsSource = NowFolders;
@@ -295,7 +285,7 @@ namespace OneGallery
 
         private void ChangeHeight(int __delta)
         {
-            double _windowHeight = (700 - MainWindow.Window.Height > 0)? (700 - MainWindow.Window.Height): -40;
+            double _windowHeight = (700 - MainWindow.Window.Height > 0) ? (700 - MainWindow.Window.Height) : -40;
             int _maxHeight = 400 - (int)(_windowHeight / 40 + 1) * 40 - __delta * 40;
 
             int _nowFolderHeight = (NowFolders.Count + 1) / 2 * 40;
@@ -310,7 +300,7 @@ namespace OneGallery
                 else if (_addFolderHeight > _nowFolderHeight)
                 {
                     _addFolderHeight -= 40;
-                } 
+                }
                 else
                 {
                     _nowFolderHeight = _addFolderHeight -= 40;
@@ -470,7 +460,7 @@ namespace OneGallery
                             NameWrongInfo.IsOpen = true;
                             _delta++;
                         }
-                        else if(NowName != NameTextBox.Text)
+                        else if (NowName != NameTextBox.Text)
                         {
                             if (!MainWindow.Window.CheckAddFolderOrGalleryName(NameTextBox.Text))
                             {
@@ -498,7 +488,7 @@ namespace OneGallery
                             var _oldFolders = MainWindow.Window.MyPathConfig.GalleryToFolderListConfig[NowName];
                             var _newFolder = new List<string>();
 
-                            foreach ( var _item in AddFolders)
+                            foreach (var _item in AddFolders)
                             {
                                 if (_item is Category _folder)
                                 {
@@ -513,7 +503,7 @@ namespace OneGallery
                             else
                             {
                                 bool _flag = true;
-                                foreach ( var _item in _newFolder)
+                                foreach (var _item in _newFolder)
                                 {
                                     if (!_oldFolders.Contains(_item))
                                     {
@@ -581,7 +571,7 @@ namespace OneGallery
                     {
                         GalleryWrongInfo.IsOpen = false;
                         ChangeHeight(0);
-                    }       
+                    }
             }
         }
 

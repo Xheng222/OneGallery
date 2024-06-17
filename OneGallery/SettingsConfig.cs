@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace OneGallery
@@ -18,11 +12,11 @@ namespace OneGallery
 
         public int ChooseMode { get; set; }
 
-        public int SortMode {  get; set; }
+        public int SortMode { get; set; }
 
-        public bool IsAscending {  get; set; }
-        
-        public int ImageSizeMode {  get; set; }
+        public bool IsAscending { get; set; }
+
+        public int ImageSizeMode { get; set; }
 
         public int ImageZoomMode { get; set; }
 

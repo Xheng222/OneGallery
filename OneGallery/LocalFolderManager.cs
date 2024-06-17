@@ -6,11 +6,8 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.VisualBasic.FileIO;
-using Windows.ApplicationModel;
-using Windows.Foundation;
 using Windows.Storage;
 
 
@@ -26,15 +23,15 @@ namespace OneGallery
 
         public Category NowCategory { get; set; }
 
-        public PathConfig MyPathConfig {  get; set; }
+        public PathConfig MyPathConfig { get; set; }
 
         public SettingsConfig MySettingsConfig { get; set; }
 
         public ImageArrangement MyImageArrangement { get; set; }
 
         public Task InitFolderTask { get; set; } = Task.CompletedTask;
-       
-        public LocalFolderManager() 
+
+        public LocalFolderManager()
         {
             MyImageArrangement = new();
         }
@@ -56,7 +53,7 @@ namespace OneGallery
                 foreach (var _selectedItem in MyPathConfig.GalleryToFolderListConfig)
                 {
                     if (_selectedItem.Value.Contains(_folderName))
-                    {        
+                    {
                         lock (GallerySelectionToImgList[_selectedItem.Key])
                         {
                             GallerySelectionToImgList[_selectedItem.Key].Add(_tempImg);
@@ -121,7 +118,7 @@ namespace OneGallery
             if (LocalFolder.IsImage(e.Name))
             {
                 var _tempImage = LocalFolders[_folderName].ImageList.Find(x => x.ImageLocation == e.OldFullPath);
-                
+
                 if (_tempImage != null)
                 {
                     var _newName = e.Name.Split('\\').Last();
@@ -201,10 +198,10 @@ namespace OneGallery
                 {
                     if (_selectedItem.Value.Contains(_folderName))
                     {
-                        lock(GallerySelectionToImgList[_selectedItem.Key])
+                        lock (GallerySelectionToImgList[_selectedItem.Key])
                         {
                             GallerySelectionToImgList[_selectedItem.Key].Remove(_tempImg);
-                        }                    
+                        }
                     }
                 }
             }
@@ -258,7 +255,7 @@ namespace OneGallery
             Debug.Print("OnFolderExistEvent");
 
             string _folderName = sender as string;
-            
+
             foreach (var _selectedItem in MyPathConfig.GalleryToFolderListConfig)
             {
                 if (_selectedItem.Value.Contains(_folderName))
@@ -277,7 +274,7 @@ namespace OneGallery
                 foreach (var _item in LocalFolders[_folderName].ImageList)
                 {
                     HomPageImgList.Add(_item);
-                }          
+                }
             }
 
             if (NowCategory != null)
@@ -294,7 +291,7 @@ namespace OneGallery
                         MyImageArrangement.ImgListChanged();
                     });
                 }
-                
+
             }
 
         }
@@ -385,7 +382,7 @@ namespace OneGallery
 
             foreach (var _folder in LocalFolders.Values)
                 _folder.Close();
-            
+
             SaveImageConfigs();
         }
 
@@ -543,15 +540,15 @@ namespace OneGallery
             GallerySelectionToImgList.Add(_name, _tempList);
 
             var _folderNames = MyPathConfig.GalleryToFolderListConfig[_name];
-           
+
             foreach (var _item in _folderNames)
             {
                 lock (LocalFolders[_item].ImageList)
                 {
                     var _imageList = LocalFolders[_item].ImageList;
-                    foreach (var _image in _imageList) 
+                    foreach (var _image in _imageList)
                     {
-                        _tempList.Add(_image); 
+                        _tempList.Add(_image);
                     }
                 }
             }
@@ -611,7 +608,7 @@ namespace OneGallery
 
             lock (MyPathConfig.GalleryToFolderListConfig)
             {
-                foreach (var _item in  MyPathConfig.GalleryToFolderListConfig)
+                foreach (var _item in MyPathConfig.GalleryToFolderListConfig)
                 {
                     if (_item.Value.Contains(_name))
                     {

@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Windows.Storage.FileProperties;
 
 namespace OneGallery
 {
@@ -131,12 +123,12 @@ namespace OneGallery
             }
         }
 
-        public  void OnPropertyChanged_Stretch()
+        public void OnPropertyChanged_Stretch()
         {
             OnPropertyChanged(nameof(_nowStretch));
         }
 
-        public PictureClass(string _path, string _name, int _width, int _height, 
+        public PictureClass(string _path, string _name, int _width, int _height,
                             DateTime creatDate, DateTime lastEditDate, DateTime shootDate)
         {
             ImageLocation = _path;

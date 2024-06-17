@@ -1,36 +1,22 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.System;
 using Windows.UI;
-using Windows.UI.ApplicationSettings;
-using Windows.UI.Core;
-using Windows.UI.ViewManagement;
 using WinRT;
 using WinUIEx;
-using WinUIEx.Messaging;
 
 
 // To learn more about WinUI, the WinUI project structure,
@@ -218,13 +204,13 @@ namespace OneGallery
         {
             Task _gallery = InitAddCategories(Categories[3] as Category, MyPathConfig.GalleryToFolderListConfig.Keys.ToList(), false);
             Task _folder = InitAddCategories(Categories[5] as Category, MyPathConfig.FolderPathConfig.Keys.ToList(), true);
-            
+
             await _gallery;
             await _folder;
         }
 
         private static async Task InitAddCategories(Category _parent, List<string> _children, bool _isFolder)
-        { 
+        {
             foreach (var _child in _children)
             {
                 Category _temp = new()
@@ -271,7 +257,7 @@ namespace OneGallery
         }
 
         public static bool Is_Close = false;
-        
+
         public static MainWindow Window { set; get; }
 
         private void Window_Closed(object sender, WindowEventArgs args)
@@ -324,7 +310,7 @@ namespace OneGallery
                                  NavigationViewItemInvokedEventArgs args)
         {
             Type CurrentPage = Nv_page.CurrentSourcePageType;
-           
+
             if (CurrentPage != null)
             {
                 if (args.IsSettingsInvoked == true)
@@ -480,7 +466,7 @@ namespace OneGallery
                 else
                     Nv_grid.Width = Nv.ActualWidth - Nv.CompactPaneLength + 8;
             }
-                
+
             else
                 Nv_grid.Width = Nv.ActualWidth - Nv.CompactPaneLength + 8;
 
@@ -493,7 +479,7 @@ namespace OneGallery
             }
             else
                 if (Nv.PaneDisplayMode != NavigationViewPaneDisplayMode.Left)
-                    Nv.PaneDisplayMode = NavigationViewPaneDisplayMode.Left;
+                Nv.PaneDisplayMode = NavigationViewPaneDisplayMode.Left;
         }
 
 
@@ -513,14 +499,14 @@ namespace OneGallery
                     PageDictionary["ª≠¿»"].IsExpanded = MySettingsConfig.GalleryExpand;
                     break;
                 }
-                catch (Exception) 
+                catch (Exception)
                 {
                     await Task.Delay(100);
                 }
             }
 
             await InitFolderAndGallery();
-            FolderManager.InitFolder();            
+            FolderManager.InitFolder();
 
             if (Nv.SelectedItem is null)
             {
@@ -539,7 +525,7 @@ namespace OneGallery
                 if (Item is NavigationViewItem NaView)
                 {
                     var PageName = NaView.Tag.ToString();
-                    
+
                     if (!PageDictionary.ContainsKey(PageName))
                         PageDictionary.Add(PageName, NaView);
 
@@ -617,7 +603,7 @@ namespace OneGallery
             //await FolderManager.InitFolderTask;
 
             Category _temp = new()
-            { 
+            {
                 _name = _name,
                 IsFolder = true,
                 PageType = "ImageListPage",
@@ -658,7 +644,7 @@ namespace OneGallery
                 }
 
                 MyPathConfig.GalleryToFolderListConfig.Add(_name, _tempFolderList);
-                
+
                 FolderManager.AddNewGallery(_name);
             }
 
@@ -749,7 +735,7 @@ namespace OneGallery
 
         public bool ResetGallery(string _oldname, string _newName, List<string> _newFolders)
         {
-            ResetGallery(_oldname,_newName);
+            ResetGallery(_oldname, _newName);
             MyPathConfig.GalleryToFolderListConfig[_newName] = _newFolders;
             FolderManager.ResetGallery(_newName);
             return true;
@@ -875,7 +861,7 @@ namespace OneGallery
                 }
                 else
                 {
-                    if (_temp.Parameter is Category _c) 
+                    if (_temp.Parameter is Category _c)
                     {
                         if (_c == _tempParameter)
                         {
@@ -885,12 +871,12 @@ namespace OneGallery
                         {
                             _tempParameter = _c;
                         }
-                            
+
                     }
                 }
             }
-            
-            foreach (var _item in _removeList)  
+
+            foreach (var _item in _removeList)
                 Nv_page.BackStack.Remove(_item);
 
             Category _cat = Nv_page.BackStack.Last().Parameter as Category;
@@ -933,7 +919,7 @@ namespace OneGallery
                     return NULLTemplate;
                 }
 
-            } 
+            }
             else if (item is NavigationViewItemSeparator)
             {
                 return SeparatorTemplate;

@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using System.Drawing.Printing;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using WinUIEx;
@@ -65,7 +61,7 @@ namespace OneGallery
         private int GetImageHeight()
         {
             return NowImageSizeMode switch
-            { 
+            {
                 ImageSizeMode.Small => SettingPage.Height_Small[MySettingsConfig.ImageHeight_Small],
                 ImageSizeMode.Medium => SettingPage.Height_Meduim[MySettingsConfig.ImageHeight_Medium],
                 ImageSizeMode.Big => SettingPage.Height_Large[MySettingsConfig.ImageHeight_Large],
@@ -145,7 +141,7 @@ namespace OneGallery
                 SwitchImageSizeMode();
                 FolderManager.MyImageArrangement.SetImgSize(GetImageHeight(), Width);
                 ((ImageListPage)Nv_page.Content).MyActivityFeedLayout.MyInvalidateMeasure();
-                
+
                 await Task.Delay(400);
                 if (ImageSizeFlyout.IsOpen)
                     ImageSizeFlyout.Hide();
@@ -319,7 +315,7 @@ namespace OneGallery
                         NameEllipse.Opacity = 0;
                         break;
                     }
-                case SortMode.LastEditDate: 
+                case SortMode.LastEditDate:
                     {
                         ShootDateEllipse.Opacity = 0;
                         CreateDateEllipse.Opacity = 0;
@@ -597,7 +593,7 @@ namespace OneGallery
                         _delete.Add(_image);
                     }
                 }
-                foreach (var _image in  _delete)
+                foreach (var _image in _delete)
                 {
                     FolderManager.DeleteImg(_image);
                 }
@@ -611,9 +607,9 @@ namespace OneGallery
             get => SelectedCount;
             set
             {
-                SelectedCountChanged(value);                
+                SelectedCountChanged(value);
             }
-        } 
+        }
 
         private void SelectedCountChanged(int _newCount)
         {
@@ -635,7 +631,7 @@ namespace OneGallery
 
         private int ImageCount = 0;
 
-        public int _imageCount 
+        public int _imageCount
         {
             get => ImageCount;
             set
@@ -747,7 +743,7 @@ namespace OneGallery
 
                 if (_remain < More.Margin.Right + More.ActualWidth)
                 {
-                    More.IsEnabled=false;
+                    More.IsEnabled = false;
                 }
                 else
                 {

@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.UI.Xaml;
 using Windows.Foundation;
 
 namespace OneGallery
@@ -39,11 +34,11 @@ namespace OneGallery
 
         public void ImgListChanged()
         {
-            lock(ImgList)
+            lock (ImgList)
             {
                 int _count = ImgListForRepeater.Count;
 
-                for (int i = 0;  i < ImgList.Count; i++)
+                for (int i = 0; i < ImgList.Count; i++)
                 {
                     if (MainWindow.Is_Close)
                         return;
@@ -115,7 +110,7 @@ namespace OneGallery
                             {
                                 if (MainWindow.IsAscending)
                                 {
-                                    ImgList.Sort((x, y) => 
+                                    ImgList.Sort((x, y) =>
                                     {
                                         int _temp = x.CreatDate.CompareTo(y.CreatDate);
                                         if (_temp != 0)
@@ -123,16 +118,16 @@ namespace OneGallery
                                         else
                                         {
                                             _temp = x.LastEditDate.CompareTo(y.LastEditDate);
-                                            if (_temp != 0) 
+                                            if (_temp != 0)
                                                 return _temp;
                                             else
-                                                return x.Name.CompareTo(y.Name); 
-                                        }               
+                                                return x.Name.CompareTo(y.Name);
+                                        }
                                     });
                                 }
                                 else
                                 {
-                                    ImgList.Sort((x, y) => 
+                                    ImgList.Sort((x, y) =>
                                     {
                                         int _temp = -x.CreatDate.CompareTo(y.CreatDate);
                                         if (_temp != 0)
@@ -226,9 +221,9 @@ namespace OneGallery
                                     });
                                 }
 
-                                break; 
+                                break;
                             }
-                        case MainWindow.SortMode.Name: 
+                        case MainWindow.SortMode.Name:
                             {
                                 if (MainWindow.IsAscending)
                                 {
@@ -265,7 +260,7 @@ namespace OneGallery
                                     });
                                 }
 
-                                break; 
+                                break;
                             }
                     }
 
@@ -295,7 +290,7 @@ namespace OneGallery
 
             if (_acutualWidth > NowWidth)
                 _acutualWidth = NowWidth;
-            
+
 
             List<double> list;
 
@@ -341,13 +336,13 @@ namespace OneGallery
                 {
                     List<double> Wigthlist = TryPutImg(_imgIndex, NowWidth - ColSpacing);
 
-                    double _actualWidth = 0; 
-                
+                    double _actualWidth = 0;
+
                     foreach (var i in Wigthlist)
                     {
                         _actualWidth += i;
                     }
-                    
+
                     double zoom = (NowWidth - ColSpacing * Wigthlist.Count) / _actualWidth;
 
                     if (_imgIndex + Wigthlist.Count == ImgList.Count)
@@ -384,7 +379,7 @@ namespace OneGallery
 
                 for (int i = 1; i < RowFirstIndex_Default.Count; i++)
                 {
-                    _count = RowFirstIndex_Default[i] - RowFirstIndex_Default[i-1];
+                    _count = RowFirstIndex_Default[i] - RowFirstIndex_Default[i - 1];
                     RowImgCount_Default.Add(_count);
                 }
 
