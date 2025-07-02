@@ -665,10 +665,13 @@ namespace OneGallery
 
                 if (_mouseWheelDelta > 0)
                 {
-                    var _tempWidth = ImageBorder.Width + 600;
-                    _newZoom = (float)(_tempWidth / ImageBorder.Width * Zoom);
+                    var _tempWidth = ImageBorder.Width * 1.2;
+                    var _tempHeight = ImageBorder.Height * 1.2;
+                    _newZoom = (float)(1.2 * Zoom);
                     if (_newZoom <= 5)
                     {
+                        (ImageBorderUp.Children[0] as DoubleAnimation).To = _tempWidth;
+                        (ImageBorderUp.Children[1] as DoubleAnimation).To = _tempHeight;
                         ImageBorderUp.Begin();
 
                         await Task.Delay(500);
@@ -678,10 +681,13 @@ namespace OneGallery
                 }
                 else
                 {
-                    var _tempWidth = ImageBorder.Width - 600;
-                    _newZoom = (float)(_tempWidth / ImageBorder.Width * Zoom);
+                    var _tempWidth = ImageBorder.Width / 1.2;
+                    var _tempHeight = ImageBorder.Height / 1.2;
+                    _newZoom = (float)(Zoom / 1.2);
                     if (_newZoom >= 1)
                     {
+                        (ImageBorderDown.Children[0] as DoubleAnimation).To = _tempWidth;
+                        (ImageBorderDown.Children[1] as DoubleAnimation).To = _tempHeight;
                         ImageBorderDown.Begin();
 
                         await Task.Delay(500);

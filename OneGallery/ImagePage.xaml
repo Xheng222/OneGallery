@@ -49,11 +49,14 @@
                     HorizontalAlignment="Center" 
                     CanBeScrollAnchor="False"
                     Stretch="Uniform"        
-                    Loaded="image_Loaded" 
-                    Source="{x:Bind ChooseImage._imageLocation, Mode=OneWay}">
+                    Loaded="image_Loaded" >
+
+                    <Image.Source>
+                        <BitmapImage DecodePixelHeight="{x:Bind ChooseImage.Height, Mode=OneWay}" UriSource="{x:Bind ChooseImage._imageLocation, Mode=OneWay}" />
+                    </Image.Source>
                 </Image>                                
             </Viewbox>
-
+                    
 
         </ScrollViewer>
 
@@ -307,7 +310,7 @@
                     Storyboard.TargetName="ImageBorder"
                     Storyboard.TargetProperty="Width"
                     EnableDependentAnimation="True"
-                    By="600" Duration="0:0:1.5"     
+                    Duration="0:0:0.75"     
                     AutoReverse="False" >
                     <DoubleAnimation.EasingFunction>
                         <QuinticEase EasingMode="EaseOut" />
@@ -318,7 +321,7 @@
                 Storyboard.TargetName="ImageBorder"
                 Storyboard.TargetProperty="Height"
                 EnableDependentAnimation="True"
-                By="600" Duration="0:0:1.5" 
+                Duration="0:0:0.75" 
                 AutoReverse="False" >
                     <DoubleAnimation.EasingFunction>
                         <QuinticEase EasingMode="EaseOut" />
@@ -331,7 +334,7 @@
                 Storyboard.TargetName="ImageBorder"
                 Storyboard.TargetProperty="Width"
                 EnableDependentAnimation="True"
-                By="-600" Duration="0:0:1.5" 
+                Duration="0:0:0.75" 
                 AutoReverse="False" >
                     <DoubleAnimation.EasingFunction>
                         <QuinticEase EasingMode="EaseOut" />
@@ -342,7 +345,7 @@
                 Storyboard.TargetName="ImageBorder"
                 Storyboard.TargetProperty="Height"
                 EnableDependentAnimation="True"
-                By="-600" Duration="0:0:1.5" 
+                Duration="0:0:0.75" 
                 AutoReverse="False" >
                     <DoubleAnimation.EasingFunction>
                         <QuinticEase EasingMode="EaseOut" />

@@ -273,6 +273,7 @@ namespace OneGallery
             }
 
             SaveConfigs();
+            FolderManager.CloseFolder();
         }
 
         public void SaveConfigs()

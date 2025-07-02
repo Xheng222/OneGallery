@@ -380,9 +380,6 @@ namespace OneGallery
             MyPathConfig.StorePathConfig(_galleries, _folders);
             MySettingsConfig.StoreSettingsConfig(_lastWidth, _lastHeight);
 
-            foreach (var _folder in LocalFolders.Values)
-                _folder.Close();
-
             SaveImageConfigs();
         }
 
@@ -394,6 +391,12 @@ namespace OneGallery
                 SaveImageJson(_localFolder, _folder);
             }
 
+        }
+
+        public void CloseFolder()
+        {
+            foreach (var _folder in LocalFolders.Values)
+                _folder.Close();
         }
 
         private static async void SaveImageJson(LocalFolder _localFolder, StorageFolder _folder)

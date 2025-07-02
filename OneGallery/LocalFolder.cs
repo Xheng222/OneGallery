@@ -198,7 +198,7 @@ namespace OneGallery
         {
             var _suffix = _fileName.Split('.').Last();
             if (_suffix == "png" || _suffix == "jpg" || _suffix == "gif" ||
-                _suffix == "bmp" || _suffix == "tiff")
+                _suffix == "bmp" || _suffix == "tiff" || _suffix == "webp")
                 return true;
 
             return false;
@@ -451,8 +451,9 @@ namespace OneGallery
             {
                 try
                 {
-                    using Stream stream = File.OpenRead(_file.FullName);
-                    ImageInfo imageInfo = Image.Identify(stream);
+                    //using Stream stream = File.OpenRead(_file.FullName);
+                    //ImageInfo imageInfo = Image.Identify(stream);
+                    ImageInfo imageInfo = Image.Identify(_file.FullName);
 
                     if (imageInfo.Width != 0 && imageInfo.Height != 0)
                     {
@@ -492,12 +493,14 @@ namespace OneGallery
 
                     break;
                 }
-                catch (IOException)
+                catch (IOException e)
                 {
+                    Debug.Print("IOException " + e);
                     await Task.Delay(1000);
                 }
-                catch (UnauthorizedAccessException)
+                catch (UnauthorizedAccessException e)
                 {
+                    Debug.Print("UnauthorizedAccessException " + e);
                     await Task.Delay(1000);
                 }
                 catch (Exception)

@@ -60,7 +60,7 @@
                         Canvas.ZIndex="0" VerticalAlignment="Center" HorizontalAlignment="Center"
                         Stretch="{x:Bind _nowStretch, Mode=OneWay}" x:Phase="4">
                         <Image.Source>
-                            <BitmapImage DecodePixelHeight="300" UriSource="{x:Bind _imageLocation, Mode=OneWay}" />
+                            <BitmapImage UriSource="{x:Bind _imageLocation, Mode=OneWay}" />
                         </Image.Source>
                     </Image>
                 </Grid>
